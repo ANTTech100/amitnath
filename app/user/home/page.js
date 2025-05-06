@@ -406,12 +406,12 @@ export default function UserDashboard() {
             Get started by creating content from a template.
           </p>
           <div className="mt-6">
-            <a
+            <Link
               href="/user/tem"
               className="inline-flex items-center px-4 py-2 bg-purple-600 text-white font-medium rounded-xl hover:bg-purple-700 transition-colors duration-300"
             >
               Browse Templates
-            </a>
+            </Link>
           </div>
         </motion.div>
       </div>
