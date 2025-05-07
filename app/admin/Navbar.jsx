@@ -74,12 +74,12 @@ const AdminNavbar = () => {
                   />
                 </svg>
               </Link> */}
-              {/* <Link
-                href="/auth/logout"
+              <Link
+                href="/admin/register"
                 className="ml-4 px-3 py-2 rounded-md text-sm font-medium bg-red-600 hover:bg-red-700"
               >
-                Logout
-              </Link> */}
+                Register
+              </Link>
             </div>
           </div>
           <div className="md:hidden">

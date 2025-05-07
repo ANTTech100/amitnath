@@ -12,7 +12,7 @@ export default function AdminAuth() {
     email: "",
     password: "",
     confirmPassword: "",
-    adminCode: "", // Special code for admin registration
+    adminCode: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -43,10 +43,8 @@ export default function AdminAuth() {
       });
 
       setSuccess("Login successful!");
-      // Store token or admin data in localStorage or cookies
       localStorage.setItem("adminToken", response.data.token);
-      // Redirect to admin dashboard
-      router.push("/admin/dashboard");
+      router.push("/admin/hero");
     } catch (err) {
       setError(
         err.response?.data?.message || "Login failed. Please try again."
@@ -94,28 +92,30 @@ export default function AdminAuth() {
 
   return (
     <>
-      <AdminNavbar></AdminNavbar>
-      <div className="min-h-screen flex items-center justify-center bg-gray-800">
-        <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-          <h1 className="text-2xl font-bold text-center mb-6">Admin Portal</h1>
+      <AdminNavbar />
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="bg-gray-900 p-10 rounded-xl shadow-2xl w-full max-w-lg">
+          <h1 className="text-3xl font-bold text-center text-white mb-8">
+            Admin Portal
+          </h1>
 
           {/* Tabs */}
-          <div className="flex mb-6 border-b">
+          <div className="flex mb-8 border-b border-gray-700">
             <button
-              className={`flex-1 py-2 font-medium text-center ${
+              className={`flex-1 py-3 font-semibold text-center transition-colors duration-300 ${
                 activeTab === "login"
-                  ? "text-purple-600 border-b-2 border-purple-600"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "text-white border-b-2 border-white"
+                  : "text-gray-400 hover:text-gray-200"
               }`}
               onClick={() => handleTabChange("login")}
             >
               Login
             </button>
             <button
-              className={`flex-1 py-2 font-medium text-center ${
+              className={`flex-1 py-3 font-semibold text-center transition-colors duration-300 ${
                 activeTab === "register"
-                  ? "text-purple-600 border-b-2 border-purple-600"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "text-white border-b-2 border-white"
+                  : "text-gray-400 hover:text-gray-200"
               }`}
               onClick={() => handleTabChange("register")}
             >
@@ -125,13 +125,13 @@ export default function AdminAuth() {
 
           {/* Error and Success Messages */}
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-lg mb-6">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <div className="bg-green-900 border border-green-700 text-green-200 px-4 py-3 rounded-lg mb-6">
               {success}
             </div>
           )}
@@ -139,9 +139,9 @@ export default function AdminAuth() {
           {/* Login Form */}
           {activeTab === "login" && (
             <form onSubmit={handleLogin}>
-              <div className="mb-4">
+              <div className="mb-6">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="block text-gray-300 text-sm font-semibold mb-2"
                   htmlFor="email"
                 >
                   Email
@@ -152,14 +152,14 @@ export default function AdminAuth() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 bg-gray-800 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white transition duration-200"
                   required
                 />
               </div>
 
-              <div className="mb-6">
+              <div className="mb-8">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="block text-gray-300 text-sm font-semibold mb-2"
                   htmlFor="password"
                 >
                   Password
@@ -170,14 +170,14 @@ export default function AdminAuth() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 bg-gray-800 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white transition duration-200"
                   required
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                className="w-full bg-white text-black font-semibold py-3 px-4 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-300"
                 disabled={loading}
               >
                 {loading ? "Logging in..." : "Login"}
@@ -188,9 +188,9 @@ export default function AdminAuth() {
           {/* Register Form */}
           {activeTab === "register" && (
             <form onSubmit={handleRegister}>
-              <div className="mb-4">
+              <div className="mb-6">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="block text-gray-300 text-sm font-semibold mb-2"
                   htmlFor="name"
                 >
                   Full Name
@@ -201,14 +201,14 @@ export default function AdminAuth() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 bg-gray-800 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white transition duration-200"
                   required
                 />
               </div>
 
-              <div className="mb-4">
+              <div className="mb-6">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="block text-gray-300 text-sm font-semibold mb-2"
                   htmlFor="regEmail"
                 >
                   Email
@@ -219,14 +219,14 @@ export default function AdminAuth() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 bg-gray-800 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white transition duration-200"
                   required
                 />
               </div>
 
-              <div className="mb-4">
+              <div className="mb-6">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="block text-gray-300 text-sm font-semibold mb-2"
                   htmlFor="regPassword"
                 >
                   Password
@@ -237,14 +237,14 @@ export default function AdminAuth() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 bg-gray-800 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white transition duration-200"
                   required
                 />
               </div>
 
-              <div className="mb-4">
+              <div className="mb-6">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="block text-gray-300 text-sm font-semibold mb-2"
                   htmlFor="confirmPassword"
                 >
                   Confirm Password
@@ -255,14 +255,14 @@ export default function AdminAuth() {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 bg-gray-800 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white transition duration-200"
                   required
                 />
               </div>
 
-              <div className="mb-6">
+              <div className="mb-8">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="block text-gray-300 text-sm font-semibold mb-2"
                   htmlFor="adminCode"
                 >
                   Admin Registration Code
@@ -273,15 +273,15 @@ export default function AdminAuth() {
                   name="adminCode"
                   value={formData.adminCode}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 bg-gray-800 text-white border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white transition duration-200"
                   required
-                  placeholder="Enter the admin registration code"
+                  placeholder="Enter admin code"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                className="w-full bg-white text-black font-semibold py-3 px-4 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-300"
                 disabled={loading}
               >
                 {loading ? "Registering..." : "Register"}
