@@ -154,7 +154,8 @@ export default function AdminHome() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <AdminNavbar />
+      {/* <AdminNavbar /> */}
+      <AdminNavbar></AdminNavbar>
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         {/* Stats Section */}

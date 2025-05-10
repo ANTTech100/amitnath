@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Users, Shield, FileText, Trash2, Edit } from "lucide-react";
+import {
+  Users,
+  Shield,
+  FileText,
+  Trash2,
+  Edit,
+  MessageSquare,
+} from "lucide-react";
 import axios from "axios";
 
 export default function AdminDashboard() {
@@ -9,6 +16,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [admins, setAdmins] = useState([]);
   const [templates, setTemplates] = useState([]);
+  const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -42,6 +50,12 @@ export default function AdminDashboard() {
           console.log("Templates data:", data); // Debugging line
           setTemplates(Array.isArray(data) ? data : []);
           break;
+        case "reports":
+          response = await axios.get("/api/feedback");
+          data = response.data?.data;
+          console.log("Reports data:", data); // Debugging line
+          setReports(Array.isArray(data) ? data : []);
+          break;
       }
     } catch (err) {
       setError("Failed to fetch data. Please try again later.");
@@ -71,6 +85,18 @@ export default function AdminDashboard() {
       setError("Failed to delete admin");
       console.error("Error deleting admin:", err);
     }
+  };
+
+  // Format date for the reports section
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   const renderContent = () => {
@@ -259,6 +285,71 @@ export default function AdminDashboard() {
             )}
           </div>
         );
+      case "reports":
+        return (
+          <div className="overflow-x-auto">
+            <h2 className="text-2xl font-bold mb-6 text-white">
+              Admin Reports
+            </h2>
+            {reports.length === 0 ? (
+              <p className="text-purple-200">No reports found</p>
+            ) : (
+              <table className="min-w-full bg-white/10 backdrop-blur-lg rounded-lg overflow-hidden">
+                <thead className="bg-gradient-to-r from-purple-600 to-purple-800">
+                  <tr>
+                    <th className="py-3 px-6 text-left text-purple-100 font-semibold">
+                      Date
+                    </th>
+                    <th className="py-3 px-6 text-left text-purple-100 font-semibold">
+                      Admin ID
+                    </th>
+                    <th className="py-3 px-6 text-left text-purple-100 font-semibold">
+                      Topic
+                    </th>
+                    <th className="py-3 px-6 text-left text-purple-100 font-semibold">
+                      Details
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reports.map((report) => (
+                    <tr
+                      key={report._id}
+                      className="border-b border-purple-700/30 hover:bg-purple-900/20 transition-colors"
+                    >
+                      <td className="py-4 px-6 text-purple-200">
+                        {formatDate(report.createdAt)}
+                      </td>
+                      <td className="py-4 px-6 text-purple-200">
+                        {report.adminid}
+                      </td>
+                      <td className="py-4 px-6 text-purple-200">
+                        {report.topic}
+                      </td>
+                      <td className="py-4 px-6">
+                        <button
+                          onClick={() => {
+                            // Open modal or expand details here
+                            alert(`
+                              Changes: ${report.changes || "None"}
+                              
+                              Updates: ${report.updates || "None"}
+                              
+                              Feedback: ${report.feedback || "None"}
+                            `);
+                          }}
+                          className="p-2 text-purple-300 hover:text-purple-200 hover:bg-purple-700/20 rounded-full transition-all duration-200"
+                        >
+                          <MessageSquare size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        );
       default:
         return null;
     }
@@ -267,7 +358,7 @@ export default function AdminDashboard() {
   return (
     <div className="container mx-auto p-6 min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900">
       <h1 className="text-3xl font-bold mb-8 text-white drop-shadow-lg">
-        Admin Dashboard
+        Super Admin Dashboard
       </h1>
 
       <div className="mb-8">
@@ -304,6 +395,17 @@ export default function AdminDashboard() {
           >
             <FileText size={20} className="mr-3" />
             Templates
+          </button>
+          <button
+            className={`flex items-center px-6 py-3 font-medium text-lg transition-all duration-200 ${
+              activeTab === "reports"
+                ? "text-white bg-gradient-to-r from-purple-600 to-purple-700 rounded-t-lg"
+                : "text-purple-300 hover:text-white hover:bg-purple-700/30"
+            }`}
+            onClick={() => setActiveTab("reports")}
+          >
+            <MessageSquare size={20} className="mr-3" />
+            Reports
           </button>
         </div>
       </div>

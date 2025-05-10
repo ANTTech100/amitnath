@@ -221,9 +221,6 @@ export default function ContentUploadPage({ params }) {
       }
 
       setSuccess("Content created successfully!");
-      setTimeout(() => {
-        router.push(`/content/view/${data.data._id}`);
-      }, 1500);
     } catch (err) {
       console.error("Error submitting content:", err);
       setErrors({

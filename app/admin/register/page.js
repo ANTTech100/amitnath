@@ -43,7 +43,7 @@ export default function AdminAuth() {
       });
 
       setSuccess("Login successful!");
-      localStorage.setItem("adminToken", response.data.token);
+      localStorage.setItem("adminToken", response.data.adminid);
       router.push("/admin/hero");
     } catch (err) {
       setError(

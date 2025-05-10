@@ -37,7 +37,8 @@ export async function POST(request) {
     await admin.save();
 
     return NextResponse.json(
-      { message: "Admin registered successfully" },
+      { adminid: admin._id, message: "Admin registered successfully" },
+
       { status: 201 }
     );
   } catch (error) {

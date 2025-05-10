@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import UserNavbar from "../../Header";
 
 export default function Page({ params }) {
   const [userData, setUserData] = useState(null);
@@ -65,26 +66,29 @@ export default function Page({ params }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-      <div className="bg-gray-800 p-8 rounded-xl shadow-lg border border-purple-500/30 max-w-md w-full">
-        <h1 className="text-3xl font-bold text-center text-purple-100 mb-6">
-          User Profile
-        </h1>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-300">
-              Full Name
-            </label>
-            <p className="text-gray-200 text-lg">{userData.fullName}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-300">
-              Email
-            </label>
-            <p className="text-gray-200 text-lg">{userData.email}</p>
+    <>
+      <UserNavbar></UserNavbar>
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="bg-gray-800 p-8 rounded-xl shadow-lg border border-purple-500/30 max-w-md w-full">
+          <h1 className="text-3xl font-bold text-center text-purple-100 mb-6">
+            User Profile
+          </h1>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300">
+                Full Name
+              </label>
+              <p className="text-gray-200 text-lg">{userData.fullName}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300">
+                Email
+              </label>
+              <p className="text-gray-200 text-lg">{userData.email}</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

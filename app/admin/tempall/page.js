@@ -14,6 +14,7 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
+import AdminNavbar from "../Navbar";
 
 export default function TemplateList() {
   const router = useRouter();
@@ -108,165 +109,171 @@ export default function TemplateList() {
         <title>Templates | Admin Dashboard</title>
       </Head>
 
-      <div className="py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-semibold text-gray-900">Templates</h1>
-            <button
-              onClick={() => router.push("/admin/temp")}
-              className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Create Template
-            </button>
-          </div>
-
-          {error && (
-            <div className="mt-4 bg-red-50 border-l-4 border-red-400 p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <XCircle className="h-5 w-5 text-red-400" />
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
-              </div>
+      <>
+        {" "}
+        <AdminNavbar></AdminNavbar>
+        <div className="py-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center">
+              <h1 className="text-2xl font-semibold text-gray-900">
+                Templates
+              </h1>
+              <button
+                onClick={() => router.push("/admin/temp")}
+                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Create Template
+              </button>
             </div>
-          )}
 
-          <div className="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
-            <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                <h3 className="text-lg leading-6 font-medium text-gray-900">
-                  All Templates
-                </h3>
-                <div className="mt-3 sm:mt-0 flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0">
-                  <div className="relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Search className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="text"
-                      className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                      placeholder="Search templates"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+            {error && (
+              <div className="mt-4 bg-red-50 border-l-4 border-red-400 p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <XCircle className="h-5 w-5 text-red-400" />
                   </div>
-                  <select
-                    className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                  >
-                    <option value="all">All Statuses</option>
-                    <option value="draft">Drafts</option>
-                    <option value="published">Published</option>
-                    <option value="archived">Archived</option>
-                  </select>
+                  <div className="ml-3">
+                    <p className="text-sm text-red-700">{error}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="overflow-x-auto">
-              {loading ? (
-                <div className="py-12 text-center">
-                  <svg
-                    className="animate-spin h-8 w-8 mx-auto text-indigo-500"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
+            )}
+
+            <div className="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
+              <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">
+                    All Templates
+                  </h3>
+                  <div className="mt-3 sm:mt-0 flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0">
+                    <div className="relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Search className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        type="text"
+                        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                        placeholder="Search templates"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+                    <select
+                      className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                      value={filterStatus}
+                      onChange={(e) => setFilterStatus(e.target.value)}
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="draft">Drafts</option>
+                      <option value="published">Published</option>
+                      <option value="archived">Archived</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                {loading ? (
+                  <div className="py-12 text-center">
+                    <svg
+                      className="animate-spin h-8 w-8 mx-auto text-indigo-500"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    <p className="mt-2 text-gray-500">Loading templates...</p>
+                  </div>
+                ) : filteredTemplates.length === 0 ? (
+                  <div className="text-center py-12">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="mx-auto h-12 w-12 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
                       stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  <p className="mt-2 text-gray-500">Loading templates...</p>
-                </div>
-              ) : filteredTemplates.length === 0 ? (
-                <div className="text-center py-12">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="mx-auto h-12 w-12 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V7a2 2 0 012-2h10a2 2 0 012 2v12a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  <p className="mt-2 text-gray-500">No templates found</p>
-                </div>
-              ) : (
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Name
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Status
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredTemplates.map((template) => (
-                      <tr key={template._id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {template.name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {getStatusBadge(template.status)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <button
-                            onClick={() =>
-                              router.push(`/admin/tempall/${template._id}`)
-                            }
-                            className="text-indigo-600 hover:text-indigo-900"
-                          >
-                            <Edit className="h-5 w-5" />
-                          </button>
-                          <button
-                            onClick={() => deleteTemplate(template._id)}
-                            className="ml-2 text-red-600 hover:text-red-900"
-                          >
-                            <Trash className="h-5 w-5" />
-                          </button>
-                        </td>
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V7a2 2 0 012-2h10a2 2 0 012 2v12a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    <p className="mt-2 text-gray-500">No templates found</p>
+                  </div>
+                ) : (
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Name
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Status
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Actions
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredTemplates.map((template) => (
+                        <tr key={template._id}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {template.name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {getStatusBadge(template.status)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <button
+                              onClick={() =>
+                                router.push(`/admin/tempall/${template._id}`)
+                              }
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              <Edit className="h-5 w-5" />
+                            </button>
+                            <button
+                              onClick={() => deleteTemplate(template._id)}
+                              className="ml-2 text-red-600 hover:text-red-900"
+                            >
+                              <Trash className="h-5 w-5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </>
     </div>
   );
 }

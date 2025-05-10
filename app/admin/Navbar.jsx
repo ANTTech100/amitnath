@@ -38,7 +38,7 @@ const AdminNavbar = () => {
                 </Link>
 
                 <Link
-                  href="/admin/reports"
+                  href="/admin/feedback"
                   className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700"
                 >
                   Reports
