@@ -59,6 +59,8 @@ const templateSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     description: { type: String, default: "" },
+    heading: { type: String, default: "" }, // Moved here
+    subheading: { type: String, default: "" }, // Moving here
     type: {
       type: String,
       required: true,
@@ -67,7 +69,6 @@ const templateSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      // required: true,
       enum: ["draft", "published", "archived"],
       default: "draft",
     },

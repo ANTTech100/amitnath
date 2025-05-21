@@ -13,7 +13,7 @@ export default function ContentUploadPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [template, setTemplate] = useState(null);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({ heading: "", subheading: "" });
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState(null);
   const [filePreviews, setFilePreviews] = useState({});
@@ -44,7 +44,7 @@ export default function ContentUploadPage({ params }) {
       }
       setTemplate(data.data);
 
-      const initialFormData = {};
+      const initialFormData = { heading: "", subheading: "" };
       const initialInputTypes = {};
       if (data.data.sections) {
         data.data.sections.forEach((section) => {
@@ -62,7 +62,27 @@ export default function ContentUploadPage({ params }) {
     }
   };
 
-  const validateField = (section, value, file) => {
+  const validateField = (key, value, file) => {
+    if (key === "heading" || key === "subheading") {
+      if (!value) {
+        return `${key.charAt(0).toUpperCase() + key.slice(1)} is required`;
+      }
+      if (value.length < 3) {
+        return `${
+          key.charAt(0).toUpperCase() + key.slice(1)
+        } must be at least 3 characters`;
+      }
+      if (value.length > 100) {
+        return `${
+          key.charAt(0).toUpperCase() + key.slice(1)
+        } must be at most 100 characters`;
+      }
+      return null;
+    }
+
+    const section = template.sections.find((s) => s.id === key);
+    if (!section) return null;
+
     const { config } = section;
     if (section.required && !value && !file) {
       return `${section.title} is required`;
@@ -135,25 +155,24 @@ export default function ContentUploadPage({ params }) {
     return null;
   };
 
-  const handleInputChange = (e, sectionId, isFile = false) => {
-    const section = template.sections.find((s) => s.id === sectionId);
-    let value = isFile ? e.target.files[0] : e.target.value;
+  const handleInputChange = (e, key, isFile = false) => {
+    const value = isFile ? e.target.files[0] : e.target.value;
 
     if (isFile) {
-      setFormData({ ...formData, [sectionId]: value });
-      const error = validateField(section, "", value);
-      setErrors((prev) => ({ ...prev, [sectionId]: error }));
+      setFormData({ ...formData, [key]: value });
+      const error = validateField(key, "", value);
+      setErrors((prev) => ({ ...prev, [key]: error }));
 
       if (value) {
         const url = URL.createObjectURL(value);
-        setFilePreviews((prev) => ({ ...prev, [sectionId]: url }));
+        setFilePreviews((prev) => ({ ...prev, [key]: url }));
       } else {
-        setFilePreviews((prev) => ({ ...prev, [sectionId]: null }));
+        setFilePreviews((prev) => ({ ...prev, [key]: null }));
       }
     } else {
-      setFormData({ ...formData, [sectionId]: value });
-      const error = validateField(section, value, null);
-      setErrors((prev) => ({ ...prev, [sectionId]: error }));
+      setFormData({ ...formData, [key]: value });
+      const error = validateField(key, value, null);
+      setErrors((prev) => ({ ...prev, [key]: error }));
     }
   };
 
@@ -171,16 +190,22 @@ export default function ContentUploadPage({ params }) {
     setSuccess(null);
 
     const newErrors = {};
+
+    // Validate heading and subheading
+    ["heading", "subheading"].forEach((key) => {
+      const error = validateField(key, formData[key], null);
+      if (error) newErrors[key] = error;
+    });
+
+    // Validate sections
     template.sections.forEach((section) => {
       const value = formData[section.id];
       const error = validateField(
-        section,
+        section.id,
         typeof value === "string" ? value : "",
         typeof value !== "string" ? value : null
       );
-      if (error) {
-        newErrors[section.id] = error;
-      }
+      if (error) newErrors[section.id] = error;
     });
 
     if (Object.keys(newErrors).length > 0) {
@@ -192,12 +217,8 @@ export default function ContentUploadPage({ params }) {
     try {
       const submissionData = new FormData();
       submissionData.append("templateId", templateId);
-
-      // Log FormData contents for debugging
-      console.log("FormData contents:");
-      for (let [key, value] of submissionData.entries()) {
-        console.log(`${key}:`, value instanceof File ? value.name : value);
-      }
+      submissionData.append("heading", formData.heading);
+      submissionData.append("subheading", formData.subheading);
 
       template.sections.forEach((section) => {
         const value = formData[section.id];
@@ -214,13 +235,17 @@ export default function ContentUploadPage({ params }) {
       });
 
       const data = await response.json();
-      console.log("Server response:", data); // Log server response for debugging
+      console.log("Server response:", data);
 
       if (!response.ok) {
         throw new Error(data.message || `Server error: ${response.status}`);
       }
 
       setSuccess("Content created successfully!");
+      setTimeout(
+        () => router.push(`/layouts/layoutone/${data.data._id}`),
+        1500
+      ); // Redirect to layoutone with contentId
     } catch (err) {
       console.error("Error submitting content:", err);
       setErrors({
@@ -357,6 +382,61 @@ export default function ContentUploadPage({ params }) {
             onSubmit={handleSubmit}
             className="space-y-6"
           >
+            {/* Heading and Subheading Inputs */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gray-800 p-6 rounded-xl shadow-lg border border-purple-500/30"
+            >
+              <h3 className="text-xl font-semibold text-purple-200 mb-4">
+                Content Details
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-gray-300 mb-2" htmlFor="heading">
+                    Heading
+                  </label>
+                  <input
+                    id="heading"
+                    type="text"
+                    className="w-full p-3 bg-gray-900 border border-purple-500/30 rounded-xl text-gray-200 focus:ring-purple-500 focus:border-purple-500"
+                    value={formData.heading}
+                    onChange={(e) => handleInputChange(e, "heading")}
+                    placeholder="Enter the heading for this content"
+                    required
+                  />
+                  {errors.heading && (
+                    <p className="mt-2 text-sm text-red-400">
+                      {errors.heading}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label
+                    className="block text-gray-300 mb-2"
+                    htmlFor="subheading"
+                  >
+                    Subheading
+                  </label>
+                  <input
+                    id="subheading"
+                    type="text"
+                    className="w-full p-3 bg-gray-900 border border-purple-500/30 rounded-xl text-gray-200 focus:ring-purple-500 focus:border-purple-500"
+                    value={formData.subheading}
+                    onChange={(e) => handleInputChange(e, "subheading")}
+                    placeholder="Enter the subheading for this content"
+                    required
+                  />
+                  {errors.subheading && (
+                    <p className="mt-2 text-sm text-red-400">
+                      {errors.subheading}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Sections */}
             {template?.sections
               ?.sort((a, b) => a.order - b.order)
               .map((section) => (

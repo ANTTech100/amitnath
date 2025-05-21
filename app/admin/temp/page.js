@@ -15,6 +15,8 @@ export default function CreateTemplate() {
   const [template, setTemplate] = useState({
     name: "",
     description: "",
+    heading: "", // Added heading
+    subheading: "", // Added subheading
     type: "basic",
     status: "draft",
     sections: [],
@@ -198,7 +200,7 @@ export default function CreateTemplate() {
         // Redirect to template list after a delay
         if (status === "published") {
           setTimeout(() => {
-            router.push("/admin/templall");
+            router.push("/admin/hero");
           }, 2000);
         }
       }
@@ -673,6 +675,44 @@ export default function CreateTemplate() {
                       </option>
                     ))}
                   </select>
+                </div>
+                <div>
+                  <label
+                    htmlFor="heading"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Heading
+                  </label>
+                  <input
+                    type="text"
+                    name="heading"
+                    id="heading"
+                    className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    value={template.heading}
+                    onChange={(e) =>
+                      handleTemplateChange("heading", e.target.value)
+                    }
+                    placeholder="Enter a heading for the template"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="subheading"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Subheading
+                  </label>
+                  <input
+                    type="text"
+                    name="subheading"
+                    id="subheading"
+                    className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    value={template.subheading}
+                    onChange={(e) =>
+                      handleTemplateChange("subheading", e.target.value)
+                    }
+                    placeholder="Enter a subheading for the template"
+                  />
                 </div>
                 <div className="sm:col-span-2">
                   <label

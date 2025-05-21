@@ -21,11 +21,23 @@ export async function POST(request) {
     // Log parsed data for debugging
     console.log("Parsed FormData fields:", fields);
 
-    // Extract templateId
+    // Extract templateId, heading, and subheading
     const templateId = fields.templateId;
+    const heading = fields.heading;
+    const subheading = fields.subheading;
+
+    // Validate templateId
     if (!mongoose.Types.ObjectId.isValid(templateId)) {
       return NextResponse.json(
         { success: false, message: "Invalid template ID" },
+        { status: 400 }
+      );
+    }
+
+    // Validate heading and subheading
+    if (!heading || !subheading) {
+      return NextResponse.json(
+        { success: false, message: "Heading and Subheading are required" },
         { status: 400 }
       );
     }
@@ -42,8 +54,10 @@ export async function POST(request) {
     // Prepare content data
     const contentData = {
       templateId,
+      heading, // Add heading
+      subheading, // Add subheading
       sections: {},
-      createdBy: "644f1a9e4c98e80016d1e8b5", // Hardcoded as in your template route
+      createdBy: "644f1a9e4c98e80016d1e8b5", // Hardcoded as per your original code
       updatedBy: "644f1a9e4c98e80016d1e8b5",
     };
 

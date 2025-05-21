@@ -6,6 +6,16 @@ const contentSchema = new mongoose.Schema({
     ref: "Template",
     required: true,
   },
+  heading: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  subheading: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   sections: {
     type: Map,
     of: {
