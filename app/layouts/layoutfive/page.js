@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Head from "next/head";
 
-export default function LandingPageCards() {
+export default function TestimonialSectionCards() {
   const [contents, setContents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -27,22 +27,24 @@ export default function LandingPageCards() {
 
         console.log("Templates List:", templateData.data);
 
-        // Step 2: Find the "Landing Page" template
-        console.log("Searching for template named 'Landing Page'...");
-        const landingPageTemplate = templateData.data.find((template) => {
-          console.log(
-            `Comparing template name: "${template.name}" with "Landing Page"`
-          );
-          return template.name === "Landing page";
-        });
+        // Step 2: Find the "Testimonial Section" template
+        console.log("Searching for template named 'Testimonial Section'...");
+        const testimonialSectionTemplate = templateData.data.find(
+          (template) => {
+            console.log(
+              `Comparing template name: "${template.name}" with "Testimonial Section"`
+            );
+            return template.name === "Testimonial Section";
+          }
+        );
 
-        if (!landingPageTemplate) {
-          console.log("Template 'Landing Page' not found in the data.");
-          throw new Error("Template 'Landing Page' not found");
+        if (!testimonialSectionTemplate) {
+          console.log("Template 'Testimonial Section' not found in the data.");
+          throw new Error("Template 'Testimonial Section' not found");
         }
 
-        console.log("Found Template:", landingPageTemplate);
-        const templateId = landingPageTemplate._id;
+        console.log("Found Template:", testimonialSectionTemplate);
+        const templateId = testimonialSectionTemplate._id;
         console.log("Template ID:", templateId);
 
         // Step 3: Fetch content associated with this templateId
@@ -89,7 +91,9 @@ export default function LandingPageCards() {
   }, []);
 
   const handleCardClick = (id) => {
-    router.push(`/layouts/layoutone/${id}`);
+    // Redirect to the detail page with the content _id
+    // We'll let the user select the guide on the detail page
+    router.push(`/layouts/layoutfive/${id}`);
   };
 
   // Array of gradient background colors for cards
@@ -164,11 +168,14 @@ export default function LandingPageCards() {
     <div className="bg-gradient-to-br from-teal-900 to-gray-800 py-16 px-4 sm:px-6 lg:px-8 min-h-screen">
       <div className="max-w-5xl mx-auto">
         <Head>
-          <title>Landing Pages</title>
-          <meta name="description" content="Explore our Landing Pages!" />
+          <title>Testimonial Sections</title>
+          <meta
+            name="description"
+            content="Explore our Testimonial Sections!"
+          />
         </Head>
         <h1 className="text-5xl sm:text-6xl font-extrabold text-teal-100 mb-12 text-center leading-tight animate-fade-in">
-          Landing Pages
+          Testimonial Sections
         </h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 animate-fade-in-delayed">
           {contents.map((content, index) => (

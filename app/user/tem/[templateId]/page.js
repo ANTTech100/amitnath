@@ -242,10 +242,7 @@ export default function ContentUploadPage({ params }) {
       }
 
       setSuccess("Content created successfully!");
-      setTimeout(
-        () => router.push(`/layouts/layoutone/${data.data._id}`),
-        1500
-      ); // Redirect to layoutone with contentId
+      setTimeout(() => router.push(`/publish`), 1500); // Redirect to layoutone with contentId
     } catch (err) {
       console.error("Error submitting content:", err);
       setErrors({

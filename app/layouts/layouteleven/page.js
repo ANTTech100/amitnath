@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Head from "next/head";
 
-export default function LandingPageCards() {
+export default function PaymentPageCards() {
   const [contents, setContents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -27,22 +27,22 @@ export default function LandingPageCards() {
 
         console.log("Templates List:", templateData.data);
 
-        // Step 2: Find the "Landing Page" template
-        console.log("Searching for template named 'Landing Page'...");
-        const landingPageTemplate = templateData.data.find((template) => {
+        // Step 2: Find the "form" template
+        console.log("Searching for template named 'form'...");
+        const paymentPageTemplate = templateData.data.find((template) => {
           console.log(
-            `Comparing template name: "${template.name}" with "Landing Page"`
+            `Comparing template name: "${template.name}" with "form"`
           );
-          return template.name === "Landing page";
+          return template.name === "form";
         });
 
-        if (!landingPageTemplate) {
-          console.log("Template 'Landing Page' not found in the data.");
-          throw new Error("Template 'Landing Page' not found");
+        if (!paymentPageTemplate) {
+          console.log("Template 'form' not found in the data.");
+          throw new Error("Template 'form' not found");
         }
 
-        console.log("Found Template:", landingPageTemplate);
-        const templateId = landingPageTemplate._id;
+        console.log("Found Template:", paymentPageTemplate);
+        const templateId = paymentPageTemplate._id;
         console.log("Template ID:", templateId);
 
         // Step 3: Fetch content associated with this templateId
@@ -89,7 +89,7 @@ export default function LandingPageCards() {
   }, []);
 
   const handleCardClick = (id) => {
-    router.push(`/layouts/layoutone/${id}`);
+    router.push(`/layouts/layouteleven/${id}`);
   };
 
   // Array of gradient background colors for cards
@@ -102,10 +102,10 @@ export default function LandingPageCards() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-900 to-gray-800">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100">
         <div className="text-center">
           <svg
-            className="animate-spin h-12 w-12 text-teal-400 mx-auto mb-4"
+            className="animate-spin h-12 w-12 text-blue-600 mx-auto mb-4"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -124,7 +124,7 @@ export default function LandingPageCards() {
               d="M4 12a8 8 0 018-8v8H4z"
             />
           </svg>
-          <p className="text-xl font-medium text-teal-100">Loading...</p>
+          <p className="text-xl font-medium text-gray-800">Loading...</p>
         </div>
       </div>
     );
@@ -132,8 +132,8 @@ export default function LandingPageCards() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-900 to-gray-800">
-        <div className="bg-gray-800 p-10 rounded-xl shadow-lg max-w-md w-full text-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100">
+        <div className="bg-white p-10 rounded-xl shadow-lg max-w-md w-full text-center">
           <svg
             className="h-14 w-14 text-red-500 mx-auto mb-4"
             xmlns="http://www.w3.org/2000/svg"
@@ -148,10 +148,10 @@ export default function LandingPageCards() {
               d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <p className="text-xl font-medium text-red-500 mb-6">{error}</p>
+          <p className="text-xl Hh font-medium text-red-500 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-teal-500 text-white font-semibold rounded-lg shadow-md hover:bg-teal-600 transition"
+            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition"
           >
             Retry
           </button>
@@ -161,14 +161,14 @@ export default function LandingPageCards() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-teal-900 to-gray-800 py-16 px-4 sm:px-6 lg:px-8 min-h-screen">
+    <div className="bg-gradient-to-br from-blue-50 to-gray-100 py-16 px-4 sm:px-6 lg:px-8 min-h-screen">
       <div className="max-w-5xl mx-auto">
         <Head>
-          <title>Landing Pages</title>
-          <meta name="description" content="Explore our Landing Pages!" />
+          <title>Form Pages</title>
+          <meta name="description" content="Explore our Form Pages!" />
         </Head>
-        <h1 className="text-5xl sm:text-6xl font-extrabold text-teal-100 mb-12 text-center leading-tight animate-fade-in">
-          Landing Pages
+        <h1 className="text-5xl sm:text-6xl font-extrabold text-gray-900 mb-12 text-center leading-tight animate-fade-in">
+          Form Pages
         </h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 animate-fade-in-delayed">
           {contents.map((content, index) => (
