@@ -4,6 +4,10 @@ import { useRouter } from "next/navigation";
 import Head from "next/head";
 
 export default function PaymentPageCards() {
+  // ========== CONFIGURATION ==========
+  const TEMPLATE_NAME = "MainThankyou Page"; // Change this to match different templates
+  // ===================================
+
   const [contents, setContents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -27,18 +31,18 @@ export default function PaymentPageCards() {
 
         console.log("Templates List:", templateData.data);
 
-        // Step 2: Find the "MainThankyou Page" template
-        console.log("Searching for template named 'MainThankyou Page'...");
+        // Step 2: Find the specified template
+        console.log(`Searching for template named '${TEMPLATE_NAME}'...`);
         const paymentPageTemplate = templateData.data.find((template) => {
           console.log(
-            `Comparing template name: "${template.name}" with "MainThankyou Page"`
+            `Comparing template name: "${template.name}" with "${TEMPLATE_NAME}"`
           );
-          return template.name === "MainThankyou Page";
+          return template.name === TEMPLATE_NAME;
         });
 
         if (!paymentPageTemplate) {
-          console.log("Template 'MainThankyou Page' not found in the data.");
-          throw new Error("Template 'MainThankyou Page' not found");
+          console.log(`Template '${TEMPLATE_NAME}' not found in the data.`);
+          throw new Error(`Template '${TEMPLATE_NAME}' not found`);
         }
 
         console.log("Found Template:", paymentPageTemplate);
@@ -58,9 +62,17 @@ export default function PaymentPageCards() {
 
         console.log("All Content Entries:", contentData.content);
 
-        // Step 4: Filter content by templateId
+        // Step 4: Filter content by templateId (with null check)
         console.log(`Filtering content for templateId: ${templateId}`);
         const filteredContents = contentData.content.filter((content) => {
+          // Add null check for templateId
+          if (!content.templateId || content.templateId === null) {
+            console.log(
+              `Content ID: ${content._id}, Template ID: null, Matches: false`
+            );
+            return false;
+          }
+
           const contentTemplateId = content.templateId._id;
           const matches =
             contentTemplateId.toString() === templateId.toString();
@@ -92,39 +104,24 @@ export default function PaymentPageCards() {
     router.push(`/layouts/layoutnine/${id}`);
   };
 
-  // Array of gradient background colors for cards
-  const gradientColors = [
-    "bg-gradient-to-br from-teal-500 to-teal-800",
-    "bg-gradient-to-br from-indigo-500 to-indigo-800",
-    "bg-gradient-to-br from-purple-500 to-purple-800",
-    "bg-gradient-to-br from-blue-500 to-blue-800",
-  ];
+  // Helper function to format dates
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <svg
-            className="animate-spin h-12 w-12 text-blue-600 mx-auto mb-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8H4z"
-            />
-          </svg>
-          <p className="text-xl font-medium text-gray-800">Loading...</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-lg font-medium text-gray-600">
+            Loading payment pages...
+          </p>
         </div>
       </div>
     );
@@ -132,28 +129,32 @@ export default function PaymentPageCards() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100">
-        <div className="bg-white p-10 rounded-xl shadow-lg max-w-md w-full text-center">
-          <svg
-            className="h-14 w-14 text-red-500 mx-auto mb-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <p className="text-xl font-medium text-red-500 mb-6">{error}</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center border border-red-100">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+              className="w-8 h-8 text-red-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Something went wrong
+          </h3>
+          <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition"
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
           >
-            Retry
+            Try Again
           </button>
         </div>
       </div>
@@ -161,30 +162,158 @@ export default function PaymentPageCards() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-gray-100 py-16 px-4 sm:px-6 lg:px-8 min-h-screen">
-      <div className="max-w-5xl mx-auto">
-        <Head>
-          <title>Thank You Pages</title>
-          <meta name="description" content="Explore our Thank You Pages!" />
-        </Head>
-        <h1 className="text-5xl sm:text-6xl font-extrabold text-gray-900 mb-12 text-center leading-tight animate-fade-in">
-          Thank You Pages
-        </h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 animate-fade-in-delayed">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Header Section */}
+      <div className="bg-slate-800/60 backdrop-blur-sm border-b border-slate-700/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-white mb-4">
+              {TEMPLATE_NAME} Templates
+            </h1>
+            <p className="mt-4 text-xl text-slate-300 max-w-2xl mx-auto">
+              Browse and manage your payment page templates with ease.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Cards Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {contents.map((content, index) => (
             <div
               key={content._id}
-              className={`${
-                gradientColors[index % gradientColors.length]
-              } rounded-xl shadow-lg p-6 flex items-center justify-center h-48 cursor-pointer transition-transform duration-300 hover:scale-105`}
+              className="bg-slate-800/70 backdrop-blur-sm rounded-xl shadow-lg border border-slate-700/30 p-6 hover:shadow-xl hover:bg-slate-800/80 transition-all duration-300 cursor-pointer group hover:scale-[1.02]"
               onClick={() => handleCardClick(content._id)}
             >
-              <h2 className="text-2xl font-semibold text-white text-center">
-                {content.heading}
-              </h2>
+              {/* Card Header */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-blue-100/80 rounded-lg flex items-center justify-center group-hover:bg-blue-200/80 transition-colors">
+                  <svg
+                    className="w-6 h-6 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                    />
+                  </svg>
+                </div>
+                <span className="text-xs text-slate-300 bg-green-600/80 px-2 py-1 rounded-full">
+                  Active
+                </span>
+              </div>
+
+              {/* Card Content */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors">
+                  {content.heading}
+                </h3>
+                <p className="text-slate-300 text-sm line-clamp-2">
+                  {TEMPLATE_NAME} template for seamless transactions and user
+                  experience.
+                </p>
+              </div>
+
+              {/* Card Footer */}
+              <div className="space-y-3 pt-4 border-t border-slate-600/50">
+                <div className="flex items-center justify-between text-xs text-slate-400">
+                  <span className="flex items-center">
+                    <svg
+                      className="w-4 h-4 mr-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                      />
+                    </svg>
+                    Created
+                  </span>
+                  <span className="font-medium text-slate-200">
+                    {formatDate(content.createdAt)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs text-slate-400">
+                  <span className="flex items-center">
+                    <svg
+                      className="w-4 h-4 mr-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                    Updated
+                  </span>
+                  <span className="font-medium text-slate-200">
+                    {formatDate(content.updatedAt)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Hover Arrow */}
+              <div className="mt-4 flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-sm text-blue-400 font-medium mr-1">
+                  View Page
+                </span>
+                <svg
+                  className="w-4 h-4 text-blue-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </div>
             </div>
           ))}
         </div>
+
+        {/* Empty State */}
+        {contents.length === 0 && !loading && !error && (
+          <div className="text-center py-16">
+            <div className="w-24 h-24 bg-slate-700/60 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <svg
+                className="w-12 h-12 text-slate-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-white mb-2">
+              No {TEMPLATE_NAME.toLowerCase()}s found
+            </h3>
+            <p className="text-slate-300">
+              Create your first {TEMPLATE_NAME.toLowerCase()} to get started.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

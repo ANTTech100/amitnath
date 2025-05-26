@@ -18,18 +18,29 @@ export default function ContentUploadPage({ params }) {
   const [success, setSuccess] = useState(null);
   const [filePreviews, setFilePreviews] = useState({});
   const [inputTypes, setInputTypes] = useState({});
+  const [userId, setUserId] = useState(null);
 
   const fallbackImage =
     "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
   useEffect(() => {
+    // Get userId from localStorage
+    const storedUserId = localStorage.getItem("userid");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      // Redirect to login if no userId found
+      router.push("/login");
+      return;
+    }
+
     if (templateId) {
       fetchTemplateDetails();
     }
     return () => {
       Object.values(filePreviews).forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [templateId]);
+  }, [templateId, router]);
 
   const fetchTemplateDetails = async () => {
     try {
@@ -189,6 +200,13 @@ export default function ContentUploadPage({ params }) {
     setErrors({});
     setSuccess(null);
 
+    // Check if userId is available
+    if (!userId) {
+      setErrors({ global: "User not authenticated. Please log in again." });
+      setSubmitting(false);
+      return;
+    }
+
     const newErrors = {};
 
     // Validate heading and subheading
@@ -219,6 +237,7 @@ export default function ContentUploadPage({ params }) {
       submissionData.append("templateId", templateId);
       submissionData.append("heading", formData.heading);
       submissionData.append("subheading", formData.subheading);
+      submissionData.append("userId", userId); // Add userId to form data
 
       template.sections.forEach((section) => {
         const value = formData[section.id];

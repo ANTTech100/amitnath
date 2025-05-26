@@ -21,15 +21,24 @@ export async function POST(request) {
     // Log parsed data for debugging
     console.log("Parsed FormData fields:", fields);
 
-    // Extract templateId, heading, and subheading
+    // Extract required fields
     const templateId = fields.templateId;
     const heading = fields.heading;
     const subheading = fields.subheading;
+    const userId = fields.userId;
 
     // Validate templateId
     if (!mongoose.Types.ObjectId.isValid(templateId)) {
       return NextResponse.json(
         { success: false, message: "Invalid template ID" },
+        { status: 400 }
+      );
+    }
+
+    // Validate userId
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid or missing user ID" },
         { status: 400 }
       );
     }
@@ -54,11 +63,11 @@ export async function POST(request) {
     // Prepare content data
     const contentData = {
       templateId,
-      heading, // Add heading
-      subheading, // Add subheading
+      heading,
+      subheading,
       sections: {},
-      createdBy: "644f1a9e4c98e80016d1e8b5", // Hardcoded as per your original code
-      updatedBy: "644f1a9e4c98e80016d1e8b5",
+      createdBy: userId, // Use userId from form data
+      updatedBy: userId, // Use userId from form data
     };
 
     // Process each section

@@ -20,7 +20,13 @@ export default function CreateTemplate() {
     type: "basic",
     status: "draft",
     sections: [],
+    createdBy: localStorage.getItem("adminToken") || "admin",
   });
+
+  useEffect(() => {
+    const createdBy = localStorage.getItem("adminToken") || "admin";
+    setTemplate((prev) => ({ ...prev, createdBy }));
+  }, []);
 
   // Available section types
   const sectionTypes = [

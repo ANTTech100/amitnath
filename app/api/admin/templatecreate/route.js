@@ -8,12 +8,25 @@ export async function GET(request) {
     // Connect to database
     await connectDB();
 
-    // Fetch all templates, sorted by creation date
-    const templates = await Template.find({});
+    // Get search parameters from URL
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get("type");
+    const status = searchParams.get("status");
+    const createdBy = searchParams.get("createdBy");
+
+    // Build filter object
+    const filter = {};
+    if (type) filter.type = type;
+    if (status) filter.status = status;
+    if (createdBy) filter.createdBy = createdBy;
+
+    // Fetch templates with optional filtering, sorted by creation date (newest first)
+    const templates = await Template.find(filter);
 
     return NextResponse.json({
       success: true,
       data: templates,
+      count: templates.length,
     });
   } catch (error) {
     console.error("Error fetching templates:", error);
@@ -35,15 +48,30 @@ export async function POST(request) {
     const templateData = await request.json();
     console.log("Template Data:", templateData);
 
-    // Hardcode createdBy field
-    const hardcodedUserId = "644f1a9e4c98e80016d1e8b5"; // Replace with a valid ObjectId from your User collection
-    templateData.createdBy = hardcodedUserId;
+    // Validate required fields
+    if (!templateData.name || !templateData.description) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Name and description are required fields",
+        },
+        { status: 400 }
+      );
+    }
 
     // Connect to database
     await connectDB();
 
-    // Create the template
-    const template = new Template(templateData);
+    // Set default values if not provided
+    const template = new Template({
+      ...templateData,
+      status: templateData.status || "draft",
+      type: templateData.type || "basic",
+      sections: templateData.sections || [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
     await template.save();
 
     return NextResponse.json(
@@ -56,6 +84,19 @@ export async function POST(request) {
     );
   } catch (error) {
     console.error("Error creating template:", error);
+
+    // Handle validation errors
+    if (error.name === "ValidationError") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Validation failed",
+          error: Object.values(error.errors).map((err) => err.message),
+        },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,
@@ -67,12 +108,13 @@ export async function POST(request) {
   }
 }
 
-// PUT handler - Update an existing template (we're using the templates/[id] route for this)
+// PUT handler - Update an existing template (redirect to specific route)
 export async function PUT() {
   return NextResponse.json(
     {
       success: false,
-      message: "Method not allowed, use /api/templates/[id] instead",
+      message:
+        "Method not allowed. Use PUT /api/templates/[id] to update a specific template",
     },
     { status: 405 }
   );
@@ -86,7 +128,25 @@ export async function DELETE(request) {
 
     if (!Array.isArray(ids) || ids.length === 0) {
       return NextResponse.json(
-        { success: false, message: "Invalid request - IDs array required" },
+        {
+          success: false,
+          message:
+            "Invalid request - IDs array is required and cannot be empty",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate that all IDs are valid MongoDB ObjectIds
+    const { ObjectId } = require("mongodb");
+    const invalidIds = ids.filter((id) => !ObjectId.isValid(id));
+
+    if (invalidIds.length > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Invalid template IDs: ${invalidIds.join(", ")}`,
+        },
         { status: 400 }
       );
     }
@@ -97,10 +157,20 @@ export async function DELETE(request) {
     // Delete the templates
     const result = await Template.deleteMany({ _id: { $in: ids } });
 
+    if (result.deletedCount === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "No templates found with the provided IDs",
+        },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      message: `${result.deletedCount} templates deleted successfully`,
-      count: result.deletedCount,
+      message: `${result.deletedCount} template(s) deleted successfully`,
+      deletedCount: result.deletedCount,
     });
   } catch (error) {
     console.error("Error deleting templates:", error);
