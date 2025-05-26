@@ -20,7 +20,7 @@ export default function CreateTemplate() {
     type: "basic",
     status: "draft",
     sections: [],
-    createdBy: localStorage.getItem("adminToken") || "admin",
+    createdBy: "",
   });
 
   useEffect(() => {

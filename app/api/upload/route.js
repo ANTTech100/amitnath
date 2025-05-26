@@ -133,3 +133,128 @@ export async function GET() {
     );
   }
 }
+export async function PUT(request) {
+  try {
+    // Connect to database
+    await connectDB();
+
+    // Parse FormData
+    const formData = await request.formData();
+    const fields = {};
+
+    // Extract fields from FormData
+    for (const [key, value] of formData.entries()) {
+      fields[key] = value;
+    }
+
+    // Log parsed data for debugging
+    console.log("Parsed FormData fields:", fields);
+
+    // Extract required fields
+    const contentId = fields.contentId; // Assuming contentId is passed to identify the content to update
+    const templateId = fields.templateId;
+    const heading = fields.heading;
+    const subheading = fields.subheading;
+    const userId = fields.userId;
+
+    // Validate contentId
+    if (!mongoose.Types.ObjectId.isValid(contentId)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid content ID" },
+        { status: 400 }
+      );
+    }
+
+    // Validate userId
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid or missing user ID" },
+        { status: 400 }
+      );
+    }
+
+    // Validate heading and subheading
+    if (!heading || !subheading) {
+      return NextResponse.json(
+        { success: false, message: "Heading and Subheading are required" },
+        { status: 400 }
+      );
+    }
+
+    // Validate templateId
+    if (!mongoose.Types.ObjectId.isValid(templateId)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid template ID" },
+        { status: 400 }
+      );
+    }
+
+    // Verify template exists
+    const template = await Template.findById(templateId);
+    if (!template) {
+      return NextResponse.json(
+        { success: false, message: "Template not found" },
+        { status: 404 }
+      );
+    }
+
+    // Verify content exists
+    const existingContent = await Content.findById(contentId);
+    if (!existingContent) {
+      return NextResponse.json(
+        { success: false, message: "Content not found" },
+        { status: 404 }
+      );
+    }
+
+    // Prepare updated content data
+    const contentData = {
+      templateId,
+      heading,
+      subheading,
+      sections: {},
+      updatedBy: userId,
+      updatedAt: Date.now(), // Update timestamp
+    };
+
+    // Process each section
+    for (const section of template.sections) {
+      const sectionId = section.id;
+      if (fields[sectionId]) {
+        // Handle text/URL
+        contentData.sections[sectionId] = {
+          type: section.type,
+          value: fields[sectionId],
+        };
+      } else if (section.required) {
+        return NextResponse.json(
+          { success: false, message: `${section.title} is required` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Update content in database
+    const updatedContent = await Content.findByIdAndUpdate(
+      contentId,
+      { $set: contentData },
+      { new: true, runValidators: true }
+    );
+
+    return NextResponse.json({
+      success: true,
+      message: "Content updated successfully",
+      data: updatedContent,
+    });
+  } catch (error) {
+    console.error("Error updating content:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Failed to update content",
+        error: error.message,
+      },
+      { status: 500 }
+    );
+  }
+}
