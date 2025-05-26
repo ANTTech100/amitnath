@@ -162,7 +162,7 @@ export default function EditContent() {
             Access Denied
           </h2>
           <p className="text-gray-600 mb-8 leading-relaxed">
-            You don't have permission to change this content. Only the creator
+            You don not have permission to change this content. Only the creator
             can edit this item.
           </p>
           <button
@@ -199,7 +199,7 @@ export default function EditContent() {
             Content Not Found
           </h2>
           <p className="text-gray-600 mb-8">
-            The content or template you're looking for doesn't exist.
+            The content or template you are looking for does not exist.
           </p>
           <button
             onClick={() => router.push("/")}
