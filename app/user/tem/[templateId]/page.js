@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,34 +17,36 @@ export default function ContentUploadPage({ params }) {
     heading: "",
     subheading: "",
     backgroundColor: "#ffffff",
-  }); // Initialize with a default color
+  });
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState(null);
   const [filePreviews, setFilePreviews] = useState({});
   const [inputTypes, setInputTypes] = useState({});
   const [userId, setUserId] = useState(null);
+  const [videoUrlErrors, setVideoUrlErrors] = useState({}); // New state for video URL validation errors
 
   const fallbackImage =
     "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
   useEffect(() => {
-    // Get userId from localStorage
     const storedUserId = localStorage.getItem("userid");
     if (storedUserId) {
       setUserId(storedUserId);
     } else {
-      // Redirect to login if no userId found
-      router.push("/login");
+      router.push("/user/register");
       return;
     }
 
     if (templateId) {
       fetchTemplateDetails();
     }
+
     return () => {
-      Object.values(filePreviews).forEach((url) => URL.revokeObjectURL(url));
+      Object.values(filePreviews).forEach((url) => {
+        if (url) URL.revokeObjectURL(url);
+      });
     };
-  }, [templateId, router]);
+  }, [templateId, router, filePreviews]);
 
   const fetchTemplateDetails = async () => {
     try {
@@ -81,51 +83,106 @@ export default function ContentUploadPage({ params }) {
     }
   };
 
-  const validateField = (key, value, file) => {
-    if (key === "heading" || key === "subheading") {
-      if (!value) {
-        return `${key.charAt(0).toUpperCase() + key.slice(1)} is required`;
+  const validateField = useCallback(
+    (key, value, file) => {
+      if (key === "heading" || key === "subheading") {
+        if (!value) {
+          return `${key.charAt(0).toUpperCase() + key.slice(1)} is required`;
+        }
+        if (value.length < 3) {
+          return `${
+            key.charAt(0).toUpperCase() + key.slice(1)
+          } must be at least 3 characters`;
+        }
+        if (value.length > 100) {
+          return `${
+            key.charAt(0).toUpperCase() + key.slice(1)
+          } must be at most 100 characters`;
+        }
+        return null;
       }
-      if (value.length < 3) {
-        return `${
-          key.charAt(0).toUpperCase() + key.slice(1)
-        } must be at least 3 characters`;
+      if (key === "backgroundColor") {
+        if (!value) {
+          return "Background color is required";
+        }
+        if (!/^#([0-9A-F]{3}){1,2}$/i.test(value)) {
+          return "Invalid color format. Use a valid hex color code (e.g., #ffffff)";
+        }
+        return null;
       }
-      if (value.length > 100) {
-        return `${
-          key.charAt(0).toUpperCase() + key.slice(1)
-        } must be at most 100 characters`;
-      }
-      return null;
-    }
-    if (key === "backgroundColor") {
-      if (!value) {
-        return "Background color is required";
-      }
-      // Validate hex color code format (e.g., #ffffff or #fff)
-      if (!/^#([0-9A-F]{3}){1,2}$/i.test(value)) {
-        return "Invalid color format. Use a valid hex color code (e.g., #ffffff)";
-      }
-      return null;
-    }
 
-    const section = template.sections.find((s) => s.id === key);
-    if (!section) return null;
+      const section = template?.sections?.find((s) => s.id === key);
+      if (!section) return null;
 
-    const { config } = section;
-    if (section.required && !value && !file) {
-      return `${section.title} is required`;
-    }
-    if (section.type === "text" && config && value) {
-      if (config.minLength && value.length < config.minLength) {
-        return `${section.title} must be at least ${config.minLength} characters`;
+      const { config } = section;
+      if (section.required && !value && !file) {
+        return `${section.title} is required`;
       }
-      if (config.maxLength && value.length > config.maxLength) {
-        return `${section.title} must be at most ${config.maxLength} characters`;
+      if (section.type === "text" && config && value) {
+        if (config.minLength && value.length < config.minLength) {
+          return `${section.title} must be at least ${config.minLength} characters`;
+        }
+        if (config.maxLength && value.length > config.maxLength) {
+          return `${section.title} must be at most ${config.maxLength} characters`;
+        }
       }
-    }
-    if (section.type === "image" && config && (value || file)) {
-      if (value) {
+      if (section.type === "image" && config && (value || file)) {
+        if (value) {
+          if (config.validateUrl) {
+            try {
+              new URL(value);
+            } catch {
+              return "Invalid URL format";
+            }
+          }
+        }
+        if (
+          file &&
+          config.maxSize &&
+          file.size > config.maxSize * 1024 * 1024
+        ) {
+          return `File size exceeds ${config.maxSize}MB`;
+        }
+        if (file && config.allowedTypes?.length) {
+          const fileType = file.type.toLowerCase();
+          if (!config.allowedTypes.includes(fileType)) {
+            return `Only ${config.allowedTypes.join(", ")} formats are allowed`;
+          }
+        }
+      }
+      if (section.type === "video" && config && (value || file)) {
+        if (value) {
+          if (config.validateUrl) {
+            try {
+              new URL(value);
+            } catch {
+              return "Invalid URL format";
+            }
+          }
+        }
+        if (
+          file &&
+          config.maxSize &&
+          file.size > config.maxSize * 1024 * 1024
+        ) {
+          return `File size exceeds ${config.maxSize}MB`;
+        }
+        if (file && config.allowedTypes?.length) {
+          const fileType = file.type.toLowerCase();
+          if (!config.allowedTypes.includes(fileType)) {
+            return `Only ${config.allowedTypes.join(", ")} formats are allowed`;
+          }
+        }
+      }
+      if (section.type === "link" && config && value) {
+        if (
+          config.allowedDomains?.length &&
+          !config.allowedDomains.some((domain) => value.includes(domain))
+        ) {
+          return `Only links from ${config.allowedDomains.join(
+            ", "
+          )} are allowed`;
+        }
         if (config.validateUrl) {
           try {
             new URL(value);
@@ -134,91 +191,111 @@ export default function ContentUploadPage({ params }) {
           }
         }
       }
-      if (file && config.maxSize && file.size > config.maxSize * 1024 * 1024) {
-        return `File size exceeds ${config.maxSize}MB`;
-      }
-      if (file && config.allowedTypes?.length) {
-        const fileType = file.type.toLowerCase();
-        if (!config.allowedTypes.includes(fileType)) {
-          return `Only ${config.allowedTypes.join(", ")} formats are allowed`;
-        }
-      }
-    }
-    if (section.type === "video" && config && (value || file)) {
-      if (value) {
-        if (config.validateUrl) {
-          try {
-            new URL(value);
-          } catch {
-            return "Invalid URL format";
-          }
-        }
-      }
-      if (file && config.maxSize && file.size > config.maxSize * 1024 * 1024) {
-        return `File size exceeds ${config.maxSize}MB`;
-      }
-      if (file && config.allowedTypes?.length) {
-        const fileType = file.type.toLowerCase();
-        if (!config.allowedTypes.includes(fileType)) {
-          return `Only ${config.allowedTypes.join(", ")} formats are allowed`;
-        }
-      }
-    }
-    if (section.type === "link" && config && value) {
+      return null;
+    },
+    [template]
+  );
+
+  const validateVideoUrl = useCallback((sectionId, url) => {
+    if (!url) return null;
+
+    let isValidUrl = false;
+    let isYouTubeUrl = false;
+    let youtubeEmbedUrl = null;
+
+    try {
+      const parsedUrl = new URL(url);
       if (
-        config.allowedDomains?.length &&
-        !config.allowedDomains.some((domain) => value.includes(domain))
+        parsedUrl.hostname.includes("youtube.com") ||
+        parsedUrl.hostname.includes("youtu.be")
       ) {
-        return `Only links from ${config.allowedDomains.join(
-          ", "
-        )} are allowed`;
+        isYouTubeUrl = true;
+        let videoId = null;
+        if (parsedUrl.hostname.includes("youtube.com")) {
+          const params = new URLSearchParams(parsedUrl.search);
+          videoId = params.get("v");
+        } else if (parsedUrl.hostname.includes("youtu.be")) {
+          videoId = parsedUrl.pathname.split("/")[1];
+        }
+        if (videoId) {
+          youtubeEmbedUrl = `https://www.youtube.com/embed/${videoId}`;
+        }
+      } else {
+        const videoExtensions = [".mp4", ".mov", ".avi", ".mkv", ".webm"];
+        isValidUrl = videoExtensions.some((ext) =>
+          parsedUrl.pathname.toLowerCase().endsWith(ext)
+        );
       }
-      if (config.validateUrl) {
-        try {
-          new URL(value);
-        } catch {
-          return "Invalid URL format";
+    } catch {
+      return "Invalid video URL. Please provide a valid video URL (e.g., YouTube or ending with .mp4, .mov, etc.).";
+    }
+
+    if (!isValidUrl && !isYouTubeUrl) {
+      return "Invalid video URL. Please provide a valid video URL (e.g., YouTube or ending with .mp4, .mov, etc.).";
+    }
+
+    return { isValidUrl, isYouTubeUrl, youtubeEmbedUrl };
+  }, []);
+
+  const handleInputChange = useCallback(
+    (e, key, isFile = false) => {
+      const value = isFile ? e.target.files[0] : e.target.value;
+
+      if (isFile) {
+        setFormData((prev) => ({ ...prev, [key]: value }));
+        const error = validateField(key, "", value);
+        setErrors((prev) => ({ ...prev, [key]: error }));
+        setVideoUrlErrors((prev) => ({ ...prev, [key]: null }));
+
+        if (value) {
+          const url = URL.createObjectURL(value);
+          setFilePreviews((prev) => ({ ...prev, [key]: url }));
+        } else {
+          setFilePreviews((prev) => {
+            const prevUrl = prev[key];
+            if (prevUrl) URL.revokeObjectURL(prevUrl);
+            return { ...prev, [key]: null };
+          });
+        }
+      } else {
+        setFormData((prev) => ({ ...prev, [key]: value }));
+        const error = validateField(key, value, null);
+        setErrors((prev) => ({ ...prev, [key]: error }));
+
+        if (template?.sections?.find((s) => s.id === key)?.type === "video") {
+          const videoError = validateVideoUrl(key, value);
+          if (typeof videoError === "string") {
+            setVideoUrlErrors((prev) => ({ ...prev, [key]: videoError }));
+          } else {
+            setVideoUrlErrors((prev) => ({ ...prev, [key]: null }));
+          }
+        } else {
+          setVideoUrlErrors((prev) => ({ ...prev, [key]: null }));
         }
       }
-    }
-    return null;
-  };
+    },
+    [template, validateField, validateVideoUrl]
+  );
 
-  const handleInputChange = (e, key, isFile = false) => {
-    const value = isFile ? e.target.files[0] : e.target.value;
-
-    if (isFile) {
-      setFormData({ ...formData, [key]: value });
-      const error = validateField(key, "", value);
-      setErrors((prev) => ({ ...prev, [key]: error }));
-
-      if (value) {
-        const url = URL.createObjectURL(value);
-        setFilePreviews((prev) => ({ ...prev, [key]: url }));
-      } else {
-        setFilePreviews((prev) => ({ ...prev, [key]: null }));
-      }
-    } else {
-      setFormData({ ...formData, [key]: value });
-      const error = validateField(key, value, null);
-      setErrors((prev) => ({ ...prev, [key]: error }));
-    }
-  };
-
-  const handleInputTypeChange = (sectionId, type) => {
-    setInputTypes({ ...inputTypes, [sectionId]: type });
-    setFormData({ ...formData, [sectionId]: "" });
-    setFilePreviews((prev) => ({ ...prev, [sectionId]: null }));
+  const handleInputTypeChange = useCallback((sectionId, type) => {
+    setInputTypes((prev) => ({ ...prev, [sectionId]: type }));
+    setFormData((prev) => ({ ...prev, [sectionId]: "" }));
+    setFilePreviews((prev) => {
+      const prevUrl = prev[sectionId];
+      if (prevUrl) URL.revokeObjectURL(prevUrl);
+      return { ...prev, [sectionId]: null };
+    });
     setErrors((prev) => ({ ...prev, [sectionId]: null }));
-  };
+    setVideoUrlErrors((prev) => ({ ...prev, [sectionId]: null }));
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     setErrors({});
     setSuccess(null);
+    setVideoUrlErrors({});
 
-    // Check if userId is available
     if (!userId) {
       setErrors({ global: "User not authenticated. Please log in again." });
       setSubmitting(false);
@@ -226,15 +303,14 @@ export default function ContentUploadPage({ params }) {
     }
 
     const newErrors = {};
+    const newVideoUrlErrors = {};
 
-    // Validate heading, subheading, and backgroundColor
     ["heading", "subheading", "backgroundColor"].forEach((key) => {
       const error = validateField(key, formData[key], null);
       if (error) newErrors[key] = error;
     });
 
-    // Validate sections
-    template.sections.forEach((section) => {
+    template?.sections?.forEach((section) => {
       const value = formData[section.id];
       const error = validateField(
         section.id,
@@ -242,10 +318,21 @@ export default function ContentUploadPage({ params }) {
         typeof value !== "string" ? value : null
       );
       if (error) newErrors[section.id] = error;
+
+      if (section.type === "video" && typeof value === "string" && value) {
+        const videoError = validateVideoUrl(section.id, value);
+        if (typeof videoError === "string") {
+          newVideoUrlErrors[section.id] = videoError;
+        }
+      }
     });
 
-    if (Object.keys(newErrors).length > 0) {
+    if (
+      Object.keys(newErrors).length > 0 ||
+      Object.keys(newVideoUrlErrors).length > 0
+    ) {
       setErrors(newErrors);
+      setVideoUrlErrors(newVideoUrlErrors);
       setSubmitting(false);
       return;
     }
@@ -255,10 +342,10 @@ export default function ContentUploadPage({ params }) {
       submissionData.append("templateId", templateId);
       submissionData.append("heading", formData.heading);
       submissionData.append("subheading", formData.subheading);
-      submissionData.append("backgroundColor", formData.backgroundColor); // Append background color
-      submissionData.append("userId", userId); // Add userId to form data
+      submissionData.append("backgroundColor", formData.backgroundColor);
+      submissionData.append("userId", userId);
 
-      template.sections.forEach((section) => {
+      template?.sections?.forEach((section) => {
         const value = formData[section.id];
         if (value instanceof File) {
           submissionData.append(section.id, value);
@@ -280,7 +367,7 @@ export default function ContentUploadPage({ params }) {
       }
 
       setSuccess("Content created successfully!");
-      setTimeout(() => router.push(`/publish`), 1500); // Redirect to layoutone with contentId
+      setTimeout(() => router.push(`/publish`), 1500);
     } catch (err) {
       console.error("Error submitting content:", err);
       setErrors({
@@ -363,7 +450,7 @@ export default function ContentUploadPage({ params }) {
             className="mb-10"
           >
             <Link
-              href="/templates"
+              href="/user/tem"
               className="inline-flex items-center text-purple-400 hover:text-purple-300 font-semibold transition-colors duration-200"
             >
               <svg
@@ -417,7 +504,6 @@ export default function ContentUploadPage({ params }) {
             onSubmit={handleSubmit}
             className="space-y-6"
           >
-            {/* Heading, Subheading, and Background Color Inputs */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -501,7 +587,6 @@ export default function ContentUploadPage({ params }) {
               </div>
             </motion.div>
 
-            {/* Sections */}
             {template?.sections
               ?.sort((a, b) => a.order - b.order)
               .map((section) => (
@@ -638,13 +723,88 @@ export default function ContentUploadPage({ params }) {
                           {errors[section.id]}
                         </p>
                       )}
-
+                      {videoUrlErrors[section.id] && (
+                        <p className="mt-2 text-sm text-red-400">
+                          {videoUrlErrors[section.id]}
+                        </p>
+                      )}
+                      {formData[section.id] &&
+                        typeof formData[section.id] === "string" &&
+                        section.type === "image" && (
+                          <div className="mt-4">
+                            <img
+                              src={formData[section.id] || fallbackImage}
+                              alt="Preview"
+                              className="w-full h-32 object-cover rounded-xl"
+                              onError={(e) => {
+                                e.target.src = fallbackImage;
+                                setErrors((prev) => ({
+                                  ...prev,
+                                  [section.id]: "Failed to load image",
+                                }));
+                              }}
+                            />
+                          </div>
+                        )}
+                      {formData[section.id] &&
+                        typeof formData[section.id] === "string" &&
+                        section.type === "video" &&
+                        !videoUrlErrors[section.id] && (
+                          <div className="mt-4">
+                            {(() => {
+                              const validation = validateVideoUrl(
+                                section.id,
+                                formData[section.id]
+                              );
+                              if (
+                                validation?.isYouTubeUrl &&
+                                validation.youtubeEmbedUrl
+                              ) {
+                                return (
+                                  <iframe
+                                    src={validation.youtubeEmbedUrl}
+                                    className="w-full h-32 rounded-xl"
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                    title="YouTube video"
+                                    onError={(e) => {
+                                      e.target.style.display = "none";
+                                      setVideoUrlErrors((prev) => ({
+                                        ...prev,
+                                        [section.id]:
+                                          "Failed to load YouTube video. Please check the URL.",
+                                      }));
+                                    }}
+                                  />
+                                );
+                              } else if (validation?.isValidUrl) {
+                                return (
+                                  <video
+                                    src={formData[section.id]}
+                                    controls
+                                    className="w-full h-32 rounded-xl"
+                                    onError={(e) => {
+                                      e.target.style.display = "none";
+                                      setVideoUrlErrors((prev) => ({
+                                        ...prev,
+                                        [section.id]:
+                                          "Failed to load video. Please check the URL.",
+                                      }));
+                                    }}
+                                  />
+                                );
+                              }
+                              return null;
+                            })()}
+                          </div>
+                        )}
                       {filePreviews[section.id] && (
                         <div className="mt-4">
                           {section.type === "image" ? (
                             <img
                               src={filePreviews[section.id]}
-                              alt="Preview"
+                              alt="File Preview"
                               className="w-full h-32 object-cover rounded-xl"
                             />
                           ) : (
@@ -656,38 +816,6 @@ export default function ContentUploadPage({ params }) {
                           )}
                         </div>
                       )}
-                      {formData[section.id] &&
-                        typeof formData[section.id] === "string" && (
-                          <div className="mt-4">
-                            {section.type === "image" ? (
-                              <img
-                                src={formData[section.id]}
-                                alt="Preview"
-                                className="w-full h-32 object-cover rounded-xl"
-                                onError={(e) => {
-                                  e.target.src = fallbackImage;
-                                  setErrors((prev) => ({
-                                    ...prev,
-                                    [section.id]: "Failed to load image",
-                                  }));
-                                }}
-                              />
-                            ) : (
-                              <video
-                                src={formData[section.id]}
-                                controls
-                                className="w-full h-32 rounded-xl"
-                                onError={(e) => {
-                                  e.target.style.display = "none";
-                                  setErrors((prev) => ({
-                                    ...prev,
-                                    [section.id]: "Failed to load video",
-                                  }));
-                                }}
-                              />
-                            )}
-                          </div>
-                        )}
                     </div>
                   )}
 

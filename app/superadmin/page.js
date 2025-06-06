@@ -21,8 +21,20 @@ export default function AdminDashboard() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    checkPassword();
     fetchData(activeTab);
   }, [activeTab]);
+  function checkPassword() {
+    let password = prompt("Please enter the password:");
+    if (password === "amitnath") {
+      alert("Access granted! Welcome!");
+    } else {
+      alert("Sorry, incorrect password. Access denied.");
+      window.location.href = "/"; // Redirect to home page
+    }
+  }
+  // checkPassword();
+  // Call the function to trigger the password prompt
 
   const fetchData = async (tab) => {
     setLoading(true);

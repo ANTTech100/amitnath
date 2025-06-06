@@ -309,3 +309,49 @@ export async function PUT(request) {
     );
   }
 }
+
+export async function DELETE(request) {
+  try {
+    // Connect to database
+    await connectDB();
+
+    // Parse request body
+    const { contentId } = await request.json();
+
+    // Validate contentId
+    if (!contentId || !mongoose.Types.ObjectId.isValid(contentId)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid or missing content ID" },
+        { status: 400 }
+      );
+    }
+
+    // Check if content exists
+    const existingContent = await Content.findById(contentId);
+    if (!existingContent) {
+      return NextResponse.json(
+        { success: false, message: "Content not found" },
+        { status: 404 }
+      );
+    }
+
+    // Delete the content
+    await Content.findByIdAndDelete(contentId);
+
+    return NextResponse.json({
+      success: true,
+      message: "Content deleted successfully",
+      deletedId: contentId,
+    });
+  } catch (error) {
+    console.error("Error deleting content:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Failed to delete content",
+        error: error.message,
+      },
+      { status: 500 }
+    );
+  }
+}

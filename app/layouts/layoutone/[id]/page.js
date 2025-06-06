@@ -53,25 +53,41 @@ export default function LayoutOne() {
       fetchData();
     }
   }, [id]);
-
   const renderVideo = (url) => {
-    const videoId = url.split("v=")[1]?.split("&")[0];
-    return (
-      <div className="relative group">
-        <iframe
-          width="100%"
-          height="500"
-          src={`https://www.youtube.com/embed/${videoId}`}
-          title="YouTube video player"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          className="rounded-2xl shadow-xl border border-gray-100 transition-transform duration-300 group-hover:scale-102"
-        />
-      </div>
-    );
+    console.log("Video URL:", url);
+    if (url.includes("youtube.com") || url.includes("youtu.be")) {
+      const videoId = url.split("v=")[1]?.split("&")[0] || url.split("/").pop();
+      return (
+        <div className="relative group">
+          <iframe
+            width="100%"
+            height="500"
+            src={`https://www.youtube.com/embed/${videoId}`}
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="rounded-2xl shadow-xl border border-gray-100 transition-transform duration-300 group-hover:scale-102"
+          />
+        </div>
+      );
+    } else if (url.includes("mux.com")) {
+      return (
+        <div className="relative group">
+          <video
+            width="100%"
+            height="500"
+            controls
+            src={url}
+            className="rounded-2xl shadow-xl border border-gray-100"
+          />
+        </div>
+      );
+    } else {
+      console.error("Unsupported video platform:", url);
+      return <p className="text-red-600">Unsupported video platform</p>;
+    }
   };
-
   const renderImage = (url) => (
     <div className="relative group">
       <img

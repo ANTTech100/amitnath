@@ -94,25 +94,39 @@ export default function ThankyouPage() {
   }, [id]);
 
   const renderVideo = (url) => {
-    const videoId = url.split("v=")[1]?.split("&")[0];
-    return (
-      <div className="relative w-full max-w-4xl mx-auto group">
-        <div className="relative overflow-hidden rounded-2xl shadow-2xl border-4 border-white/20 backdrop-blur-sm">
+    console.log("Video URL:", url);
+    if (url.includes("youtube.com") || url.includes("youtu.be")) {
+      const videoId = url.split("v=")[1]?.split("&")[0] || url.split("/").pop();
+      return (
+        <div className="relative group">
           <iframe
             width="100%"
-            height="400"
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1`}
+            height="500"
+            src={`https://www.youtube.com/embed/${videoId}`}
             title="YouTube video player"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            className="transition-all duration-500 group-hover:scale-[1.02]"
+            className="rounded-2xl shadow-xl border border-gray-100 transition-transform duration-300 group-hover:scale-102"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none"></div>
         </div>
-        <div className="absolute -inset-1 bg-gradient-to-r from-teal-400 via-blue-500 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-500"></div>
-      </div>
-    );
+      );
+    } else if (url.includes("mux.com")) {
+      return (
+        <div className="relative group">
+          <video
+            width="100%"
+            height="500"
+            controls
+            src={url}
+            className="rounded-2xl shadow-xl border border-gray-100"
+          />
+        </div>
+      );
+    } else {
+      console.error("Unsupported video platform:", url);
+      return <p className="text-red-600">Unsupported video platform</p>;
+    }
   };
 
   if (loading) {
@@ -302,22 +316,6 @@ export default function ThankyouPage() {
                   No action available
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="relative z-10 bg-black/20 backdrop-blur-sm border-t border-white/10">
-            <div className="max-w-4xl mx-auto text-center py-8 px-4">
-              <p className="text-sm text-white/60">
-                By continuing, you agree to our{" "}
-                <a
-                  href="/terms"
-                  className="text-teal-400 hover:text-teal-300 underline underline-offset-4 decoration-teal-400/50 hover:decoration-teal-300 transition-colors duration-300"
-                >
-                  Terms & Conditions
-                </a>
-                .
-              </p>
             </div>
           </div>
         </div>

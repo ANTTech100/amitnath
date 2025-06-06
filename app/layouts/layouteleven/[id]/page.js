@@ -72,20 +72,108 @@ export default function TemplateTenLayout() {
     fetchContent();
   }, [id]);
 
-  // Function to convert YouTube URL to embed URL
-  const convertToEmbedUrl = (url) => {
-    if (!url) return "";
+  // Function to render video based on URL
+  const renderVideo = (url) => {
+    console.log("Video URL:", url);
+    if (url.includes("youtube.com") || url.includes("youtu.be")) {
+      // Handle both youtube.com and youtu.be URLs
+      let videoId = "";
+      if (url.includes("youtube.com")) {
+        videoId = url.split("v=")[1]?.split("&")[0];
+      } else if (url.includes("youtu.be")) {
+        videoId = url.split("youtu.be/")[1]?.split("?")[0];
+      }
 
-    // Extract video ID from various YouTube URL formats
-    const regExp =
-      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
+      if (!videoId) {
+        console.error("Invalid YouTube URL:", url);
+        return (
+          <div className="text-center text-white">
+            <svg
+              className="w-16 h-16 mx-auto mb-4 opacity-50"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.01M15 10h1.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <p className="text-lg font-medium">Invalid YouTube URL</p>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-3 text-blue-400 hover:text-blue-300 underline"
+            >
+              Open in new tab
+            </a>
+          </div>
+        );
+      }
 
-    if (match && match[2].length === 11) {
-      return `https://www.youtube.com/embed/${match[2]}`;
+      return (
+        <div className="relative group">
+          <iframe
+            width="100%"
+            height="500"
+            src={`https://www.youtube.com/embed/${videoId}`}
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="rounded-2xl shadow-xl border border-white/20 transition-transform duration-300 group-hover:scale-102"
+            onError={(e) => {
+              e.target.style.display = "none";
+              e.target.nextSibling.style.display = "flex";
+            }}
+          />
+          <div className="absolute inset-0 bg-gray-800/90 backdrop-blur-sm rounded-2xl hidden items-center justify-center">
+            <div className="text-center text-white">
+              <svg
+                className="w-16 h-16 mx-auto mb-4 opacity-50"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.01M15 10h1.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <p className="text-lg font-medium">Video could not be loaded</p>
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-3 text-blue-400 hover:text-blue-300 underline"
+              >
+                Open in new tab
+              </a>
+            </div>
+          </div>
+        </div>
+      );
+    } else if (url.includes("mux.com")) {
+      return (
+        <div className="relative group">
+          <video
+            width="100%"
+            height="500"
+            controls
+            src={url}
+            className="rounded-2xl shadow-xl border border-white/20"
+          />
+        </div>
+      );
+    } else {
+      console.error("Unsupported video platform:", url);
+      return <p className="text-red-600">Unsupported video platform</p>;
     }
-
-    return url; // Return original URL if not YouTube
   };
 
   // Loading state
@@ -193,46 +281,7 @@ export default function TemplateTenLayout() {
           >
             <div className="max-w-4xl mx-auto">
               <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-black/20 backdrop-blur-sm">
-                <iframe
-                  src={convertToEmbedUrl(videoSection.value)}
-                  title="Video Content"
-                  className="w-full h-full"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  onError={(e) => {
-                    e.target.style.display = "none";
-                    e.target.nextSibling.style.display = "flex";
-                  }}
-                ></iframe>
-                <div className="absolute inset-0 bg-gray-800/90 backdrop-blur-sm rounded-2xl hidden items-center justify-center">
-                  <div className="text-center text-white">
-                    <svg
-                      className="w-16 h-16 mx-auto mb-4 opacity-50"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.01M15 10h1.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <p className="text-lg font-medium">
-                      Video could not be loaded
-                    </p>
-                    <a
-                      href={videoSection.value}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block mt-3 text-blue-400 hover:text-blue-300 underline"
-                    >
-                      Open in new tab
-                    </a>
-                  </div>
-                </div>
+                {renderVideo(videoSection.value)}
               </div>
             </div>
           </motion.section>

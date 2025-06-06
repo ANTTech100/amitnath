@@ -1,5 +1,4 @@
 "use client";
-// pages/admin/index.js
 import { useState, useEffect } from "react";
 import Head from "next/head";
 import AdminNavbar from "../Navbar";
@@ -13,84 +12,113 @@ export default function AdminHome() {
     activeTemplates: 0,
     pendingUploads: 0,
   });
-
-  const getusers = async () => {
-    const response = await axios.get("/api/user/register").then((res) => {
-      console.log(res.data.users.length);
-      setStats((prevStats) => ({
-        ...prevStats,
-
-        totalUsers: res.data.users.length || 0, // Update activeTemplates with the response length
-      }));
-    });
-  };
-  useEffect(() => {
-    axios
-      .get("/api/admin/templatecreate")
-      .then((res) => {
-        setStats((prevStats) => ({
-          ...prevStats,
-          activeTemplates: res.data.data.length || 0, // Update activeTemplates with the response length
-        }));
-        getusers();
-      })
-      .catch((err) => {
-        console.error("Error fetching templates:", err);
-      });
-  }, []);
-
   const [recentActivities, setRecentActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [password, setPassword] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordError, setPasswordError] = useState(null);
 
+  // Check local storage for authentication on mount
   useEffect(() => {
+    const authStatus = localStorage.getItem("adminAuth");
+    if (authStatus) {
+      const { timestamp } = JSON.parse(authStatus);
+      const currentTime = new Date().getTime();
+      const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+      if (currentTime - timestamp < oneHour) {
+        setIsAuthenticated(true);
+      } else {
+        localStorage.removeItem("adminAuth");
+      }
+    }
+  }, []);
+
+  // Handle password submission
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post("/api/password", { password });
+      if (response.data.success) {
+        setIsAuthenticated(true);
+        localStorage.setItem(
+          "adminAuth",
+          JSON.stringify({
+            status: "Access Granted",
+            timestamp: new Date().getTime(),
+          })
+        );
+        window.location.href = "/admin/register";
+        setPasswordError(null);
+      } else {
+        setPasswordError("Access Denied: Incorrect password");
+        setPassword("");
+      }
+      // route.push("/admin/dashboard");
+      // window.location.href = "/admin/register";
+    } catch (error) {
+      setPasswordError("Error verifying password. Please try again.");
+      console.error("Password verification error:", error);
+    }
+  };
+
+  // Fetch dashboard data
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
     const fetchDashboardData = async () => {
       try {
-        // Fetch statistics
-        const statsResponse = await fetch("/api/admin/dashboard/stats");
-        if (!statsResponse.ok) {
-          throw new Error("Failed to fetch dashboard statistics");
-        }
-        const statsData = await statsResponse.json();
-        setStats(statsData);
+        setLoading(true);
+        // Fetch all data concurrently
+        const [
+          usersResponse,
+          templatesResponse,
+          statsResponse,
+          activitiesResponse,
+        ] = await Promise.all([
+          axios
+            .get("/api/user/register")
+            .catch(() => ({ data: { users: [] } })),
+          axios
+            .get("/api/admin/templatecreate")
+            .catch(() => ({ data: { data: [] } })),
+          axios.get("/api/admin/dashboard/stats").catch(() => ({
+            data: { pendingApprovals: 0, pendingUploads: 0 },
+          })),
+          axios
+            .get("/api/admin/dashboard/activities")
+            .catch(() => ({ data: [] })),
+        ]);
 
-        // Fetch recent activities
-        const activitiesResponse = await fetch(
-          "/api/admin/dashboard/activities"
-        );
-        if (!activitiesResponse.ok) {
-          throw new Error("Failed to fetch recent activities");
-        }
-        const activitiesData = await activitiesResponse.json();
-        setRecentActivities(activitiesData);
+        setStats({
+          totalUsers: usersResponse.data.users?.length || 0,
+          activeTemplates: templatesResponse.data.data?.length || 0,
+          pendingApprovals: statsResponse.data.pendingApprovals || 0,
+          pendingUploads: statsResponse.data.pendingUploads || 0,
+        });
+        setRecentActivities(activitiesResponse.data || []);
       } catch (error) {
-        setError("Error loading dashboard data");
-        console.error(error);
+        setError(
+          "Error loading dashboard data. Please check API endpoints or try again later."
+        );
+        console.error("Fetch dashboard error:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, []);
+  }, [isAuthenticated]);
 
   const handleApprove = async (activityId) => {
     try {
-      const response = await fetch(
-        `/api/admin/activities/${activityId}/approve`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const response = await axios.post(
+        `/api/admin/activities/${activityId}/approve`
       );
-
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error("Failed to approve activity");
       }
 
-      // Update the activities list
       setRecentActivities(
         recentActivities.map((activity) =>
           activity._id === activityId || activity.id === activityId
@@ -99,12 +127,11 @@ export default function AdminHome() {
         )
       );
 
-      // Update stats
       if (stats.pendingApprovals > 0) {
-        setStats({
-          ...stats,
-          pendingApprovals: stats.pendingApprovals - 1,
-        });
+        setStats((prev) => ({
+          ...prev,
+          pendingApprovals: prev.pendingApprovals - 1,
+        }));
       }
     } catch (error) {
       console.error("Error approving activity:", error);
@@ -112,39 +139,78 @@ export default function AdminHome() {
     }
   };
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+            Admin Access
+          </h2>
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Enter Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+            </div>
+            {passwordError && (
+              <p className="text-red-500 text-sm">{passwordError}</p>
+            )}
+            <button
+              type="submit"
+              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Submit
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading admin dashboard...</p>
         </div>
       </div>
     );
   }
 
-  // if (error) {
-  //   return (
-  //     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-  //       <div className="text-center bg-white p-8 rounded-lg shadow-md">
-  //         <div className="text-red-500 text-4xl mb-4">⚠️</div>
-  //         <h2 className="text-xl font-semibold text-gray-900 mb-2">
-  //           Something went wrong
-  //         </h2>
-  //         <p className="text-gray-600 mb-4">{error}</p>
-  //         <button
-  //           onClick={() => window.location.reload()}
-  //           className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900"
-  //         >
-  //           Try Again
-  //         </button>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center bg-white p-8 rounded-lg shadow-md">
+          <div className="text-red-500 text-4xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Something went wrong
+          </h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50">
       <Head>
         <title>Admin Dashboard | Template Hub</title>
         <meta
@@ -154,20 +220,20 @@ export default function AdminHome() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      {/* <AdminNavbar /> */}
-      <AdminNavbar></AdminNavbar>
+      <AdminNavbar />
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {/* Stats Section */}
+      <main className="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Total Users */}
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+            Dashboard Overview
+          </h2>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="px-6 py-5">
                 <div className="flex items-center">
-                  <div className="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                  <div className="flex-shrink-0 bg-blue-100 rounded-md p-3">
                     <svg
-                      className="h-6 w-6 text-white"
+                      className="h-6 w-6 text-blue-600"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -183,35 +249,36 @@ export default function AdminHome() {
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
+                      <dt className="text-sm font-medium text-gray-500">
                         Total Users
                       </dt>
-                      <dd className="text-2xl font-semibold text-gray-900">
+                      <dd className="text-3xl font-bold text-gray-900">
                         {stats.totalUsers}
                       </dd>
                     </dl>
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-50 px-4 py-4 sm:px-6">
-                <div className="text-sm">
-                  <Link
-                    href="/admin/users"
-                    className="font-medium text-blue-600 hover:text-blue-500"
-                  >
-                    View all users
-                  </Link>
-                </div>
+              <div className="bg-gray-50 px-6 py-4">
+                <Link
+                  href="/admin/users"
+                  className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  View all users
+                </Link>
               </div>
             </div>
 
-            {/* Active Templates */}
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
+            <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="px-6 py-5">
                 <div className="flex items-center">
-                  <div className="flex-shrink-0 bg-green-500 rounded-md p-3">
+                  <div
+                    className="flex-shrink-0 bg-green
+
+-100 rounded-md p-3"
+                  >
                     <svg
-                      className="h-6 w-6 text-white"
+                      className="h-6 w-6 text-green-600"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -227,35 +294,32 @@ export default function AdminHome() {
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
+                      <dt className="text-sm font-medium text-gray-500">
                         Active Templates
                       </dt>
-                      <dd className="text-2xl font-semibold text-gray-900">
+                      <dd className="text-3xl font-bold text-gray-900">
                         {stats.activeTemplates}
                       </dd>
                     </dl>
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-50 px-4 py-4 sm:px-6">
-                <div className="text-sm">
-                  <Link
-                    href="/admin/tempall"
-                    className="font-medium text-blue-600 hover:text-blue-500"
-                  >
-                    Manage tempalate
-                  </Link>
-                </div>
+              <div className="bg-gray-50 px-6 py-4">
+                <Link
+                  href="/admin/tempall"
+                  className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  Manage templates
+                </Link>
               </div>
             </div>
 
-            {/* Pending Uploads */}
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
+            <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="px-6 py-5">
                 <div className="flex items-center">
-                  <div className="flex-shrink-0 bg-purple-500 rounded-md p-3">
+                  <div className="flex-shrink-0 bg-purple-100 rounded-md p-3">
                     <svg
-                      className="h-6 w-6 text-white"
+                      className="h-6 w-6 text-purple-600"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -271,202 +335,22 @@ export default function AdminHome() {
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
+                      <dt className="text-sm font-medium text-gray-500">
                         Pending Uploads
                       </dt>
-                      <dd className="text-2xl font-semibold text-gray-900">
+                      <dd className="text-3xl font-bold text-gray-900">
                         {stats.pendingUploads}
                       </dd>
                     </dl>
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-50 px-4 py-4 sm:px-6">
-                <div className="text-sm">
-                  <Link
-                    href="/admin/uploads"
-                    className="font-medium text-blue-600 hover:text-blue-500"
-                  >
-                    Review uploads
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Activities Section */}
-        <div className="px-4 mt-6 sm:px-0">
-          <div className="bg-white shadow rounded-lg">
-            <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                Recent Activities
-              </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                A list of the most recent user activities that might require
-                attention.
-              </p>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      User
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Activity
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Date
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Status
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {recentActivities.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan="5"
-                        className="px-6 py-4 text-center text-sm text-gray-500"
-                      >
-                        No recent activities found
-                      </td>
-                    </tr>
-                  ) : (
-                    recentActivities.map((activity) => (
-                      <tr key={activity._id || activity.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10">
-                              {activity.user.avatar ? (
-                                <img
-                                  className="h-10 w-10 rounded-full"
-                                  src={activity.user.avatar}
-                                  alt=""
-                                />
-                              ) : (
-                                <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-500">
-                                  {activity.user.name?.charAt(0) ||
-                                    activity.user.email?.charAt(0) ||
-                                    "?"}
-                                </div>
-                              )}
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
-                                {activity.user.name || "Unknown User"}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {activity.user.email || "No email available"}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {activity.type}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {activity.description}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(activity.createdAt).toLocaleDateString(
-                            "en-US",
-                            {
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                            ${
-                              activity.status === "Pending"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : activity.status === "Approved"
-                                ? "bg-green-100 text-green-800"
-                                : activity.status === "Rejected"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-gray-100 text-gray-800"
-                            }`}
-                          >
-                            {activity.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          {activity.status === "Pending" && (
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() =>
-                                  handleApprove(activity._id || activity.id)
-                                }
-                                className="text-green-600 hover:text-green-900"
-                              >
-                                Approve
-                              </button>
-                              <button className="text-red-600 hover:text-red-900">
-                                Reject
-                              </button>
-                              <Link
-                                href={`/admin/activities/${
-                                  activity._id || activity.id
-                                }`}
-                                className="text-blue-600 hover:text-blue-900"
-                              >
-                                Details
-                              </Link>
-                            </div>
-                          )}
-                          {activity.status !== "Pending" && (
-                            <Link
-                              href={`/admin/activities/${
-                                activity._id || activity.id
-                              }`}
-                              className="text-blue-600 hover:text-blue-900"
-                            >
-                              View Details
-                            </Link>
-                          )}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <div className="bg-gray-50 px-4 py-4 sm:px-6 border-t border-gray-200">
-              <div className="text-sm">
+              <div className="bg-gray-50 px-6 py-4">
                 <Link
-                  href="/admin/activities"
-                  className="font-medium text-blue-600 hover:text-blue-500"
+                  href="/admin/uploads"
+                  className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
                 >
-                  View all activities
+                  Review uploads
                 </Link>
               </div>
             </div>

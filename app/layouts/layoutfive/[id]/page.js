@@ -103,7 +103,6 @@ export default function LayoutFive() {
 
         const groups = [];
         if (sections.length > 0) {
-          // Group all sections into one group, regardless of count
           groups.push(sections);
         }
 
@@ -123,31 +122,58 @@ export default function LayoutFive() {
   }, [id]);
 
   const renderVideo = (url) => {
+    console.log("Video URL:", url);
     if (!url || typeof url !== "string") {
       return <p className="text-lg text-gray-500 italic">Invalid video URL</p>;
     }
-    const videoIdMatch = url.split("v=")[1];
-    const videoId = videoIdMatch ? videoIdMatch.split("&")[0] : null;
-    if (!videoId) {
-      return <p className="text-lg text-gray-500 italic">Invalid video URL</p>;
-    }
-    return (
-      <div className="relative group">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
-        <div className="relative bg-black rounded-2xl overflow-hidden shadow-2xl">
-          <iframe
-            width="100%"
-            height="400"
-            src={`https://www.youtube.com/embed/${videoId}`}
-            title="YouTube video player"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="rounded-2xl"
-          />
+    if (url.includes("youtube.com") || url.includes("youtu.be")) {
+      const videoId = url.split("v=")[1]?.split("&")[0] || url.split("/").pop();
+      if (!videoId) {
+        console.error("Invalid YouTube URL:", url);
+        return (
+          <p className="text-lg text-gray-500 italic">Invalid video URL</p>
+        );
+      }
+      return (
+        <div className="relative group">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
+          <div className="relative bg-black rounded-2xl overflow-hidden shadow-2xl">
+            <iframe
+              width="100%"
+              height="400"
+              src={`https://www.youtube.com/embed/${videoId}`}
+              title="YouTube video player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="rounded-2xl"
+            />
+          </div>
         </div>
-      </div>
-    );
+      );
+    } else if (url.includes("mux.com")) {
+      return (
+        <div className="relative group">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
+          <div className="relative bg-black rounded-2xl overflow-hidden shadow-2xl">
+            <video
+              width="100%"
+              height="400"
+              controls
+              src={url}
+              className="rounded-2xl"
+            />
+          </div>
+        </div>
+      );
+    } else {
+      console.error("Unsupported video platform:", url);
+      return (
+        <p className="text-lg text-gray-500 italic">
+          Unsupported video platform
+        </p>
+      );
+    }
   };
 
   const renderText = (text) => {
@@ -194,7 +220,10 @@ export default function LayoutFive() {
       { name: "Phase 1", color: "from-yellow-500 to-orange-600" },
       { name: "Phase 1", color: "from-teal-500 to-cyan-600" },
       { name: "Phase 2", color: "from-violet-500 to-purple-600" },
-      { name: "Phase 2", color: "from-rose-500 to-pink-600" },
+      {
+        name: "Phase 2",
+        color: "from- Vulnerability scanningrose-500 to-pink-600",
+      },
       { name: "Phase 2", color: "from-cyan-500 to-blue-600" },
       { name: "Phase 2", color: "from-emerald-500 to-green-600" },
       { name: "Phase 3", color: "from-amber-500 to-yellow-600" },

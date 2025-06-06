@@ -63,6 +63,75 @@ export default function TestimonialVideoLayout() {
     fetchContent();
   }, [id]);
 
+  // Function to render video based on URL
+  const renderVideo = (url) => {
+    console.log("Video URL:", url);
+    if (url.includes("youtube.com") || url.includes("youtu.be")) {
+      let videoId = "";
+      if (url.includes("youtube.com")) {
+        videoId = url.split("v=")[1]?.split("&")[0];
+      } else if (url.includes("youtu.be")) {
+        videoId = url.split("youtu.be/")[1]?.split("?")[0]?.split("/")[0];
+      }
+
+      if (!videoId) {
+        console.error("Invalid YouTube URL:", url);
+        return (
+          <div className="text-center text-white">
+            <svg
+              className="w-16 h-16 mx-auto mb-4 opacity-50"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.01M15 10h1.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <p className="text-lg font-medium">Invalid YouTube URL</p>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-3 text-teal-400 hover:text-teal-300 underline"
+            >
+              Open in new tab
+            </a>
+          </div>
+        );
+      }
+
+      return (
+        <div className="relative group w-full h-full">
+          <iframe
+            src={`https://www.youtube.com/embed/${videoId}`}
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="w-full h-full object-cover rounded-2xl shadow-xl border border-white/20 transition-transform duration-300 group-hover:scale-102"
+          />
+        </div>
+      );
+    } else {
+      return (
+        <div className="relative group w-full h-full">
+          <video
+            controls
+            className="w-full h-full object-cover rounded-2xl shadow-xl border border-white/20"
+            poster="/video-thumbnail.jpg"
+          >
+            <source src={url} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      );
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -138,12 +207,12 @@ export default function TestimonialVideoLayout() {
   // Group remaining videos and texts into rows of 2
   const rows = [];
   for (let i = 0; i < remainingVideos.length; i += 2) {
-    const videoPair = remainingVideos.slice(i, i + 2); // Take two videos
-    const textPair = remainingTexts.slice(i, i + 2); // Take two corresponding texts
+    const videoPair = remainingVideos.slice(i, i + 2);
+    const textPair = remainingTexts.slice(i, i + 2);
     rows.push({ videos: videoPair, texts: textPair });
   }
 
-  // Gradient colors for text cards (matching LandingPageCards)
+  // Gradient colors for text cards
   const gradientColors = [
     "bg-gradient-to-br from-teal-500 to-teal-800",
     "bg-gradient-to-br from-indigo-500 to-indigo-800",
@@ -154,8 +223,11 @@ export default function TestimonialVideoLayout() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-900 to-gray-800">
       <Head>
-        <title>{content.heading}</title>
-        <meta name="description" content={content.subheading} />
+        <title>{content?.heading || "Video Testimonials"}</title>
+        <meta
+          name="description"
+          content={content?.subheading || "Hear from our amazing students"}
+        />
       </Head>
 
       {/* Header Section: Heading and Subheading */}
@@ -171,7 +243,7 @@ export default function TestimonialVideoLayout() {
           animate="visible"
           className="text-4xl md:text-5xl lg:text-6xl font-bold text-teal-100 mb-6 leading-tight"
         >
-          {content.heading || "Video Testimonials"}
+          {content?.heading || "Video Testimonials"}
         </motion.h1>
         <motion.p
           variants={fadeInVariants}
@@ -180,7 +252,7 @@ export default function TestimonialVideoLayout() {
           transition={{ delay: 0.2 }}
           className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
         >
-          {content.subheading || "Hear from our amazing students"}
+          {content?.subheading || "Hear from our amazing students"}
         </motion.p>
       </motion.header>
 
@@ -199,16 +271,7 @@ export default function TestimonialVideoLayout() {
               whileHover={{ scale: 1.02 }}
               className="relative rounded-2xl overflow-hidden shadow-2xl bg-gray-900"
             >
-              <div className="aspect-video">
-                <video
-                  controls
-                  className="w-full h-full object-cover"
-                  poster="/video-thumbnail.jpg"
-                >
-                  <source src={firstVideo} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
+              <div className="aspect-video">{renderVideo(firstVideo)}</div>
             </motion.div>
             {/* First Text in a Card */}
             <motion.div
@@ -245,18 +308,10 @@ export default function TestimonialVideoLayout() {
                       className="relative rounded-2xl overflow-hidden shadow-2xl bg-gray-900"
                     >
                       <div className="aspect-video">
-                        <video
-                          controls
-                          className="w-full h-full object-cover"
-                          poster={`/video-thumbnail-${index + 2}.jpg`}
-                        >
-                          <source src={video.value} type="video/mp4" />
-                          Your browser does not support the video tag.
-                        </video>
+                        {renderVideo(video.value)}
                       </div>
                     </motion.div>
                   ))}
-                  {/* If there's only one video in the row, add an empty placeholder to maintain layout */}
                   {row.videos.length === 1 && (
                     <div className="hidden lg:block"></div>
                   )}
@@ -285,7 +340,6 @@ export default function TestimonialVideoLayout() {
                       </motion.div>
                     );
                   })}
-                  {/* If there's only one text in the row, add an empty placeholder to maintain layout */}
                   {row.videos.length === 1 && row.texts.length === 1 && (
                     <div className="hidden lg:block"></div>
                   )}
