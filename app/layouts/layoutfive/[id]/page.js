@@ -2,19 +2,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Head from "next/head";
-import {
-  ChevronDown,
-  ChevronUp,
-  Play,
-  Quote,
-  Video,
-  FileText,
-} from "lucide-react";
+import { ChevronDown, ChevronUp, Quote, Video, FileText } from "lucide-react";
 
 export default function LayoutFive() {
   const [content, setContent] = useState(null);
   const [groupedSections, setGroupedSections] = useState([]);
-  const [openGuides, setOpenGuides] = useState(new Set()); // Changed to support multiple open guides
+  const [openGuides, setOpenGuides] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { id } = useParams();
@@ -76,25 +69,30 @@ export default function LayoutFive() {
           `Filtering content for templateId: ${templateId} and content ID: ${id}`
         );
         const filteredContent = contentData.content.find((content) => {
-          const contentTemplateId = content.templateId._id;
+          const contentTemplateId = content.templateId?._id;
           const matchesTemplate =
+            contentTemplateId &&
             contentTemplateId.toString() === templateId.toString();
           const matchesId = content._id.toString() === id;
           console.log(
-            `Content ID: ${content._id}, Template ID: ${contentTemplateId}, Matches Template: ${matchesTemplate}, Matches ID: ${matchesId}`
+            `Content ID: ${content._id}, Template ID: ${
+              contentTemplateId || "null"
+            }, Matches Template: ${matchesTemplate}, Matches ID: ${matchesId}`
           );
           return matchesTemplate && matchesId;
         });
 
         if (!filteredContent) {
           console.log("No content found for this template and ID.");
-          throw new Error("No content found for this template and ID");
+          setError("No content found for this template and ID");
+          setLoading(false);
+          return;
         }
 
         console.log("Filtered Content:", filteredContent);
         setContent(filteredContent);
 
-        // Step 5: Group sections into sets of 5 (text, video, text, video, text)
+        // Step 5: Group sections (allow any number of sections)
         const sections = Object.keys(filteredContent.sections || {}).map(
           (sectionId) => ({
             id: sectionId,
@@ -104,12 +102,9 @@ export default function LayoutFive() {
         );
 
         const groups = [];
-        for (let i = 0; i < sections.length; i += 5) {
-          const group = sections.slice(i, i + 5);
-          if (group.length === 5) {
-            // Only include complete groups of 5
-            groups.push(group);
-          }
+        if (sections.length > 0) {
+          // Group all sections into one group, regardless of count
+          groups.push(sections);
         }
 
         console.log("Grouped Sections:", groups);
@@ -211,6 +206,16 @@ export default function LayoutFive() {
     );
   };
 
+  const getSectionStats = (sections) => {
+    const videoCount = sections.filter((s) => s.type === "video").length;
+    const textCount = sections.filter((s) => s.type === "text").length;
+    return `${sections.length} section${
+      sections.length !== 1 ? "s" : ""
+    } • ${videoCount} video${
+      videoCount !== 1 ? "s" : ""
+    } • ${textCount} text guide${textCount !== 1 ? "s" : ""}`;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
@@ -246,7 +251,7 @@ export default function LayoutFive() {
     );
   }
 
-  if (!content || groupedSections.length === 0) {
+  if (!content) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
         <p className="text-2xl font-medium text-white">No content found.</p>
@@ -277,86 +282,92 @@ export default function LayoutFive() {
       {/* Guides Section */}
       <div className="max-w-6xl mx-auto px-6 py-12">
         <div className="space-y-6">
-          {groupedSections.map((sections, index) => {
-            const phase = getPhaseInfo(index);
-            const isOpen = openGuides.has(index);
+          {groupedSections.length === 0 ? (
+            <p className="text-xl text-purple-200 text-center">
+              No sections available for this content.
+            </p>
+          ) : (
+            groupedSections.map((sections, index) => {
+              const phase = getPhaseInfo(index);
+              const isOpen = openGuides.has(index);
 
-            return (
-              <div key={index} className="group">
-                {/* Guide Header */}
-                <button
-                  onClick={() => toggleGuide(index)}
-                  className="w-full bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:border-white/30 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div
-                        className={`w-12 h-12 bg-gradient-to-r ${phase.color} rounded-full flex items-center justify-center shadow-lg`}
-                      >
-                        <span className="text-white font-bold text-lg">
-                          {index + 1}
-                        </span>
-                      </div>
-                      <div className="text-left">
-                        <h3 className="text-xl font-bold text-white">
-                          GUIDE {index + 1}
-                        </h3>
-                        <p className="text-purple-200 text-sm">
-                          {sections.length} sections • 2 videos • 2 text guides
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="flex space-x-2">
-                        <Video className="w-5 h-5 text-blue-400" />
-                        <FileText className="w-5 h-5 text-green-400" />
-                      </div>
-                      {isOpen ? (
-                        <ChevronUp className="w-6 h-6 text-white transition-transform duration-300" />
-                      ) : (
-                        <ChevronDown className="w-6 h-6 text-white transition-transform duration-300" />
-                      )}
-                    </div>
-                  </div>
-                </button>
-
-                {/* Guide Content */}
-                {isOpen && (
-                  <div className="mt-6 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
-                    <div className="space-y-8">
-                      {sections.map((section, sectionIndex) => (
-                        <div key={sectionIndex}>
-                          <div className="flex items-center mb-4">
-                            <div
-                              className={`w-8 h-8 bg-gradient-to-r ${phase.color} rounded-full flex items-center justify-center mr-4`}
-                            >
-                              {section.type === "video" ? (
-                                <Video className="w-4 h-4 text-white" />
-                              ) : (
-                                <FileText className="w-4 h-4 text-white" />
-                              )}
-                            </div>
-                            <h4 className="text-lg font-semibold text-white">
-                              {section.type === "video"
-                                ? "Video Tutorial"
-                                : "Text Guide"}{" "}
-                              {sectionIndex + 1}
-                            </h4>
-                          </div>
-
-                          <div className="transition-all duration-500">
-                            {section.type === "text"
-                              ? renderText(section.value)
-                              : renderVideo(section.value)}
-                          </div>
+              return (
+                <div key={index} className="group">
+                  {/* Guide Header */}
+                  <button
+                    onClick={() => toggleGuide(index)}
+                    className="w-full bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:border-white/30 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div
+                          className={`w-12 h-12 bg-gradient-to-r ${phase.color} rounded-full flex items-center justify-center shadow-lg`}
+                        >
+                          <span className="text-white font-bold text-lg">
+                            {index + 1}
+                          </span>
                         </div>
-                      ))}
+                        <div className="text-left">
+                          <h3 className="text-xl font-bold text-white">
+                            GUIDE {index + 1}
+                          </h3>
+                          <p className="text-purple-200 text-sm">
+                            {getSectionStats(sections)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-4">
+                        <div className="flex space-x-2">
+                          <Video className="w-5 h-5 text-blue-400" />
+                          <FileText className="w-5 h-5 text-green-400" />
+                        </div>
+                        {isOpen ? (
+                          <ChevronUp className="w-6 h-6 text-white transition-transform duration-300" />
+                        ) : (
+                          <ChevronDown className="w-6 h-6 text-white transition-transform duration-300" />
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                  </button>
+
+                  {/* Guide Content */}
+                  {isOpen && (
+                    <div className="mt-6 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
+                      <div className="space-y-8">
+                        {sections.map((section, sectionIndex) => (
+                          <div key={sectionIndex}>
+                            <div className="flex items-center mb-4">
+                              <div
+                                className={`w-8 h-8 bg-gradient-to-r ${phase.color} rounded-full flex items-center justify-center mr-4`}
+                              >
+                                {section.type === "video" ? (
+                                  <Video className="w-4 h-4 text-white" />
+                                ) : (
+                                  <FileText className="w-4 h-4 text-white" />
+                                )}
+                              </div>
+                              <h4 className="text-lg font-semibold text-white">
+                                {section.type === "video"
+                                  ? "Video Tutorial"
+                                  : "Text Guide"}{" "}
+                                {sectionIndex + 1}
+                              </h4>
+                            </div>
+
+                            <div className="transition-all duration-500">
+                              {section.type === "text"
+                                ? renderText(section.value)
+                                : renderVideo(section.value)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
 
         {/* Back Button */}

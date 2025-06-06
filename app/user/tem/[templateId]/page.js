@@ -13,7 +13,11 @@ export default function ContentUploadPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [template, setTemplate] = useState(null);
-  const [formData, setFormData] = useState({ heading: "", subheading: "" });
+  const [formData, setFormData] = useState({
+    heading: "",
+    subheading: "",
+    backgroundColor: "#ffffff",
+  }); // Initialize with a default color
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState(null);
   const [filePreviews, setFilePreviews] = useState({});
@@ -55,7 +59,11 @@ export default function ContentUploadPage({ params }) {
       }
       setTemplate(data.data);
 
-      const initialFormData = { heading: "", subheading: "" };
+      const initialFormData = {
+        heading: "",
+        subheading: "",
+        backgroundColor: "#ffffff",
+      };
       const initialInputTypes = {};
       if (data.data.sections) {
         data.data.sections.forEach((section) => {
@@ -87,6 +95,16 @@ export default function ContentUploadPage({ params }) {
         return `${
           key.charAt(0).toUpperCase() + key.slice(1)
         } must be at most 100 characters`;
+      }
+      return null;
+    }
+    if (key === "backgroundColor") {
+      if (!value) {
+        return "Background color is required";
+      }
+      // Validate hex color code format (e.g., #ffffff or #fff)
+      if (!/^#([0-9A-F]{3}){1,2}$/i.test(value)) {
+        return "Invalid color format. Use a valid hex color code (e.g., #ffffff)";
       }
       return null;
     }
@@ -209,8 +227,8 @@ export default function ContentUploadPage({ params }) {
 
     const newErrors = {};
 
-    // Validate heading and subheading
-    ["heading", "subheading"].forEach((key) => {
+    // Validate heading, subheading, and backgroundColor
+    ["heading", "subheading", "backgroundColor"].forEach((key) => {
       const error = validateField(key, formData[key], null);
       if (error) newErrors[key] = error;
     });
@@ -237,6 +255,7 @@ export default function ContentUploadPage({ params }) {
       submissionData.append("templateId", templateId);
       submissionData.append("heading", formData.heading);
       submissionData.append("subheading", formData.subheading);
+      submissionData.append("backgroundColor", formData.backgroundColor); // Append background color
       submissionData.append("userId", userId); // Add userId to form data
 
       template.sections.forEach((section) => {
@@ -398,7 +417,7 @@ export default function ContentUploadPage({ params }) {
             onSubmit={handleSubmit}
             className="space-y-6"
           >
-            {/* Heading and Subheading Inputs */}
+            {/* Heading, Subheading, and Background Color Inputs */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -446,6 +465,36 @@ export default function ContentUploadPage({ params }) {
                   {errors.subheading && (
                     <p className="mt-2 text-sm text-red-400">
                       {errors.subheading}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label
+                    className="block text-gray-300 mb-2"
+                    htmlFor="backgroundColor"
+                  >
+                    Background Color
+                  </label>
+                  <div className="flex items-center space-x-4">
+                    <input
+                      id="backgroundColor"
+                      type="text"
+                      className="w-full p-3 bg-gray-900 border border-purple-500/30 rounded-xl text-gray-200 focus:ring-purple-500 focus:border-purple-500"
+                      value={formData.backgroundColor}
+                      onChange={(e) => handleInputChange(e, "backgroundColor")}
+                      placeholder="Enter hex color code (e.g., #ffffff)"
+                      required
+                    />
+                    <input
+                      type="color"
+                      className="w-12 h-12 border border-purple-500/30 rounded-xl cursor-pointer"
+                      value={formData.backgroundColor}
+                      onChange={(e) => handleInputChange(e, "backgroundColor")}
+                    />
+                  </div>
+                  {errors.backgroundColor && (
+                    <p className="mt-2 text-sm text-red-400">
+                      {errors.backgroundColor}
                     </p>
                   )}
                 </div>

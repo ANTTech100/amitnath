@@ -176,6 +176,14 @@ export default function PaymentPageCards() {
           </div>
         </div>
       </div>
+      <div>
+        <button
+          onClick={() => (window.location.href = "/publish")}
+          className="bg-gray-800 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+        >
+          Go to Publish
+        </button>
+      </div>
 
       {/* Cards Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

@@ -1,19 +1,27 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 export default function ModernImageGallery() {
   // ========== CONFIGURATION ==========
   const TEMPLATE_NAME = "Testimonial Images"; // Change this to match your template name
   // ===================================
 
-  const [contents, setContents] = useState([]);
+  const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
+  const params = useParams();
   const router = useRouter();
+  const id = params?.id;
 
   useEffect(() => {
+    if (!id) {
+      setError("No content ID provided");
+      setLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -49,9 +57,9 @@ export default function ModernImageGallery() {
         const templateId = imageGalleryTemplate._id;
         console.log("Template ID:", templateId);
 
-        // Step 3: Fetch content associated with this templateId
-        console.log("Fetching content from /api/upload...");
-        const contentResponse = await fetch("/api/upload");
+        // Step 3: Fetch content by ID
+        console.log(`Fetching content for ID: ${id}`);
+        const contentResponse = await fetch(`/api/upload`);
         console.log("Content Response Status:", contentResponse.status);
         const contentData = await contentResponse.json();
         console.log("Content Data:", contentData);
@@ -62,10 +70,8 @@ export default function ModernImageGallery() {
 
         console.log("All Content Entries:", contentData.content);
 
-        // Step 4: Filter content by templateId (with null check)
-        console.log(`Filtering content for templateId: ${templateId}`);
-        const filteredContents = contentData.content.filter((content) => {
-          // Add null check for templateId
+        // Step 4: Find content matching the provided ID and templateId
+        const matchedContent = contentData.content.find((content) => {
           if (!content.templateId || content.templateId === null) {
             console.log(
               `Content ID: ${content._id}, Template ID: null, Matches: false`
@@ -75,6 +81,7 @@ export default function ModernImageGallery() {
 
           const contentTemplateId = content.templateId._id;
           const matches =
+            content._id === id &&
             contentTemplateId.toString() === templateId.toString();
           console.log(
             `Content ID: ${content._id}, Template ID: ${contentTemplateId}, Matches: ${matches}`
@@ -82,13 +89,13 @@ export default function ModernImageGallery() {
           return matches;
         });
 
-        if (filteredContents.length === 0) {
-          console.log("No content found for this template.");
-          throw new Error("No content found for this template");
+        if (!matchedContent) {
+          console.log(`Content with ID '${id}' not found for template.`);
+          throw new Error("Content not found for this ID");
         }
 
-        console.log("Filtered Content:", filteredContents);
-        setContents(filteredContents);
+        console.log("Matched Content:", matchedContent);
+        setContent(matchedContent);
       } catch (err) {
         console.error("Error fetching data:", err);
         setError(err.message || "Failed to fetch data");
@@ -98,7 +105,7 @@ export default function ModernImageGallery() {
     };
 
     fetchData();
-  }, []);
+  }, [id]);
 
   // Helper function to extract images from sections
   const extractImages = (sections) => {
@@ -141,7 +148,7 @@ export default function ModernImageGallery() {
             <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-transparent border-b-pink-400 border-l-blue-400 absolute top-0 left-0 animate-reverse-spin"></div>
           </div>
           <p className="text-xl font-semibold text-white mt-6 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-            Loading your galleries...
+            Loading your gallery...
           </p>
         </div>
       </div>
@@ -180,155 +187,121 @@ export default function ModernImageGallery() {
     );
   }
 
+  if (!content) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+        <div className="text-center">
+          <h3 className="text-2xl font-bold text-white mb-4">
+            No Content Found
+          </h3>
+          <p className="text-slate-400 text-lg">
+            No content found for this ID.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const images = extractImages(content.sections);
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-900 to-slate-900">
-        {/* Animated Header Section */}
-
-        {/* Modern Cards Section */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="space-y-16">
-            {contents.map((content, contentIndex) => {
-              const images = extractImages(content.sections);
-              return (
-                <div key={content._id} className="group">
-                  {/* Collection Header */}
-                  <div className="mb-8 text-center">
-                    <h2 className="text-3xl font-bold text-white mb-2 group-hover:bg-gradient-to-r group-hover:from-cyan-400 group-hover:to-purple-400 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
-                      {content.heading}
-                    </h2>
-                    <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-                      {content.subheading}
-                    </p>
-                    <div className="mt-4 flex items-center justify-center space-x-4 text-sm text-slate-500">
-                      <span className="flex items-center">
-                        <svg
-                          className="w-4 h-4 mr-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          />
-                        </svg>
-                        {formatDate(content.createdAt)}
-                      </span>
-                      <span className="w-1 h-1 bg-slate-500 rounded-full"></span>
-                      <span className="flex items-center">
-                        <svg
-                          className="w-4 h-4 mr-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2v12a2 2 0 002 2z"
-                          />
-                        </svg>
-                        {images.length} Images
-                      </span>
+          <div className="group">
+            {/* Collection Header */}
+            <div className="mb-8 text-center">
+              <h2 className="text-3xl font-bold text-white mb-2 group-hover:bg-gradient-to-r group-hover:from-cyan-400 group-hover:to-purple-400 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
+                {content.heading}
+              </h2>
+              <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+                {content.subheading}
+              </p>
+              {/* <div className="mt-4 flex items-center justify-center space-x-4 text-sm text-slate-500"> */}
+              {/* <span className="flex items-center">
+                  <svg
+                    className="w-4 h-4 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  {formatDate(content.createdAt)}
+                </span> */}
+              {/* <span className="w-1 h-1 bg-slate-500 rounded-full"></span> */}
+              {/* <span className="flex items-center">
+                  <svg
+                    className="w-4 h-4 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  {images.length} Images
+                </span> */}
+              {/* </div> */}
+            </div>
+
+            {/* Images Grid */}
+            {images.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {images.map((imageUrl, imageIndex) => (
+                  <div
+                    key={imageIndex}
+                    className="group/image relative overflow-hidden rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/30 hover:border-purple-500/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25 cursor-pointer"
+                    onClick={() => openImageModal(imageUrl)}
+                  >
+                    <div className="aspect-square relative overflow-hidden">
+                      <img
+                        src={imageUrl}
+                        alt={`Image ${imageIndex + 1} from ${content.heading}`}
+                        className="w-full h-full object-cover group-hover/image:scale-110 transition-transform duration-700"
+                        loading="lazy"
+                      />
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover/image:opacity-100 transition-opacity duration-300"></div>
+                      {/* Hover Content */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/image:opacity-100 transition-opacity duration-300">
+                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 transform scale-75 group-hover/image:scale-100 transition-transform duration-300">
+                          <svg
+                            className="w-6 h-6 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      {/* Image Number Badge */}
+                      <div className="absolute top-4 left-4 bg-gradient-to-r from-cyan-500/80 to-purple-500/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full border border-white/20">
+                        {imageIndex + 1}
+                      </div>
+                      {/* Shimmer Effect */}
+                      <div className="absolute inset-0 -translate-x-full group-hover/image:translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 ease-out"></div>
                     </div>
                   </div>
-
-                  {/* Images Grid */}
-                  {images.length > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                      {images.map((imageUrl, imageIndex) => (
-                        <div
-                          key={imageIndex}
-                          className="group/image relative overflow-hidden rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/30 hover:border-purple-500/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25 cursor-pointer"
-                          onClick={() => openImageModal(imageUrl)}
-                        >
-                          <div className="aspect-square relative overflow-hidden">
-                            <img
-                              src={imageUrl}
-                              alt={`Image ${imageIndex + 1} from ${
-                                content.heading
-                              }`}
-                              className="w-full h-full object-cover group-hover/image:scale-110 transition-transform duration-700"
-                              loading="lazy"
-                            />
-
-                            {/* Gradient Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover/image:opacity-100 transition-opacity duration-300"></div>
-
-                            {/* Hover Content */}
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/image:opacity-100 transition-opacity duration-300">
-                              <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 transform scale-75 group-hover/image:scale-100 transition-transform duration-300">
-                                <svg
-                                  className="w-6 h-6 text-white"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
-                                  />
-                                </svg>
-                              </div>
-                            </div>
-
-                            {/* Image Number Badge */}
-                            <div className="absolute top-4 left-4 bg-gradient-to-r from-cyan-500/80 to-purple-500/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full border border-white/20">
-                              {imageIndex + 1}
-                            </div>
-
-                            {/* Shimmer Effect */}
-                            <div className="absolute inset-0 -translate-x-full group-hover/image:translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 ease-out"></div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Separator */}
-                  {contentIndex < contents.length - 1 && (
-                    <div className="mt-16 flex items-center justify-center">
-                      <div className="w-32 h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Empty State */}
-          {contents.length === 0 && !loading && !error && (
-            <div className="text-center py-24">
-              <div className="w-32 h-32 bg-gradient-to-br from-slate-700/60 to-purple-700/60 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl">
-                <svg
-                  className="w-16 h-16 text-slate-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2v12a2 2 0 002 2z"
-                  />
-                </svg>
+                ))}
               </div>
-              <h3 className="text-2xl font-bold text-white mb-4">
-                No Galleries Found
-              </h3>
-              <p className="text-slate-400 text-lg">
-                Create your first {TEMPLATE_NAME.toLowerCase()} collection to
-                get started.
-              </p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 

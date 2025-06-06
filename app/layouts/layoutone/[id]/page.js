@@ -16,8 +16,6 @@ export default function LayoutOne() {
     const fetchData = async () => {
       try {
         setLoading(true);
-
-        // Step 1: Fetch all content
         console.log("Fetching content from /api/upload...");
         const contentResponse = await fetch("/api/upload");
         console.log("Content Response Status:", contentResponse.status);
@@ -29,8 +27,6 @@ export default function LayoutOne() {
         }
 
         console.log("All Content Entries:", contentData.content);
-
-        // Step 2: Find the content with the specific ID
         console.log(`Filtering content for ID: ${id}`);
         const filteredContent = contentData.content.find((content) => {
           const matchesId = content._id.toString() === id;
@@ -90,7 +86,10 @@ export default function LayoutOne() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: "#FFFFFF" }}
+      >
         <div className="text-center">
           <svg
             className="animate-spin h-12 w-12 text-indigo-700 mx-auto mb-4"
@@ -120,7 +119,10 @@ export default function LayoutOne() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: "#FFFFFF" }}
+      >
         <div className="bg-white p-10 rounded-2xl shadow-xl max-w-md w-full text-center">
           <svg
             className="h-14 w-14 text-red-600 mx-auto mb-4"
@@ -150,7 +152,10 @@ export default function LayoutOne() {
 
   if (!content) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: "#FFFFFF" }}
+      >
         <p className="text-xl font-medium text-gray-800">No content found.</p>
       </div>
     );
@@ -179,18 +184,41 @@ export default function LayoutOne() {
   const initialPairs = imageTextPairs.slice(0, 2);
   const additionalPairs = imageTextPairs.slice(2);
 
+  // Determine text color based on background color
+  const isWhiteBackground =
+    content.backgroundColor?.toLowerCase() === "#fff" ||
+    content.backgroundColor?.toLowerCase() === "#ffffff";
+  const textColorClass = isWhiteBackground
+    ? {
+        heading: "text-gray-900",
+        subheading: "text-gray-600",
+        text: "text-gray-700",
+      }
+    : {
+        heading: "text-white",
+        subheading: "text-white",
+        text: "text-white",
+      };
+
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-gray-100 py-20 px-4 sm:px-6 lg:px-8">
+    <div
+      className="min-h-screen py-20 px-4 sm:px-6 lg:px-8"
+      style={{ backgroundColor: content.backgroundColor || "#FFFFFF" }}
+    >
       <Head>
         <title>{content.heading} | Lead Magnet</title>
         <meta name="description" content={content.subheading} />
       </Head>
 
       <div className="max-w-6xl mx-auto text-center">
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight animate-fade-in">
+        <h1
+          className={`text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight animate-fade-in ${textColorClass.heading}`}
+        >
           {content.heading}
         </h1>
-        <h2 className="text-xl sm:text-2xl lg:text-3xl font-medium text-gray-600 mb-16 leading-relaxed animate-fade-in-delayed">
+        <h2
+          className={`text-xl sm:text-2xl lg:text-3xl font-medium mb-16 leading-relaxed animate-fade-in-delayed ${textColorClass.subheading}`}
+        >
           {content.subheading}
         </h2>
         {videoSection && (
@@ -198,71 +226,59 @@ export default function LayoutOne() {
             {renderVideo(videoSection.value)}
           </div>
         )}
-      </div>
-
-      <div className="max-w-6xl mx-auto space-y-20">
-        {initialPairs.map((pair, index) => (
-          <div
-            key={index}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center animate-fade-in-delayed"
-          >
-            <div className="order-1 lg:order-1">
-              {pair.image && <div>{renderImage(pair.image.value)}</div>}
-            </div>
-            <div className="order-2 lg:order-2">
-              {pair.text && pair.text.value ? (
-                <p className="text-lg text-gray-700 leading-relaxed font-light">
+        <div className="space-y-20">
+          {initialPairs.map((pair, index) => (
+            <div
+              key={pair.image.id}
+              className={`flex flex-col ${
+                index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+              } items-center gap-10 animate-fade-in-delayed`}
+            >
+              <div className="w-full md:w-1/2">
+                {renderImage(pair.image.value)}
+              </div>
+              <div className="w-full md:w-1/2">
+                <p className={`text-lg leading-relaxed ${textColorClass.text}`}>
                   {pair.text.value}
                 </p>
-              ) : (
-                <p className="text-lg text-gray-500 leading-relaxed italic font-light">
-                  No description available for this section.
-                </p>
-              )}
-            </div>
-          </div>
-        ))}
-
-        {additionalPairs.length > 0 && (
-          <div className="text-center">
-            <button
-              onClick={() => setShowMoreSections(!showMoreSections)}
-              className="flex items-center mx-auto text-indigo-700 hover:text-indigo-900 font-medium transition-colors duration-300"
-            >
-              <Plus className="w-6 h-6 mr-2" />
-              {showMoreSections ? "Hide More Sections" : "Show More Sections"}
-            </button>
-          </div>
-        )}
-
-        {showMoreSections &&
-          additionalPairs.map((pair, index) => (
-            <div
-              key={index}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center animate-fade-in-delayed"
-            >
-              <div className="order-1 lg:order-1">
-                {pair.image && <div>{renderImage(pair.image.value)}</div>}
-              </div>
-              <div className="order-2 lg:order-2">
-                {pair.text && pair.text.value ? (
-                  <p className="text-lg text-gray-700 leading-relaxed font-light">
-                    {pair.text.value}
-                  </p>
-                ) : (
-                  <p className="text-lg text-gray-500 leading-relaxed italic font-light">
-                    No description available for this section.
-                  </p>
-                )}
               </div>
             </div>
           ))}
-      </div>
-
-      <div className="max-w-6xl mx-auto text-center mt-20 animate-fade-in-delayed">
-        <button className="px-10 py-4 bg-gradient-to-r from-indigo-700 to-indigo-600 text-white font-semibold rounded-xl shadow-xl hover:from-indigo-800 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105">
-          Download Your Copy Here
-        </button>
+        </div>
+        {additionalPairs.length > 0 && (
+          <div className="mt-20">
+            <button
+              onClick={() => setShowMoreSections(!showMoreSections)}
+              className="flex items-center mx-auto px-6 py-3 bg-indigo-700 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-800 transition"
+            >
+              <Plus className="mr-2" />
+              {showMoreSections ? "Show Less" : "Show More"}
+            </button>
+            {showMoreSections && (
+              <div className="space-y-20 mt-20">
+                {additionalPairs.map((pair, index) => (
+                  <div
+                    key={pair.image.id}
+                    className={`flex flex-col ${
+                      index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+                    } items-center gap-10 animate-fade-in-delayed`}
+                  >
+                    <div className="w-full md:w-1/2">
+                      {renderImage(pair.image.value)}
+                    </div>
+                    <div className="w-full md:w-1/2">
+                      <p
+                        className={`text-lg leading-relaxed ${textColorClass.text}`}
+                      >
+                        {pair.text.value}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

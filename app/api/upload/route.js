@@ -23,6 +23,7 @@ export async function POST(request) {
 
     // Extract required fields
     const templateId = fields.templateId;
+    const backgroundColor = fields.backgroundColor || "#ffffff"; // Default to white if not provided
     const heading = fields.heading;
     const subheading = fields.subheading;
     const userId = fields.userId;
@@ -64,6 +65,7 @@ export async function POST(request) {
     const contentData = {
       templateId,
       heading,
+      backgroundColor,
       subheading,
       sections: {},
       createdBy: userId, // Use userId from form data
@@ -113,13 +115,33 @@ export async function GET() {
     // Connect to database
     await connectDB();
 
-    // Fetch all content
-    const contents = await Content.find().populate("templateId").lean();
+    // Fetch all content and populate templateId
+    const contents = await Content.find()
+      .populate({
+        path: "templateId",
+        match: { _id: { $exists: true } }, // Ensure only valid templates are populated
+      })
+      .lean();
+
+    // Filter out content where templateId is null (i.e., template not found)
+    const validContents = contents.filter(
+      (content) => content.templateId !== null
+    );
+
+    if (validContents.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "No valid content found with associated templates",
+        },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
       message: "Content fetched successfully",
-      content: contents,
+      content: validContents,
     });
   } catch (error) {
     console.error("Error fetching content:", error);
@@ -151,16 +173,16 @@ export async function PUT(request) {
     console.log("Parsed FormData fields:", fields);
 
     // Extract required fields
-    const contentId = fields.contentId; // Assuming contentId is passed to identify the content to update
+    const contentId = fields.contentId;
     const templateId = fields.templateId;
     const heading = fields.heading;
     const subheading = fields.subheading;
     const userId = fields.userId;
 
     // Validate contentId
-    if (!mongoose.Types.ObjectId.isValid(contentId)) {
+    if (!contentId || !mongoose.Types.ObjectId.isValid(contentId)) {
       return NextResponse.json(
-        { success: false, message: "Invalid content ID" },
+        { success: false, message: "Invalid or missing content ID" },
         { status: 400 }
       );
     }
@@ -182,15 +204,15 @@ export async function PUT(request) {
     }
 
     // Validate templateId
-    if (!mongoose.Types.ObjectId.isValid(templateId)) {
+    if (!templateId || !mongoose.Types.ObjectId.isValid(templateId)) {
       return NextResponse.json(
-        { success: false, message: "Invalid template ID" },
+        { success: false, message: "Invalid or missing template ID" },
         { status: 400 }
       );
     }
 
     // Verify template exists
-    const template = await Template.findById(templateId);
+    const template = await Template.findById(templateId).lean();
     if (!template) {
       return NextResponse.json(
         { success: false, message: "Template not found" },
@@ -199,11 +221,25 @@ export async function PUT(request) {
     }
 
     // Verify content exists
-    const existingContent = await Content.findById(contentId);
+    const existingContent = await Content.findById(contentId).populate({
+      path: "templateId",
+      match: { _id: { $exists: true } }, // Ensure populated template is valid
+    });
     if (!existingContent) {
       return NextResponse.json(
         { success: false, message: "Content not found" },
         { status: 404 }
+      );
+    }
+
+    // Check if existing content's templateId is valid
+    if (!existingContent.templateId) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Existing content has an invalid template reference",
+        },
+        { status: 400 }
       );
     }
 
@@ -214,10 +250,10 @@ export async function PUT(request) {
       subheading,
       sections: {},
       updatedBy: userId,
-      updatedAt: Date.now(), // Update timestamp
+      updatedAt: Date.now(),
     };
 
-    // Process each section
+    // Process each section and enforce required fields
     for (const section of template.sections) {
       const sectionId = section.id;
       if (fields[sectionId]) {
@@ -228,7 +264,10 @@ export async function PUT(request) {
         };
       } else if (section.required) {
         return NextResponse.json(
-          { success: false, message: `${section.title} is required` },
+          {
+            success: false,
+            message: `Section '${section.title}' is required but was not provided`,
+          },
           { status: 400 }
         );
       }
@@ -239,7 +278,19 @@ export async function PUT(request) {
       contentId,
       { $set: contentData },
       { new: true, runValidators: true }
-    );
+    ).populate("templateId");
+
+    // Verify updated content has valid templateId
+    if (!updatedContent.templateId) {
+      console.error("Updated content has null templateId:", updatedContent);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Failed to update content: Invalid template reference",
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

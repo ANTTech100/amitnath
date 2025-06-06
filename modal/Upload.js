@@ -16,6 +16,18 @@ const contentSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  backgroundColor: {
+    type: String,
+    required: true,
+    trim: true,
+    validate: {
+      validator: function (value) {
+        return /^#([0-9A-F]{3}){1,2}$/i.test(value);
+      },
+      message:
+        "Invalid hex color format. Use a valid hex color code (e.g., #ffffff or #fff)",
+    },
+  },
   sections: {
     type: Map,
     of: {

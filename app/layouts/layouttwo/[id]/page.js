@@ -63,6 +63,14 @@ export default function PaymentPage() {
           `Filtering content for templateId: ${templateId} and content ID: ${id}`
         );
         const filteredContent = contentData.content.find((content) => {
+          // Add null check for content.templateId
+          if (!content.templateId) {
+            console.log(
+              `Content ID: ${content._id} has no templateId. Skipping...`
+            );
+            return false;
+          }
+
           const contentTemplateId = content.templateId._id;
           const matchesTemplate =
             contentTemplateId.toString() === templateId.toString();

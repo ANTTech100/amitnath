@@ -30,7 +30,7 @@ export default function EditContent() {
           );
           if (!contentData) {
             toast.error("Content not found");
-            router.push("/");
+            router.push("/publish");
             return;
           }
 
@@ -93,12 +93,20 @@ export default function EditContent() {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const userId = localStorage.getItem("userid");
+    if (!userId || userId === "null") {
+      toast.error("Please log in to update content");
+      router.push("/user/register"); // Redirect to login page
+      return;
+    }
+
     const data = new FormData();
     data.append("contentId", contentId);
     data.append("templateId", content.templateId._id);
     data.append("heading", formData.heading);
     data.append("subheading", formData.subheading);
-    data.append("userId", localStorage.getItem("userId"));
+    data.append("userId", userId);
     Object.entries(formData.sections).forEach(([sectionId, section]) => {
       if (section.value instanceof File) {
         data.append(sectionId, section.value);
@@ -115,6 +123,7 @@ export default function EditContent() {
       const result = await response.json();
       if (result.success) {
         toast.success("Content updated successfully");
+        alert("Content updated successfully");
         router.push("/");
       } else {
         toast.error(result.message || "Failed to update content");
@@ -270,7 +279,7 @@ export default function EditContent() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-gray-700">
+                  <label className="block text-sm font-semibold text-green-900">
                     Heading <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -278,14 +287,13 @@ export default function EditContent() {
                     name="heading"
                     value={formData.heading}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 bg-white shadow-sm"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-200 bg-black shadow-sm text-green-400 placeholder-green-300"
                     placeholder="Enter your main heading"
                     required
                   />
                 </div>
-
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-gray-700">
+                  <label className="block text-sm font-semibold text-black">
                     Subheading <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -293,7 +301,7 @@ export default function EditContent() {
                     name="subheading"
                     value={formData.subheading}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 bg-white shadow-sm"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-200 bg-black shadow-sm text-green-400 placeholder-green-300"
                     placeholder="Enter your subheading"
                     required
                   />
@@ -329,7 +337,7 @@ export default function EditContent() {
                       key={section.id}
                       className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
                     >
-                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      <label className="block text-sm font-semibold text-black mb-3">
                         <div className="flex items-center justify-between">
                           <span className="flex items-center">
                             {section.title}
