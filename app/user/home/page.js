@@ -353,9 +353,9 @@ export default function UserDashboard() {
           <p className="text-lg text-slate-200/80 leading-relaxed max-w-3xl mx-auto mb-16">
             Our platform combines the power of artificial intelligence with
             beautiful design to help you create content that stands out. Whether
-            you're building websites, creating social media posts, or designing
-            marketing materials, we've got you covered with templates that adapt
-            to your unique style and brand.
+            youare building websites, creating social media posts, or designing
+            marketing materials, we have got you covered with templates that
+            adapt to your unique style and brand.
           </p>
         </div>
 
@@ -507,7 +507,7 @@ export default function UserDashboard() {
                       </div>
                     </div>
                     <p className="text-slate-200/80 text-sm leading-relaxed">
-                      "{customer.text}"
+                      {customer.text}
                     </p>
                   </div>
                 </div>
