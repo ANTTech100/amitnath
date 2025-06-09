@@ -49,19 +49,18 @@ const ContactUs = () => {
 
   return (
     <>
-      {" "}
       <UserNavbar></UserNavbar>
       <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-indigo-950 py-16 px-4">
         <div className="max-w-6xl mx-auto">
           {/* Header Section */}
-
           <div className="text-center mb-16">
             <h1 className="text-6xl font-black mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
               Get In Touch
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Have questions, feedback, or need support? We'd love to hear from
-              you. Send us a message and we'll respond as soon as possible.
+              Have questions, feedback, or need support? We&apos;d love to hear
+              from you. Send us a message and we&apos;ll respond as soon as
+              possible.
             </p>
           </div>
 
@@ -70,12 +69,12 @@ const ContactUs = () => {
             <div className="space-y-8">
               <div className="bg-white/5 backdrop-blur-xl border border-purple-400/20 rounded-2xl p-8 shadow-lg">
                 <h2 className="text-3xl font-bold text-white mb-6">
-                  Let's Start a Conversation
+                  Let&apos;s Start a Conversation
                 </h2>
                 <p className="text-gray-300 text-lg mb-8 leading-relaxed">
-                  Whether you're experiencing technical issues, have feature
-                  requests, or just want to share feedback about WORK, we're
-                  here to help.
+                  Whether you&apos;re experiencing technical issues, have
+                  feature requests, or just want to share feedback about WORK,
+                  we&apos;re here to help.
                 </p>
 
                 {/* Contact Methods */}
@@ -139,7 +138,7 @@ const ContactUs = () => {
                     Send us a Message
                   </h2>
                   <p className="text-gray-400">
-                    Fill out the form below and we'll get back to you soon
+                    Fill out the form below and we&apos;ll get back to you soon
                   </p>
                 </div>
 
@@ -189,7 +188,7 @@ const ContactUs = () => {
                   </div>
                 </div>
 
-                {/* issue Field */}
+                {/* Issue Field */}
                 <div className="group">
                   <label
                     htmlFor="issue"
@@ -239,7 +238,8 @@ const ContactUs = () => {
                   <div className="p-4 bg-emerald-600/20 border border-emerald-400/30 rounded-xl">
                     <p className="text-emerald-300 text-center font-semibold flex items-center justify-center gap-2">
                       <span>✅</span>
-                      Message sent successfully! We'll get back to you soon.
+                      Message sent successfully! We&apos;ll get back to you
+                      soon.
                     </p>
                   </div>
                 )}
