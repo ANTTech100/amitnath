@@ -58,10 +58,10 @@ export default function RootLayout({ children }) {
                     Terms
                   </a>
                   <a
-                    href="#"
+                    href="/user/contact"
                     className="text-gray-300 hover:text-white transition-colors duration-200"
                   >
-                    Contact
+                    Contact us
                   </a>
                 </div>
                 <p className="text-gray-400 text-xs">

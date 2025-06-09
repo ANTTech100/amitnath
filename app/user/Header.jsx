@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 
 const UserNavbar = () => {
   const [abc, setAbc] = useState("");
@@ -13,7 +12,7 @@ const UserNavbar = () => {
   // Check for userid in localStorage on mount
   useEffect(() => {
     const userid = localStorage.getItem("userid");
-    console.log("UserID from localStorage:", userid); // Debug log
+    console.log("UserID from localStorage:", userid);
     setIsLoggedIn(!!userid);
     setAbc(userid || "");
   }, []);
@@ -37,7 +36,6 @@ const UserNavbar = () => {
         router.push(`/user/profile/${userid}`);
       } catch (error) {
         console.error("Header: Navigation error:", error.message);
-        // Fallback to window.location.href if router.push fails
         window.location.href = `/user/profile/${userid}`;
       }
     } else {
@@ -45,103 +43,107 @@ const UserNavbar = () => {
     }
   };
 
-  // Animation variants for mobile menu
-  const menuVariants = {
-    hidden: { opacity: 0, y: -20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.3, ease: "easeOut" },
-    },
-    exit: { opacity: 0, y: -20, transition: { duration: 0.2 } },
-  };
-
-  // Animation for links
-  const linkVariants = {
-    hover: { scale: 1.05, color: "#d8b4fe" },
-  };
-
   return (
-    <nav className="bg-gradient-to-r from-gray-900 to-blue-900 border-b border-purple-500/40 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="relative bg-gradient-to-r from-indigo-950 via-purple-950 to-indigo-950 border-b border-purple-400/20 backdrop-blur-xl shadow-lg">
+      {/* Animated background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/8 to-pink-600/5 animate-pulse"></div>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
+          {/* Logo and Navigation */}
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <Link
                 href="/"
-                className="font-extrabold text-2xl text-purple-300 hover:text-purple-100 transition-colors duration-300"
+                className="font-black text-3xl bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent hover:from-purple-300 hover:via-pink-300 hover:to-blue-300 transition-all duration-500 transform hover:scale-110"
               >
                 WORK
               </Link>
             </div>
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-4">
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:block ml-12">
+              <div className="flex items-center space-x-2">
                 {[
-                  { href: "/", label: "Home" },
-                  { href: "/user/tem", label: "Templates" },
-                  { href: "/publish", label: "Uploads" },
+                  { href: "/", label: "Home", icon: "🏠" },
+                  { href: "/user/tem", label: "Templates", icon: "📋" },
+                  { href: "/publish", label: "Uploads", icon: "📤" },
                 ].map((item) => (
-                  <motion.div
+                  <Link
                     key={item.href}
-                    variants={linkVariants}
-                    whileHover="hover"
+                    href={item.href}
+                    className="group relative px-4 py-2 rounded-xl text-sm font-semibold text-gray-100 hover:text-white transition-all duration-300 overflow-hidden"
                   >
-                    <Link
-                      href={item.href}
-                      className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-100 hover:bg-purple-600/30 hover:text-purple-100 transition-colors duration-300"
-                    >
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/0 to-blue-600/0 group-hover:from-purple-600/20 group-hover:to-blue-600/20 rounded-xl transition-all duration-300"></div>
+                    <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 rounded-xl transition-all duration-300"></div>
+                    <span className="relative flex items-center gap-2">
+                      <span className="text-xs">{item.icon}</span>
                       {item.label}
-                    </Link>
-                  </motion.div>
+                    </span>
+                    <div className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-blue-400 group-hover:w-full group-hover:left-0 transition-all duration-300"></div>
+                  </Link>
                 ))}
               </div>
             </div>
           </div>
+
+          {/* Desktop Auth Section */}
           <div className="hidden md:block">
-            <div className="flex items-center space-x-4">
-              <motion.div variants={linkVariants} whileHover="hover">
-                <button
-                  onClick={handleProfileClick}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-100 hover:bg-purple-600/30 hover:text-purple-100 transition-colors duration-300"
-                >
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={handleProfileClick}
+                className="group relative px-4 py-2 rounded-xl text-sm font-semibold text-gray-100 hover:text-white transition-all duration-300 overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/0 to-teal-600/0 group-hover:from-emerald-600/20 group-hover:to-teal-600/20 rounded-xl transition-all duration-300"></div>
+                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 rounded-xl transition-all duration-300"></div>
+                <span className="relative flex items-center gap-2">
+                  <span className="text-xs">👤</span>
                   Profile
-                </button>
-              </motion.div>
+                </span>
+              </button>
+
               {isLoggedIn ? (
-                <motion.button
-                  variants={linkVariants}
-                  whileHover="hover"
+                <button
                   onClick={handleLogout}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold bg-purple-700 text-white hover:bg-purple-800 transition-colors duration-300"
+                  className="group relative px-6 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-red-600 to-pink-600 text-white hover:from-red-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-red-500/25"
                 >
-                  Logout
-                </motion.button>
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/0 group-hover:from-white/10 group-hover:to-white/10 rounded-xl transition-all duration-300"></div>
+                  <span className="relative flex items-center gap-2">
+                    <span className="text-xs">🚪</span>
+                    Logout
+                  </span>
+                </button>
               ) : (
-                <motion.div variants={linkVariants} whileHover="hover">
-                  <Link
-                    href="/user/register"
-                    className="px-4 py-2 rounded-xl text-sm font-semibold bg-purple-600 text-white hover:bg-purple-700 transition-colors duration-300"
-                  >
+                <Link
+                  href="/user/register"
+                  className="group relative px-6 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-purple-500/25"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/0 group-hover:from-white/10 group-hover:to-white/10 rounded-xl transition-all duration-300"></div>
+                  <span className="relative flex items-center gap-2">
+                    <span className="text-xs">✨</span>
                     Register
-                  </Link>
-                </motion.div>
+                  </span>
+                </Link>
               )}
             </div>
           </div>
+
+          {/* Mobile menu button */}
           <div className="md:hidden">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
+            <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md hover:bg-purple-600/30 focus:outline-none"
+              className="group relative inline-flex items-center justify-center p-2 rounded-xl text-purple-300 hover:text-white hover:bg-white/10 transition-all duration-300"
             >
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600/0 to-blue-600/0 group-hover:from-purple-600/20 group-hover:to-blue-600/20 rounded-xl transition-all duration-300"></div>
               <svg
-                className="h-6 w-6 text-purple-300"
+                className="relative h-6 w-6 transition-transform duration-300"
+                style={{
+                  transform: isMenuOpen ? "rotate(90deg)" : "rotate(0deg)",
+                }}
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                aria-hidden="true"
               >
                 {isMenuOpen ? (
                   <path
@@ -159,62 +161,92 @@ const UserNavbar = () => {
                   />
                 )}
               </svg>
-            </motion.button>
+            </button>
           </div>
         </div>
       </div>
 
       {/* Mobile menu */}
-      <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div
-            variants={menuVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="md:hidden bg-gray-800 border-t border-purple-500/40 shadow-inner"
-          >
-            <div className="px-2 pt-2 pb-3 space-y-2 sm:px-3">
-              {[
-                { href: "/", label: "Home" },
-                { href: "/user/tem", label: "Templates" },
-                { href: "/publish", label: "Uploads" },
-                { href: "#", label: "Profile", onClick: handleProfileClick },
-                isLoggedIn
-                  ? { href: "#", label: "Logout", onClick: handleLogout }
-                  : { href: "/user/register", label: "Register" },
-              ].map((item) => (
-                <motion.div
-                  key={item.href}
-                  variants={linkVariants}
-                  whileHover="hover"
+      <div
+        className={`md:hidden bg-indigo-900/90 backdrop-blur-xl border-t border-purple-400/20 shadow-lg transition-all duration-300 ease-in-out ${
+          isMenuOpen
+            ? "max-h-96 opacity-100 visible"
+            : "max-h-0 opacity-0 invisible"
+        }`}
+      >
+        <div className="px-4 pt-3 pb-4 space-y-2">
+          {[
+            { href: "/", label: "Home", icon: "🏠" },
+            { href: "/user/tem", label: "Templates", icon: "📋" },
+            { href: "/publish", label: "Uploads", icon: "📤" },
+            {
+              href: "#",
+              label: "Profile",
+              icon: "👤",
+              onClick: handleProfileClick,
+            },
+            isLoggedIn
+              ? {
+                  href: "#",
+                  label: "Logout",
+                  icon: "🚪",
+                  onClick: handleLogout,
+                }
+              : { href: "/user/register", label: "Register", icon: "✨" },
+          ].map((item, index) => (
+            <div
+              key={item.href}
+              className="group"
+              style={{
+                animationDelay: `${index * 50}ms`,
+                animation: isMenuOpen
+                  ? "fadeInUp 0.3s ease-out forwards"
+                  : "none",
+              }}
+            >
+              {item.onClick ? (
+                <button
+                  onClick={item.onClick}
+                  className={`w-full text-left px-4 py-3 rounded-xl text-base font-semibold transition-all duration-300 flex items-center gap-3 ${
+                    item.label === "Logout"
+                      ? "bg-gradient-to-r from-red-600/80 to-pink-600/80 text-white hover:from-red-700 hover:to-pink-700 shadow-lg"
+                      : "text-gray-100 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20"
+                  }`}
                 >
-                  {item.onClick ? (
-                    <button
-                      onClick={item.onClick}
-                      className={`block w-full text-left px-4 py-2 rounded-xl text-base font-semibold ${
-                        item.label === "Logout"
-                          ? "bg-purple-700 text-white hover:bg-purple-800"
-                          : "text-gray-100 hover:bg-purple-600/30 hover:text-purple-100"
-                      } transition-colors duration-300`}
-                    >
-                      {item.label}
-                    </button>
-                  ) : (
-                    <Link
-                      href={item.href}
-                      className="block px-4 py-2 rounded-xl text-base font-semibold text-gray-100 hover:bg-purple-600/30 hover:text-purple-100 transition-colors duration-300"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {item.label}
-                    </Link>
-                  )}
-                </motion.div>
-              ))}
+                  <span className="text-sm">{item.icon}</span>
+                  {item.label}
+                </button>
+              ) : (
+                <Link
+                  href={item.href}
+                  className={`block px-4 py-3 rounded-xl text-base font-semibold transition-all duration-300 flex items-center gap-3 ${
+                    item.label === "Register"
+                      ? "bg-gradient-to-r from-purple-600/80 to-blue-600/80 text-white hover:from-purple-700 hover:to-blue-700 shadow-lg"
+                      : "text-gray-100 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20"
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <span className="text-sm">{item.icon}</span>
+                  {item.label}
+                </Link>
+              )}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          ))}
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </nav>
   );
 };

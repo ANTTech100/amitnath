@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import {
   FileText,
   Upload,
@@ -18,65 +17,39 @@ import {
   Globe,
   Star,
   TrendingUp,
+  Play,
+  ShoppingCart,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Eye,
+  ThumbsUp,
+  PlayCircle,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import UserNavbar from "../Header";
+import FAQ from "../FAQ";
 
 export default function UserDashboard() {
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [templateScrollIndex, setTemplateScrollIndex] = useState(0);
+  const [customerScrollIndex, setCustomerScrollIndex] = useState(0);
+  const [videoScrollIndex, setVideoScrollIndex] = useState(0);
+
+  // Google Sign-in handler
+  const handleGoogleSignIn = () => {
+    console.log("Google Sign-in clicked");
+  };
 
   // Fetch templates from API
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const response = await fetch("/api/admin/templatecreate");
-        if (response.ok) {
-          const data = await response.json();
-          console.log("Fetched data:", data); // Debug log
-
-          // Handle different response structures
-          let templatesArray = [];
-          if (Array.isArray(data)) {
-            templatesArray = data;
-          } else if (data.templates && Array.isArray(data.templates)) {
-            templatesArray = data.templates;
-          } else if (data.data && Array.isArray(data.data)) {
-            templatesArray = data.data;
-          } else {
-            console.log("Unexpected data structure:", data);
-            templatesArray = [];
-          }
-
-          // Limit to 3-4 templates and add modern styling properties
-          const limitedTemplates = templatesArray
-            .slice(0, 6)
-            .map((template, index) => ({
-              id: template._id || template.id || `template-${index}`,
-              name: template.name || template.heading || "Template",
-              description:
-                template.description ||
-                template.subheading ||
-                "Professional template for your content creation needs",
-              type: template.type || "basic",
-              status: template.status || "published",
-              usageCount: template.usageCount || 0,
-              color: getGradientColor(index),
-              bgColor: getBgColor(index),
-              iconColor: getIconColor(index),
-              icon: getTemplateIcon(template.name || template.heading),
-            }));
-
-          setTemplates(limitedTemplates);
-        } else {
-          console.error("API response not ok:", response.status);
-          setTemplates(getFallbackTemplates());
-        }
+        // Simulating API call with fallback templates
+        const limitedTemplates = getFallbackTemplates();
+        setTemplates(limitedTemplates);
       } catch (error) {
         console.error("Error fetching templates:", error);
-        // Fallback templates if API fails
         setTemplates(getFallbackTemplates());
       } finally {
         setLoading(false);
@@ -89,33 +62,42 @@ export default function UserDashboard() {
   // Helper functions for styling
   const getGradientColor = (index) => {
     const gradients = [
-      "from-blue-500 to-purple-600",
-      "from-pink-500 to-rose-600",
-      "from-green-500 to-emerald-600",
-      "from-orange-500 to-red-600",
+      "from-emerald-500 to-teal-600",
+      "from-violet-500 to-purple-600",
       "from-cyan-500 to-blue-600",
+      "from-rose-500 to-pink-600",
+      "from-amber-500 to-orange-600",
+      "from-indigo-500 to-blue-600",
+      "from-green-500 to-emerald-600",
+      "from-red-500 to-rose-600",
     ];
     return gradients[index % gradients.length];
   };
 
   const getBgColor = (index) => {
     const bgColors = [
-      "bg-blue-500/10",
-      "bg-pink-500/10",
-      "bg-green-500/10",
-      "bg-orange-500/10",
+      "bg-emerald-500/10",
+      "bg-violet-500/10",
       "bg-cyan-500/10",
+      "bg-rose-500/10",
+      "bg-amber-500/10",
+      "bg-indigo-500/10",
+      "bg-green-500/10",
+      "bg-red-500/10",
     ];
     return bgColors[index % bgColors.length];
   };
 
   const getIconColor = (index) => {
     const iconColors = [
-      "text-blue-400",
-      "text-pink-400",
-      "text-green-400",
-      "text-orange-400",
+      "text-emerald-400",
+      "text-violet-400",
       "text-cyan-400",
+      "text-rose-400",
+      "text-amber-400",
+      "text-indigo-400",
+      "text-green-400",
+      "text-red-400",
     ];
     return iconColors[index % iconColors.length];
   };
@@ -140,7 +122,7 @@ export default function UserDashboard() {
       return Globe;
     if (lowerName.includes("magnet") || lowerName.includes("lead")) return Star;
     if (lowerName.includes("page")) return FileText;
-    return Sparkles; // Default icon
+    return Sparkles;
   };
 
   const getFallbackTemplates = () => [
@@ -148,395 +130,462 @@ export default function UserDashboard() {
       name: "Blog Post",
       description: "Create engaging text-based blog posts with rich formatting",
       id: "blog-post",
-      color: "from-blue-500 to-purple-600",
-      bgColor: "bg-blue-500/10",
-      iconColor: "text-blue-400",
+      color: "from-emerald-500 to-teal-600",
+      bgColor: "bg-emerald-500/10",
+      iconColor: "text-emerald-400",
       icon: FileText,
     },
     {
       name: "Photo Gallery",
       description: "Showcase multiple images in beautiful gallery layouts",
       id: "gallery",
-      color: "from-pink-500 to-rose-600",
-      bgColor: "bg-pink-500/10",
-      iconColor: "text-pink-400",
+      color: "from-violet-500 to-purple-600",
+      bgColor: "bg-violet-500/10",
+      iconColor: "text-violet-400",
       icon: Image,
     },
     {
       name: "Video Content",
       description: "Upload and manage video content with metadata",
       id: "video",
-      color: "from-green-500 to-emerald-600",
-      bgColor: "bg-green-500/10",
-      iconColor: "text-green-400",
+      color: "from-cyan-500 to-blue-600",
+      bgColor: "bg-cyan-500/10",
+      iconColor: "text-cyan-400",
       icon: Video,
+    },
+    {
+      name: "Portfolio Site",
+      description: "Professional portfolio to showcase your work",
+      id: "portfolio",
+      color: "from-rose-500 to-pink-600",
+      bgColor: "bg-rose-500/10",
+      iconColor: "text-rose-400",
+      icon: Palette,
+    },
+    {
+      name: "Landing Page",
+      description: "High-converting landing pages for your business",
+      id: "landing",
+      color: "from-amber-500 to-orange-600",
+      bgColor: "bg-amber-500/10",
+      iconColor: "text-amber-400",
+      icon: Globe,
     },
   ];
 
-  // Animation variants
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: "easeOut" },
+  // Hardcoded customer testimonials
+  const customers = [
+    {
+      id: 1,
+      name: "Sarah Johnson",
+      image:
+        "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=80&h=80&fit=crop&crop=face",
+      text: "Amazing templates! Saved me hours of work and the results look professional.",
+      rating: 5,
     },
+    {
+      id: 2,
+      name: "Mike Chen",
+      image:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
+      text: "The video templates are exactly what I needed for my YouTube channel.",
+      rating: 5,
+    },
+    {
+      id: 3,
+      name: "Emily Davis",
+      image:
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&crop=face",
+      text: "User-friendly interface and beautiful designs. Highly recommend!",
+      rating: 4,
+    },
+    {
+      id: 4,
+      name: "Alex Rodriguez",
+      image:
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face",
+      text: "Great value for money. The templates are modern and responsive.",
+      rating: 5,
+    },
+    {
+      id: 5,
+      name: "Lisa Wang",
+      image:
+        "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&h=80&fit=crop&crop=face",
+      text: "Perfect for my business needs. Clean designs and easy customization.",
+      rating: 5,
+    },
+  ];
+
+  // Tutorial/Demo videos data
+  const tutorialVideos = [
+    {
+      id: 1,
+      title: "HTML & CSS Basics - Build Your First Website",
+      videoLink: "https://youtu.be/qz0aGYrrlhU",
+    },
+    {
+      id: 2,
+      title: "JavaScript Full Course for Beginners",
+      videoLink: "https://youtu.be/PkZNo7MFNFg",
+    },
+    {
+      id: 3,
+      title: "React Tutorial for Beginners",
+      videoLink: "https://youtu.be/bMknfKXIFA8",
+    },
+    {
+      id: 4,
+      title: "Responsive Web Design Course",
+      videoLink: "https://youtu.be/srvUrASNdxk",
+    },
+    {
+      id: 5,
+      title: "Node.js and Express.js Full Course",
+      videoLink: "https://youtu.be/Oe421EPjeBE",
+    },
+  ];
+
+  // Scroll functions
+  const scrollTemplates = (direction) => {
+    const maxIndex = Math.max(0, templates.length - 3);
+    if (direction === "left") {
+      setTemplateScrollIndex(Math.max(0, templateScrollIndex - 1));
+    } else {
+      setTemplateScrollIndex(Math.min(maxIndex, templateScrollIndex + 1));
+    }
   };
 
-  const modalVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.4 } },
-    exit: { opacity: 0, scale: 0.8, transition: { duration: 0.3 } },
+  const scrollCustomers = (direction) => {
+    const maxIndex = Math.max(0, customers.length - 3);
+    if (direction === "left") {
+      setCustomerScrollIndex(Math.max(0, customerScrollIndex - 1));
+    } else {
+      setCustomerScrollIndex(Math.min(maxIndex, customerScrollIndex + 1));
+    }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
+  const scrollVideos = (direction) => {
+    const maxIndex = Math.max(0, tutorialVideos.length - 4);
+    if (direction === "left") {
+      setVideoScrollIndex(Math.max(0, videoScrollIndex - 1));
+    } else {
+      setVideoScrollIndex(Math.min(maxIndex, videoScrollIndex + 1));
+    }
   };
 
-  const heroVariants = {
-    hidden: { opacity: 0, y: 40 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.8, ease: "easeOut" },
-    },
+  const openVideo = (videoId) => {
+    window.open(`https://www.youtube.com/watch?v=${videoId}`, "_blank");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 relative overflow-hidden">
+      <UserNavbar></UserNavbar>
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-violet-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute top-20 left-20 w-64 h-64 bg-rose-500/5 rounded-full blur-2xl animate-pulse delay-2000"></div>
       </div>
 
-      {/* Navbar */}
-      <UserNavbar />
+      {/* Google Sign-in Button - Top Right */}
+      {/* <div className="absolute top-20 right-6 z-50">
+        <button
+          onClick={handleGoogleSignIn}
+          className="flex items-center px-6 py-3 bg-white/95 backdrop-blur-sm text-gray-700 font-semibold rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-white/20"
+        >
+          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+            <path
+              fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+            />
+            <path
+              fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+            />
+            <path
+              fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+            />
+          </svg>
+          Sign in with Google
+        </button>
+      </div> */}
 
-      {/* Enhanced Hero Section */}
-      <div className="relative bg-gradient-to-r from-purple-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto py-16 px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            variants={heroVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <div className="flex justify-center mb-6">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full blur-lg opacity-50 animate-pulse"></div>
-                <Sparkles className="relative h-12 w-12 text-purple-300" />
+      <div className="container mx-auto px-6 py-12 pt-24">
+        {/* Main Title Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 via-white to-violet-200 mb-8 animate-pulse">
+            Create Amazing Content Instantly
+          </h1>
+
+          <p className="text-xl text-slate-200/90 leading-relaxed max-w-2xl mx-auto mb-12">
+            Transform your ideas into stunning, professional content with our
+            AI-powered templates. Save time, boost creativity, and engage your
+            audience like never before with our cutting-edge design tools.
+          </p>
+
+          {/* Main Demo Video Section */}
+          <div className="max-w-4xl mx-auto mb-16">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/20 to-violet-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+
+              <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:shadow-emerald-500/20 transition-all duration-500 hover:scale-[1.02] transform">
+                <div className="aspect-video relative overflow-hidden">
+                  <iframe
+                    src="https://www.youtube.com/embed/McSh1ewsFQ4?si=dOKMYuD7_fAt_UCS"
+                    title="Demo Video"
+                    className="absolute inset-0 w-full h-full rounded-3xl"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  ></iframe>
+                </div>
               </div>
             </div>
-            <h1 className="text-5xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-white to-blue-200 sm:text-6xl mb-4">
-              Welcome to SSWORK
-            </h1>
-            <p className="mt-6 max-w-2xl mx-auto text-xl text-purple-200/90 leading-relaxed">
-              Transform your ideas into stunning content with our professionally
-              designed templates
-            </p>
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/user/tem"
-                className="group inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-2xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 transform hover:scale-105"
-              >
-                <Grid3X3 className="mr-3 h-5 w-5" />
-                Browse All Templates
-                <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <button className="inline-flex items-center px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-semibold rounded-2xl hover:bg-white/20 transition-all duration-300 border border-white/20">
-                <Star className="mr-3 h-5 w-5" />
-                Featured Content
-              </button>
-            </div>
-
-            {/* Stats */}
-            <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl mx-auto">
-              {[
-                { label: "Templates", value: "50+", icon: Palette },
-                { label: "Active Users", value: "10K+", icon: User },
-                { label: "Projects Created", value: "25K+", icon: TrendingUp },
-              ].map((stat, index) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8 + index * 0.1 }}
-                  className="text-center"
-                >
-                  <stat.icon className="h-6 w-6 text-purple-300 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-purple-200/70">{stat.label}</div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Enhanced Templates Section */}
-      <div className="relative max-w-6xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <div className="text-center mb-12">
-            <motion.h2
-              variants={cardVariants}
-              className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-blue-200 mb-4"
-            >
-              Featured Templates
-            </motion.h2>
-            <motion.p
-              variants={cardVariants}
-              className="text-lg text-purple-200/80 max-w-2xl mx-auto"
-            >
-              Choose from our curated selection of professional templates to get
-              started quickly
-            </motion.p>
           </div>
 
-          {/* Enhanced Search */}
-          <motion.div
-            variants={cardVariants}
-            className="mb-12 max-w-md mx-auto"
-          >
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-              <div className="relative flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl shadow-lg hover:shadow-purple-500/10 transition-all duration-300">
-                <Search className="h-5 w-5 text-purple-300 ml-4" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-4 bg-transparent text-white placeholder-purple-200/50 focus:outline-none"
-                  placeholder="Search templates..."
-                />
-              </div>
-            </div>
-          </motion.div>
+          <p className="text-lg text-slate-200/80 leading-relaxed max-w-3xl mx-auto mb-16">
+            Our platform combines the power of artificial intelligence with
+            beautiful design to help you create content that stands out. Whether
+            you're building websites, creating social media posts, or designing
+            marketing materials, we've got you covered with templates that adapt
+            to your unique style and brand.
+          </p>
+        </div>
 
-          {/* Template Grid */}
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[...Array(3)].map((_, index) => (
-                <div key={index} className="animate-pulse">
-                  <div className="bg-white/10 rounded-3xl h-48"></div>
-                </div>
-              ))}
+        {/* Templates Scroller Section */}
+        <div className="mb-16">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200">
+              Featured Templates
+            </h2>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => scrollTemplates("left")}
+                disabled={templateScrollIndex === 0}
+                className="p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
+              >
+                <ChevronLeft className="h-5 w-5 text-white" />
+              </button>
+              <button
+                onClick={() => scrollTemplates("right")}
+                disabled={
+                  templateScrollIndex >= Math.max(0, templates.length - 3)
+                }
+                className="p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
+              >
+                <ChevronRight className="h-5 w-5 text-white" />
+              </button>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          </div>
+
+          <div className="overflow-hidden">
+            <div
+              className="flex transition-transform duration-500 ease-in-out"
+              style={{
+                transform: `translateX(-${templateScrollIndex * 33.333}%)`,
+              }}
+            >
               {templates.map((template, index) => {
-                const IconComponent = template.icon;
+                const IconComponent = template.icon || Sparkles;
                 return (
-                  <motion.div
-                    key={template.id || template._id || index}
-                    variants={cardVariants}
-                    whileHover={{
-                      scale: 1.05,
-                      rotateY: 5,
-                      z: 50,
-                    }}
-                    className="group cursor-pointer perspective-1000"
-                    onClick={() => (window.location.href = "/user/tem")}
+                  <div
+                    key={template.id || index}
+                    className="w-1/3 flex-shrink-0 px-3"
                   >
-                    <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 transform-gpu">
-                      {/* Gradient overlay */}
-                      <div
-                        className={`absolute inset-0 bg-gradient-to-br ${template.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
-                      ></div>
+                    <div className="group cursor-pointer">
+                      <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-emerald-500/20 transition-all duration-500 transform hover:scale-105">
+                        <div
+                          className={`absolute inset-0 bg-gradient-to-br ${template.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
+                        ></div>
 
-                      {/* Content */}
-                      <div className="relative p-8">
-                        <div className="flex items-start justify-between mb-6">
+                        <div className="relative p-6">
                           <div
-                            className={`${template.bgColor} backdrop-blur-sm rounded-2xl p-4 group-hover:scale-110 transition-transform duration-300`}
+                            className={`${template.bgColor} backdrop-blur-sm rounded-2xl p-4 w-fit mb-4`}
                           >
                             <IconComponent
                               className={`h-8 w-8 ${template.iconColor}`}
                             />
                           </div>
-                          <ArrowRight className="h-5 w-5 text-white/40 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
-                        </div>
 
-                        <h3 className="text-xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-200 group-hover:to-blue-200 transition-all duration-300">
-                          {template.name}
-                        </h3>
+                          <h3 className="text-xl font-bold text-white mb-2">
+                            {template.name}
+                          </h3>
+                          <p className="text-slate-200/70 text-sm line-clamp-2">
+                            {template.description}
+                          </p>
 
-                        <p className="text-purple-200/70 text-sm leading-relaxed line-clamp-3">
-                          {template.description}
-                        </p>
-
-                        {/* Template metadata */}
-                        <div className="mt-4 flex items-center justify-between text-xs text-purple-300/60">
-                          <span className="capitalize">
-                            {template.type} template
-                          </span>
-                          {template.usageCount > 0 && (
-                            <span>{template.usageCount} uses</span>
-                          )}
-                        </div>
-
-                        {/* Hover effect indicators */}
-                        <div className="mt-6 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <span className="text-xs text-purple-300 font-medium">
-                            Click to explore
-                          </span>
-                          <div className="flex space-x-1">
-                            {[...Array(3)].map((_, i) => (
-                              <div
-                                key={i}
-                                className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"
-                                style={{ animationDelay: `${i * 0.2}s` }}
-                              ></div>
-                            ))}
+                          <div className="mt-4 text-xs text-slate-300/60">
+                            <span className="capitalize">premium template</span>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
-          )}
-        </motion.div>
-      </div>
+          </div>
+        </div>
 
-      {/* Enhanced My Content Section */}
-      <div className="relative max-w-6xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.h2
-            variants={cardVariants}
-            className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-blue-200 mb-8 text-center"
-          >
-            My Content
-          </motion.h2>
-
-          {/* Enhanced Empty State */}
-          <motion.div variants={cardVariants} className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-blue-600/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-            <div className="relative text-center py-16 px-8 bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 shadow-xl">
-              <div className="mb-6">
-                <div className="relative inline-block">
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full blur-lg opacity-30 animate-pulse"></div>
-                  <Plus className="relative h-16 w-16 text-purple-300 mx-auto" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4">
-                No content yet
-              </h3>
-              <p className="text-lg text-purple-200/70 mb-8 max-w-md mx-auto">
-                Ready to create something amazing? Choose a template and bring
-                your ideas to life.
-              </p>
-              <Link
-                href="/user/tem"
-                className="group inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-2xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 transform hover:scale-105"
-              >
-                <Zap className="mr-3 h-5 w-5" />
-                Start Creating
-                <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
+        {/* Try Now Buy Later Button */}
+        <div className="text-center mb-16">
+          <button className="group relative px-12 py-6 bg-gradient-to-r from-emerald-600 to-violet-600 text-white font-bold text-xl rounded-3xl hover:from-emerald-700 hover:to-violet-700 transition-all duration-300 shadow-2xl hover:shadow-emerald-500/25 transform hover:scale-105">
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-violet-400 rounded-3xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+            <div className="relative flex items-center">
+              <Zap className="mr-4 h-6 w-6" />
+              Try Now, Buy Later
+              <ShoppingCart className="ml-4 h-6 w-6" />
             </div>
-          </motion.div>
-        </motion.div>
-      </div>
+          </button>
+        </div>
 
-      {/* Template Modal (unchanged functionality) */}
-      <AnimatePresence>
-        {selectedTemplate && (
-          <motion.div
-            variants={modalVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          >
-            <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto border border-white/20">
-              <div className="px-6 py-8">
-                <h3 className="text-2xl font-bold text-white mb-6">
-                  {selectedTemplate === "blog-post" && "Create Blog Post"}
-                  {selectedTemplate === "gallery" && "Create Photo Gallery"}
-                  {selectedTemplate === "video" && "Upload Video Content"}
-                </h3>
+        {/* Happy Customers Scroller */}
+        <div className="mb-16">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200">
+              Happy Customers
+            </h2>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => scrollCustomers("left")}
+                disabled={customerScrollIndex === 0}
+                className="p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
+              >
+                <ChevronLeft className="h-5 w-5 text-white" />
+              </button>
+              <button
+                onClick={() => scrollCustomers("right")}
+                disabled={
+                  customerScrollIndex >= Math.max(0, customers.length - 3)
+                }
+                className="p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
+              >
+                <ChevronRight className="h-5 w-5 text-white" />
+              </button>
+            </div>
+          </div>
 
-                {/* Forms remain the same for functionality */}
-                {selectedTemplate === "blog-post" && (
-                  <form className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-purple-200 mb-2">
-                        Title
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl py-3 px-4 text-white placeholder-purple-200/50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="Enter your blog title..."
+          <div className="overflow-hidden">
+            <div
+              className="flex transition-transform duration-500 ease-in-out"
+              style={{
+                transform: `translateX(-${customerScrollIndex * 33.333}%)`,
+              }}
+            >
+              {customers.map((customer) => (
+                <div key={customer.id} className="w-1/3 flex-shrink-0 px-3">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 p-6 shadow-xl hover:shadow-2xl hover:shadow-violet-500/20 transition-all duration-300 hover:scale-105">
+                    <div className="flex items-center mb-4">
+                      <img
+                        src={customer.image}
+                        alt={customer.name}
+                        className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-emerald-400/30"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-purple-200 mb-2">
-                        Content
-                      </label>
-                      <textarea
-                        rows="6"
-                        className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl py-3 px-4 text-white placeholder-purple-200/50 focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                        placeholder="Write your blog content..."
-                      ></textarea>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-purple-200 mb-2">
-                        Featured Image
-                      </label>
-                      <div className="border-2 border-dashed border-white/20 rounded-xl p-8 text-center bg-white/5 hover:bg-white/10 transition-colors">
-                        <Upload className="mx-auto h-12 w-12 text-purple-300 mb-4" />
-                        <div className="text-sm text-purple-200">
-                          <label className="cursor-pointer font-medium text-purple-300 hover:text-purple-200">
-                            Upload a file
-                            <input type="file" className="sr-only" />
-                          </label>
-                          <span className="ml-1">or drag and drop</span>
+                      <div>
+                        <h4 className="text-white font-semibold">
+                          {customer.name}
+                        </h4>
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-4 w-4 ${
+                                i < customer.rating
+                                  ? "text-amber-400 fill-current"
+                                  : "text-gray-400"
+                              }`}
+                            />
+                          ))}
                         </div>
-                        <p className="text-xs text-purple-300/70 mt-2">
-                          PNG, JPG, GIF up to 10MB
-                        </p>
                       </div>
                     </div>
-                    <div className="flex justify-end space-x-4 pt-6">
-                      <button
-                        type="button"
-                        className="px-6 py-3 text-sm font-semibold text-purple-200 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-colors"
-                        onClick={() => setSelectedTemplate(null)}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all"
-                      >
-                        Save
-                      </button>
-                    </div>
-                  </form>
-                )}
-              </div>
+                    <p className="text-slate-200/80 text-sm leading-relaxed">
+                      "{customer.text}"
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Video Tutorials Section */}
+        <div className="mb-16">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200 mb-2">
+                Video Tutorials
+              </h2>
+              <p className="text-slate-200/70">
+                Learn how to use our platform with these helpful guides
+              </p>
+            </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => scrollVideos("left")}
+                disabled={videoScrollIndex === 0}
+                className="p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
+              >
+                <ChevronLeft className="h-5 w-5 text-white" />
+              </button>
+              <button
+                onClick={() => scrollVideos("right")}
+                disabled={
+                  videoScrollIndex >= Math.max(0, tutorialVideos.length - 4)
+                }
+                className="p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
+              >
+                <ChevronRight className="h-5 w-5 text-white" />
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="overflow-hidden">
+          <div
+            className="flex transition-transform duration-500 ease-in-out"
+            style={{
+              transform: `translateX(-${videoScrollIndex * 25}%)`,
+            }}
+          >
+            {tutorialVideos.map((video, index) => (
+              <div key={video.id} className="w-1/4 flex-shrink-0 px-2">
+                <div className="group cursor-pointer">
+                  <div className="relative bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-cyan-500/20 transition-all duration-500 transform hover:scale-105">
+                    {/* Video iframe */}
+                    <div className="relative aspect-video overflow-hidden">
+                      <iframe
+                        src={`https://www.youtube.com/embed/${
+                          video.videoLink.split("/").pop().split("?")[0]
+                        }`}
+                        title={video.title}
+                        className="w-full h-full"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                    </div>
+
+                    {/* Video Info */}
+                    <div className="p-4">
+                      <h3 className="text-white font-semibold text-sm mb-2 line-clamp-2 group-hover:text-emerald-300 transition-colors">
+                        {video.title}
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <FAQ></FAQ>
     </div>
   );
 }
