@@ -144,7 +144,7 @@ const FAQ = () => {
               Still have questions?
             </h3>
             <p className="text-gray-300 mb-6">
-              Can't find the answer you're looking for? Please chat with our
+              Can not find the answer you are looking for? Please chat with our
               friendly team.
             </p>
             <button className="group relative px-8 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-purple-500/25">
