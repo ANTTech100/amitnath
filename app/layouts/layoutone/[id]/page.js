@@ -53,6 +53,7 @@ export default function LayoutOne() {
       fetchData();
     }
   }, [id]);
+
   const renderVideo = (url) => {
     console.log("Video URL:", url);
     if (url.includes("youtube.com") || url.includes("youtu.be")) {
@@ -88,6 +89,7 @@ export default function LayoutOne() {
       return <p className="text-red-600">Unsupported video platform</p>;
     }
   };
+
   const renderImage = (url) => (
     <div className="relative group">
       <img
@@ -190,6 +192,7 @@ export default function LayoutOne() {
   const textSections = sections.filter(
     (section) => section.type === "text" && section.value
   );
+  const linkSection = sections.find((section) => section.type === "link");
 
   const imageTextPairs = [];
   imageSections.forEach((image, index) => {
@@ -293,6 +296,18 @@ export default function LayoutOne() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+        {linkSection && linkSection.value && (
+          <div className="mt-20">
+            <a
+              href={linkSection.value}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block px-6 py-3 bg-indigo-700 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-800 transition"
+            >
+              Click Here
+            </a>
           </div>
         )}
       </div>
