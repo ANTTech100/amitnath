@@ -12,83 +12,84 @@ export default function PaymentPageCards() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const router = useRouter();
+  // Add this state at the top with your other states
+  const [currentUserId, setCurrentUserId] = useState(null);
 
+  // Modified useEffect with user filtering logic
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
 
-        // Step 1: Fetch templates
+        // Get user ID from localStorage
+        const userIdFromStorage = localStorage.getItem("userid");
+        if (!userIdFromStorage) {
+          throw new Error("User not logged in");
+        }
+        setCurrentUserId(userIdFromStorage);
+
+        // Step 1: Fetch templates (existing code)
         console.log("Fetching templates from /api/admin/templatecreate...");
         const templateResponse = await fetch("/api/admin/templatecreate");
-        console.log("Template Response Status:", templateResponse.status);
         const templateData = await templateResponse.json();
-        console.log("Template Data:", templateData);
 
         if (!templateData.success) {
           throw new Error("Failed to fetch templates");
         }
 
-        console.log("Templates List:", templateData.data);
-
-        // Step 2: Find the specified template
-        console.log(`Searching for template named '${TEMPLATE_NAME}'...`);
+        // Step 2: Find the specified template (existing code)
         const paymentPageTemplate = templateData.data.find((template) => {
-          console.log(
-            `Comparing template name: "${template.name}" with "${TEMPLATE_NAME}"`
-          );
           return template.name === TEMPLATE_NAME;
         });
 
         if (!paymentPageTemplate) {
-          console.log(`Template '${TEMPLATE_NAME}' not found in the data.`);
           throw new Error(`Template '${TEMPLATE_NAME}' not found`);
         }
 
-        console.log("Found Template:", paymentPageTemplate);
         const templateId = paymentPageTemplate._id;
-        console.log("Template ID:", templateId);
 
-        // Step 3: Fetch content associated with this templateId
-        console.log("Fetching content from /api/upload...");
+        // Step 3: Fetch content (existing code)
         const contentResponse = await fetch("/api/upload");
-        console.log("Content Response Status:", contentResponse.status);
         const contentData = await contentResponse.json();
-        console.log("Content Data:", contentData);
 
         if (!contentData.success) {
           throw new Error("Failed to fetch content");
         }
 
-        console.log("All Content Entries:", contentData.content);
-
-        // Step 4: Filter content by templateId (with null check)
-        console.log(`Filtering content for templateId: ${templateId}`);
+        // Step 4: Filter content by templateId AND createdBy userId
         const filteredContents = contentData.content.filter((content) => {
-          // Add null check for templateId
+          // Check if templateId exists and matches
           if (!content.templateId || content.templateId === null) {
-            console.log(
-              `Content ID: ${content._id}, Template ID: null, Matches: false`
-            );
             return false;
           }
 
           const contentTemplateId = content.templateId._id;
-          const matches =
+          const templateMatches =
             contentTemplateId.toString() === templateId.toString();
+
+          // Check if createdBy matches current user
+          const createdByUserId = content.createdBy
+            ? content.createdBy.toString()
+            : null;
+          const userMatches = createdByUserId === userIdFromStorage;
+
+          console.log(`Content ID: ${content._id}`);
+          console.log(`Template matches: ${templateMatches}`);
           console.log(
-            `Content ID: ${content._id}, Template ID: ${contentTemplateId}, Matches: ${matches}`
+            `User matches: ${userMatches} (${createdByUserId} vs ${userIdFromStorage})`
           );
-          return matches;
+
+          // Return true only if both template and user match
+          return templateMatches && userMatches;
         });
 
         if (filteredContents.length === 0) {
-          console.log("No content found for this template.");
-          throw new Error("No content found for this template");
+          console.log("No content found for this template and user.");
+          setContents([]); // Set empty array instead of throwing error
+        } else {
+          console.log("Filtered Content for user:", filteredContents);
+          setContents(filteredContents);
         }
-
-        console.log("Filtered Content:", filteredContents);
-        setContents(filteredContents);
       } catch (err) {
         console.error("Error fetching data:", err);
         setError(err.message || "Failed to fetch data");
@@ -99,7 +100,6 @@ export default function PaymentPageCards() {
 
     fetchData();
   }, []);
-
   const handleCardClick = (id) => {
     router.push(`/layouts/layoutten/${id}`);
   };
@@ -181,7 +181,7 @@ export default function PaymentPageCards() {
           onClick={() => (window.location.href = "/publish")}
           className="bg-gray-800 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
         >
-          Go to Publish
+          Go to previous page
         </button>
       </div>
 
