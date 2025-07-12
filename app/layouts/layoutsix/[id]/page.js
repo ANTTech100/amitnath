@@ -2,36 +2,11 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Head from "next/head";
-// import { motion } from "framer-motion";
-import { motion } from "framer-motion";
 
-// Enhanced animation variants
-const fadeInVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] },
-  },
-};
-
-const slideInVariants = {
-  hidden: { opacity: 0, x: -50 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.6, ease: "easeOut" },
-  },
-};
-
-const scaleInVariants = {
-  hidden: { opacity: 0, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.5, ease: "easeOut" },
-  },
-};
+// CSS animations to replace framer-motion
+const fadeInClass = "animate-fade-in";
+const slideInClass = "animate-slide-in";
+const scaleInClass = "animate-scale-in";
 
 const PopupForm = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,8 +19,8 @@ const PopupForm = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    // Check if form was previously submitted
-    const hasSubmitted = localStorage.getItem("dataSubmitted");
+    // Use in-memory storage instead of localStorage
+    const hasSubmitted = sessionStorage.getItem("dataSubmitted");
     if (!hasSubmitted) {
       setIsOpen(true);
     }
@@ -109,8 +84,8 @@ const PopupForm = () => {
         throw new Error("Network response was not ok");
       }
 
-      // Set submission token
-      localStorage.setItem("dataSubmitted", "true");
+      // Set submission token in sessionStorage
+      sessionStorage.setItem("dataSubmitted", "true");
 
       // Reset form
       setFormData({
@@ -142,9 +117,102 @@ const PopupForm = () => {
 
   return (
     <>
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateX(-50px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        @keyframes bounce {
+          0%,
+          20%,
+          50%,
+          80%,
+          100% {
+            transform: translateY(0);
+          }
+          40% {
+            transform: translateY(-10px);
+          }
+          60% {
+            transform: translateY(-5px);
+          }
+        }
+        @keyframes float {
+          0%,
+          100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-20px);
+          }
+        }
+        @keyframes pulse {
+          0%,
+          100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .animate-slide-in {
+          animation: slideIn 0.6s ease-out;
+        }
+        .animate-scale-in {
+          animation: scaleIn 0.5s ease-out;
+        }
+        .animate-bounce-slow {
+          animation: bounce 2s infinite;
+        }
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+        }
+        .animate-pulse-slow {
+          animation: pulse 2s infinite;
+        }
+        .animation-delay-1 {
+          animation-delay: 0.2s;
+        }
+        .animation-delay-2 {
+          animation-delay: 0.4s;
+        }
+        .animation-delay-3 {
+          animation-delay: 0.6s;
+        }
+      `}</style>
+
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100 animate-scale-in">
             {/* Modal Header */}
             <div className="flex justify-between items-center p-6 border-b border-gray-200">
               <h2 className="text-2xl font-bold text-gray-800">
@@ -340,27 +408,18 @@ export default function LayoutSix() {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-2"></div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center z-10"
-        >
+        <div className="text-center z-10 animate-fade-in">
           <div className="relative">
             <div className="animate-spin rounded-full h-20 w-20 border-4 border-transparent bg-gradient-to-r from-purple-500 to-blue-500 rounded-full mx-auto"></div>
             <div className="animate-spin rounded-full h-20 w-20 border-4 border-t-transparent border-purple-300 absolute top-0 left-1/2 transform -translate-x-1/2"></div>
           </div>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 1, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="mt-6 text-xl font-medium bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent"
-          >
+          <p className="mt-6 text-xl font-medium bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent animate-pulse-slow">
             Loading your content...
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
       </div>
     );
   }
@@ -369,11 +428,7 @@ export default function LayoutSix() {
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8, y: 50 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-2xl p-8 max-w-md w-full border border-red-500/30 backdrop-blur-sm relative overflow-hidden"
-        >
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-2xl p-8 max-w-md w-full border border-red-500/30 backdrop-blur-sm relative overflow-hidden animate-scale-in">
           <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-purple-500/10 rounded-3xl"></div>
 
           <div className="relative z-10">
@@ -408,7 +463,7 @@ export default function LayoutSix() {
               Try Again
             </button>
           </div>
-        </motion.div>
+        </div>
       </div>
     );
   }
@@ -459,18 +514,11 @@ export default function LayoutSix() {
 
           <div className="absolute inset-0 overflow-hidden">
             {[...Array(6)].map((_, i) => (
-              <motion.div
+              <div
                 key={i}
-                className="absolute w-2 h-2 bg-white rounded-full opacity-30"
-                animate={{
-                  y: [-20, -100],
-                  opacity: [0, 1, 0],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  delay: i * 0.5,
-                }}
+                className={`absolute w-2 h-2 bg-white rounded-full opacity-30 animate-float animation-delay-${
+                  (i % 3) + 1
+                }`}
                 style={{
                   left: `${10 + i * 15}%`,
                   top: "90%",
@@ -481,46 +529,27 @@ export default function LayoutSix() {
 
           <div className="relative h-full flex items-center justify-center px-4 sm:px-6 lg:px-8 z-10">
             <div className="max-w-6xl mx-auto text-center">
-              <motion.div
-                variants={fadeInVariants}
-                initial="hidden"
-                animate="visible"
-                className="mb-8"
-              >
+              <div className="mb-8 animate-fade-in">
                 <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-black mb-6 leading-tight">
                   <span className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent drop-shadow-2xl">
                     {content.heading}
                   </span>
                 </h1>
-              </motion.div>
+              </div>
 
-              <motion.div
-                variants={slideInVariants}
-                initial="hidden"
-                animate="visible"
-                transition={{ delay: 0.4 }}
-                className="relative"
-              >
+              <div className="relative animate-slide-in animation-delay-1">
                 <div className="absolute inset-0 bg-purple-500/20 blur-3xl rounded-full"></div>
                 <h2 className="relative text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-light text-gray-200 leading-relaxed max-w-4xl mx-auto">
                   {content.subheading}
                 </h2>
-              </motion.div>
+              </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1, duration: 0.8 }}
-                className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
-              >
+              <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce-slow animation-delay-2">
                 <div className="flex flex-col items-center text-white/60">
                   <span className="text-sm mb-2 font-medium">
                     Scroll to explore
                   </span>
-                  <motion.div
-                    animate={{ y: [0, 10, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
+                  <div>
                     <svg
                       className="w-6 h-6"
                       fill="none"
@@ -534,9 +563,9 @@ export default function LayoutSix() {
                         d="M19 14l-7 7m0 0l-7-7m7 7V3"
                       />
                     </svg>
-                  </motion.div>
+                  </div>
                 </div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </div>
@@ -551,22 +580,17 @@ export default function LayoutSix() {
 
         <div className="relative max-w-7xl mx-auto py-20 px-4 sm:px-6 lg:px-8">
           {rows.map((row, rowIndex) => (
-            <motion.div
+            <div
               key={rowIndex}
-              variants={scaleInVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ delay: rowIndex * 0.2 }}
-              className="mb-24 last:mb-0"
+              className={`mb-24 last:mb-0 animate-scale-in animation-delay-${
+                (rowIndex % 3) + 1
+              }`}
             >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
                 {row.images.map((image, index) => (
-                  <motion.div
+                  <div
                     key={index}
-                    whileHover={{ scale: 1.05, y: -10 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="relative group"
+                    className="relative group hover:scale-105 hover:-translate-y-2 transition-all duration-300"
                   >
                     <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
 
@@ -599,7 +623,7 @@ export default function LayoutSix() {
                         </svg>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
 
                 {row.images.length === 1 && (
@@ -611,10 +635,9 @@ export default function LayoutSix() {
                 {row.images.map((_, index) => {
                   const text = row.texts[index];
                   return (
-                    <motion.div
+                    <div
                       key={index}
-                      whileHover={{ y: -5 }}
-                      className="group relative"
+                      className="group relative hover:-translate-y-1 transition-all duration-300"
                     >
                       <div className="absolute -inset-1 bg-gradient-to-r from-slate-600 to-slate-700 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
 
@@ -633,7 +656,7 @@ export default function LayoutSix() {
 
                         <div className="absolute bottom-0 right-6 w-8 h-1 bg-gradient-to-l from-purple-500 to-blue-500 rounded-full opacity-60"></div>
                       </div>
-                    </motion.div>
+                    </div>
                   );
                 })}
 
@@ -646,10 +669,9 @@ export default function LayoutSix() {
                 {row.images.map((_, index) => {
                   const link = row.links[index];
                   return (
-                    <motion.div
+                    <div
                       key={index}
-                      whileHover={{ y: -5 }}
-                      className="group relative"
+                      className="group relative hover:-translate-y-1 transition-all duration-300"
                     >
                       <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
 
@@ -669,7 +691,7 @@ export default function LayoutSix() {
                           </p>
                         )}
                       </div>
-                    </motion.div>
+                    </div>
                   );
                 })}
 
@@ -677,7 +699,7 @@ export default function LayoutSix() {
                   <div className="hidden lg:block"></div>
                 )}
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
