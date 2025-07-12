@@ -1,4 +1,3 @@
-// app/layouts/layoutsix/[id]/page.js
 "use client";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
@@ -31,6 +30,268 @@ const scaleInVariants = {
     scale: 1,
     transition: { duration: 0.5, ease: "easeOut" },
   },
+};
+
+const PopupForm = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    // Check if form was previously submitted
+    const hasSubmitted = localStorage.getItem("dataSubmitted");
+    if (!hasSubmitted) {
+      setIsOpen(true);
+    }
+  }, []);
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid";
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^\d{10}$/.test(formData.phone.replace(/\D/g, ""))) {
+      newErrors.phone = "Phone number must be 10 digits";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/popop", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      // Set submission token
+      localStorage.setItem("dataSubmitted", "true");
+
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+      });
+      setIsOpen(false);
+
+      // Refresh the page
+      window.location.reload();
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("There was an error submitting the form. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const closeModal = () => {
+    setIsOpen(false);
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+    });
+    setErrors({});
+  };
+
+  return (
+    <>
+      {isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-800">
+                Contact Information
+              </h2>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              {/* Name Field */}
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 ${
+                    errors.name ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder="Enter your full name"
+                />
+                {errors.name && (
+                  <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                )}
+              </div>
+
+              {/* Email Field */}
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 ${
+                    errors.email ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder="Enter your email address"
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                )}
+              </div>
+
+              {/* Phone Field */}
+              <div>
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 ${
+                    errors.phone ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder="Enter your phone number"
+                />
+                {errors.phone && (
+                  <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center">
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Submitting...
+                    </div>
+                  ) : (
+                    "Submit"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 };
 
 export default function LayoutSix() {
@@ -76,7 +337,6 @@ export default function LayoutSix() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center relative overflow-hidden">
-        {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-2000"></div>
@@ -113,7 +373,6 @@ export default function LayoutSix() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-2xl p-8 max-w-md w-full border border-red-500/30 backdrop-blur-sm relative overflow-hidden"
         >
-          {/* Background glow effect */}
           <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-purple-500/10 rounded-3xl"></div>
 
           <div className="relative z-10">
@@ -153,7 +412,7 @@ export default function LayoutSix() {
     );
   }
 
-  // Process sections (same logic)
+  // Process sections
   const sections = Object.keys(content.sections || {}).map((sectionId) => ({
     id: sectionId,
     type: content.sections[sectionId].type,
@@ -162,6 +421,7 @@ export default function LayoutSix() {
 
   const images = sections.filter((section) => section.type === "image");
   const texts = sections.filter((section) => section.type === "text");
+  const links = sections.filter((section) => section.type === "link");
 
   const backgroundImage = images[0]?.value || "";
   const remainingImages = images.slice(1);
@@ -170,7 +430,8 @@ export default function LayoutSix() {
   for (let i = 0; i < remainingImages.length; i += 2) {
     const imagePair = remainingImages.slice(i, i + 2);
     const textPair = texts.slice(i, i + 2);
-    rows.push({ images: imagePair, texts: textPair });
+    const linkPair = links.slice(i, i + 2);
+    rows.push({ images: imagePair, texts: textPair, links: linkPair });
   }
 
   return (
@@ -180,9 +441,11 @@ export default function LayoutSix() {
         <meta name="description" content={content.subheading} />
       </Head>
 
+      {/* Popup Form */}
+      <PopupForm />
+
       {/* Enhanced Header Section */}
       <div className="relative">
-        {/* Background Image with Parallax Effect */}
         <div
           className="relative h-screen bg-cover bg-center bg-fixed"
           style={{
@@ -190,11 +453,9 @@ export default function LayoutSix() {
             backgroundAttachment: "fixed",
           }}
         >
-          {/* Multi-layered Overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 via-slate-900/50 to-slate-900/90"></div>
           <div className="absolute inset-0 bg-gradient-to-r from-purple-900/30 to-blue-900/30"></div>
 
-          {/* Animated particles */}
           <div className="absolute inset-0 overflow-hidden">
             {[...Array(6)].map((_, i) => (
               <motion.div
@@ -217,7 +478,6 @@ export default function LayoutSix() {
             ))}
           </div>
 
-          {/* Header Content */}
           <div className="relative h-full flex items-center justify-center px-4 sm:px-6 lg:px-8 z-10">
             <div className="max-w-6xl mx-auto text-center">
               <motion.div
@@ -246,7 +506,6 @@ export default function LayoutSix() {
                 </h2>
               </motion.div>
 
-              {/* Scroll indicator */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -284,7 +543,6 @@ export default function LayoutSix() {
 
       {/* Enhanced Content Section */}
       <div className="relative bg-gradient-to-b from-slate-900 to-slate-800">
-        {/* Background decoration */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
@@ -301,7 +559,6 @@ export default function LayoutSix() {
               transition={{ delay: rowIndex * 0.2 }}
               className="mb-24 last:mb-0"
             >
-              {/* Enhanced Images Row */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
                 {row.images.map((image, index) => (
                   <motion.div
@@ -310,10 +567,8 @@ export default function LayoutSix() {
                     whileTap={{ scale: 0.98 }}
                     className="relative group"
                   >
-                    {/* Glow effect container */}
                     <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
 
-                    {/* Image container */}
                     <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl overflow-hidden border border-slate-700/50 shadow-2xl">
                       <img
                         src={image.value}
@@ -325,10 +580,8 @@ export default function LayoutSix() {
                         }}
                       />
 
-                      {/* Overlay gradient */}
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                      {/* Hover indicator */}
                       <div className="absolute top-4 right-4 bg-white/10 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
                         <svg
                           className="w-5 h-5 text-white"
@@ -353,8 +606,7 @@ export default function LayoutSix() {
                 )}
               </div>
 
-              {/* Enhanced Texts Row */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 {row.images.map((_, index) => {
                   const text = row.texts[index];
                   return (
@@ -363,12 +615,9 @@ export default function LayoutSix() {
                       whileHover={{ y: -5 }}
                       className="group relative"
                     >
-                      {/* Card glow */}
                       <div className="absolute -inset-1 bg-gradient-to-r from-slate-600 to-slate-700 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
 
-                      {/* Card content */}
                       <div className="relative bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm p-8 rounded-2xl border border-slate-700/50 shadow-xl">
-                        {/* Decorative element */}
                         <div className="absolute top-0 left-6 w-12 h-1 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"></div>
 
                         {text ? (
@@ -381,7 +630,6 @@ export default function LayoutSix() {
                           </p>
                         )}
 
-                        {/* Bottom accent */}
                         <div className="absolute bottom-0 right-6 w-8 h-1 bg-gradient-to-l from-purple-500 to-blue-500 rounded-full opacity-60"></div>
                       </div>
                     </motion.div>
@@ -392,11 +640,46 @@ export default function LayoutSix() {
                   <div className="hidden lg:block"></div>
                 )}
               </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {row.images.map((_, index) => {
+                  const link = row.links[index];
+                  return (
+                    <motion.div
+                      key={index}
+                      whileHover={{ y: -5 }}
+                      className="group relative"
+                    >
+                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
+
+                      <div className="relative">
+                        {link ? (
+                          <a
+                            href={link.value}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold py-4 rounded-2xl text-center hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                          >
+                            Open Link
+                          </a>
+                        ) : (
+                          <p className="text-slate-500 italic text-lg font-light text-center">
+                            No link available
+                          </p>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+
+                {row.images.length === 1 && row.links.length === 1 && (
+                  <div className="hidden lg:block"></div>
+                )}
+              </div>
             </motion.div>
           ))}
         </div>
 
-        {/* Bottom decoration */}
         <div className="h-32 bg-gradient-to-t from-slate-900 to-transparent"></div>
       </div>
     </div>
