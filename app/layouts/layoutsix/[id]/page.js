@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Head from "next/head";
 // import { motion } from "framer-motion";
-import { motion } from "framer-motion/dist/framer-motion";
+import { motion } from "framer-motion";
 
 // Enhanced animation variants
 const fadeInVariants = {
