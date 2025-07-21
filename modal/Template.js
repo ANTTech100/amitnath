@@ -100,6 +100,10 @@ const templateSchema = new mongoose.Schema(
       of: mongoose.Schema.Types.Mixed,
       default: {},
     },
+    tenantToken: {
+      type: String,
+      required: false, // Optional for backward compatibility
+    },
   },
   {
     timestamps: true,

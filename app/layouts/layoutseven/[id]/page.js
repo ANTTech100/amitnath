@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Head from "next/head";
 import { motion } from "framer-motion";
+import DynamicPopup from "@/app/components/DynamicPopup";
 
 // Animation variants
 const fadeInVariants = {
@@ -40,6 +41,9 @@ export default function WireframeLayout() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Get template ID from content data
+  const templateId = content?.templateId?._id || content?.templateId;
 
   useEffect(() => {
     if (!id) return;
@@ -184,277 +188,280 @@ export default function WireframeLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <Head>
-        <title>{content.heading}</title>
-        <meta name="description" content={content.subheading} />
-      </Head>
+    <>
+      {templateId && <DynamicPopup templateId={templateId} />}
+      <div className="min-h-screen bg-white">
+        <Head>
+          <title>{content.heading}</title>
+          <meta name="description" content={content.subheading} />
+        </Head>
 
-      {/* Header Section with Background Image */}
-      <motion.header
-        variants={fadeInVariants}
-        initial="hidden"
-        animate="visible"
-        className="relative h-96 bg-cover bg-center bg-gray-200"
-        style={{
-          backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
-        }}
-      >
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="relative z-10 container mx-auto px-6 h-full flex flex-col justify-center">
-          {/* Site Name */}
-          <motion.div
-            variants={slideInVariants}
-            initial="hidden"
-            animate="visible"
-            className="mb-4"
-          ></motion.div>
-
-          {/* Title/Topic */}
-          <motion.h1
-            variants={fadeInVariants}
-            initial="hidden"
-            animate="visible"
-            transition={{ delay: 0.2 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight"
-          >
-            {content.heading}
-          </motion.h1>
-
-          {/* Sub Topic */}
-          <motion.h2
-            variants={fadeInVariants}
-            initial="hidden"
-            animate="visible"
-            transition={{ delay: 0.4 }}
-            className="text-xl md:text-2xl text-white/90 max-w-3xl leading-relaxed"
-          >
-            {content.subheading}
-          </motion.h2>
-        </div>
-      </motion.header>
-
-      {/* Brief Text Section (Full Width) */}
-      <motion.section
-        variants={scaleInVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="py-16 bg-gray-50"
-      >
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
-            <h3 className="text-3xl font-bold text-gray-800 mb-12 text-center">
-              About This Course
-            </h3>
-            <div className="space-y-8">
-              {briefTexts.map((text, index) => (
-                <motion.div
-                  key={text.id}
-                  variants={fadeInVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.2 }}
-                  className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100"
-                >
-                  <div className="prose prose-lg max-w-none">
-                    <p className="text-gray-700 leading-relaxed text-lg">
-                      {text.value ||
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Featured Image Section */}
-      {featuredImage && (
-        <motion.section
-          variants={scaleInVariants}
+        {/* Header Section with Background Image */}
+        <motion.header
+          variants={fadeInVariants}
           initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="py-16 bg-white"
+          animate="visible"
+          className="relative h-96 bg-cover bg-center bg-gray-200"
+          style={{
+            backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
+          }}
         >
-          <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto">
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="relative rounded-2xl overflow-hidden shadow-2xl"
-              >
-                <img
-                  src={featuredImage}
-                  alt="Featured Content"
-                  className="w-full h-96 object-cover"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "/placeholder-image.jpg";
-                  }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-              </motion.div>
-            </div>
-          </div>
-        </motion.section>
-      )}
+          <div className="absolute inset-0 bg-black/40"></div>
+          <div className="relative z-10 container mx-auto px-6 h-full flex flex-col justify-center">
+            {/* Site Name */}
+            <motion.div
+              variants={slideInVariants}
+              initial="hidden"
+              animate="visible"
+              className="mb-4"
+            ></motion.div>
 
-      {/* Call-to-Action Button */}
-      <motion.section
-        variants={fadeInVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="py-12 bg-gray-50"
-      >
-        <div className="container mx-auto px-6 text-center">
-          <motion.a
-            href={buttonLink}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-          >
-            <span>Get Started Now</span>
-            <svg
-              className="ml-2 w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+            {/* Title/Topic */}
+            <motion.h1
+              variants={fadeInVariants}
+              initial="hidden"
+              animate="visible"
+              transition={{ delay: 0.2 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
-              />
-            </svg>
-          </motion.a>
-        </div>
-      </motion.section>
+              {content.heading}
+            </motion.h1>
 
-      {/* Bottom Link Cards Section with Navigation */}
-      {linkCards.length > 0 && (
+            {/* Sub Topic */}
+            <motion.h2
+              variants={fadeInVariants}
+              initial="hidden"
+              animate="visible"
+              transition={{ delay: 0.4 }}
+              className="text-xl md:text-2xl text-white/90 max-w-3xl leading-relaxed"
+            >
+              {content.subheading}
+            </motion.h2>
+          </div>
+        </motion.header>
+
+        {/* Brief Text Section (Full Width) */}
         <motion.section
           variants={scaleInVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="py-16 bg-white"
+          className="py-16 bg-gray-50"
         >
           <div className="container mx-auto px-6">
             <div className="max-w-6xl mx-auto">
-              <h3 className="text-2xl font-bold text-gray-800 mb-8 text-center">
-                Explore More
+              <h3 className="text-3xl font-bold text-gray-800 mb-12 text-center">
+                About This Course
               </h3>
-
-              <div className="relative">
-                {/* Navigation Arrows */}
-                {linkCards.length > 4 && (
-                  <>
-                    <button
-                      onClick={prevSlide}
-                      className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors duration-300"
-                    >
-                      <svg
-                        className="w-6 h-6 text-gray-600"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 19l-7-7 7-7"
-                        />
-                      </svg>
-                    </button>
-
-                    <button
-                      onClick={nextSlide}
-                      className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors duration-300"
-                    >
-                      <svg
-                        className="w-6 h-6 text-gray-600"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                    </button>
-                  </>
-                )}
-
-                {/* Link Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {linkCards
-                    .slice(currentSlide * 4, (currentSlide + 1) * 4)
-                    .map((card, index) => (
-                      <motion.div
-                        key={card.id}
-                        variants={fadeInVariants}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.1 }}
-                        whileHover={{ y: -5 }}
-                        className="group cursor-pointer"
-                      >
-                        <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
-                          <div className="aspect-video bg-gray-200 overflow-hidden">
-                            <img
-                              src={card.value}
-                              alt={card.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = "/placeholder-image.jpg";
-                              }}
-                            />
-                          </div>
-                          <div className="p-4">
-                            <h4 className="font-semibold text-gray-800 mb-2">
-                              {card.title}
-                            </h4>
-                            <p className="text-sm text-gray-600">
-                              {card.description}
-                            </p>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                </div>
-
-                {/* Pagination Dots */}
-                {linkCards.length > 4 && (
-                  <div className="flex justify-center mt-8 space-x-2">
-                    {Array.from({
-                      length: Math.ceil(linkCards.length / 4),
-                    }).map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentSlide(index)}
-                        className={`w-3 h-3 rounded-full transition-colors duration-300 ${
-                          currentSlide === index ? "bg-blue-600" : "bg-gray-300"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                )}
+              <div className="space-y-8">
+                {briefTexts.map((text, index) => (
+                  <motion.div
+                    key={text.id}
+                    variants={fadeInVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.2 }}
+                    className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100"
+                  >
+                    <div className="prose prose-lg max-w-none">
+                      <p className="text-gray-700 leading-relaxed text-lg">
+                        {text.value ||
+                          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             </div>
           </div>
         </motion.section>
-      )}
-    </div>
+
+        {/* Featured Image Section */}
+        {featuredImage && (
+          <motion.section
+            variants={scaleInVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="py-16 bg-white"
+          >
+            <div className="container mx-auto px-6">
+              <div className="max-w-4xl mx-auto">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="relative rounded-2xl overflow-hidden shadow-2xl"
+                >
+                  <img
+                    src={featuredImage}
+                    alt="Featured Content"
+                    className="w-full h-96 object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/placeholder-image.jpg";
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                </motion.div>
+              </div>
+            </div>
+          </motion.section>
+        )}
+
+        {/* Call-to-Action Button */}
+        <motion.section
+          variants={fadeInVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="py-12 bg-gray-50"
+        >
+          <div className="container mx-auto px-6 text-center">
+            <motion.a
+              href={buttonLink}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              <span>Get Started Now</span>
+              <svg
+                className="ml-2 w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                />
+              </svg>
+            </motion.a>
+          </div>
+        </motion.section>
+
+        {/* Bottom Link Cards Section with Navigation */}
+        {linkCards.length > 0 && (
+          <motion.section
+            variants={scaleInVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="py-16 bg-white"
+          >
+            <div className="container mx-auto px-6">
+              <div className="max-w-6xl mx-auto">
+                <h3 className="text-2xl font-bold text-gray-800 mb-8 text-center">
+                  Explore More
+                </h3>
+
+                <div className="relative">
+                  {/* Navigation Arrows */}
+                  {linkCards.length > 4 && (
+                    <>
+                      <button
+                        onClick={prevSlide}
+                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors duration-300"
+                      >
+                        <svg
+                          className="w-6 h-6 text-gray-600"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 19l-7-7 7-7"
+                          />
+                        </svg>
+                      </button>
+
+                      <button
+                        onClick={nextSlide}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors duration-300"
+                      >
+                        <svg
+                          className="w-6 h-6 text-gray-600"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                      </button>
+                    </>
+                  )}
+
+                  {/* Link Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {linkCards
+                      .slice(currentSlide * 4, (currentSlide + 1) * 4)
+                      .map((card, index) => (
+                        <motion.div
+                          key={card.id}
+                          variants={fadeInVariants}
+                          initial="hidden"
+                          whileInView="visible"
+                          viewport={{ once: true }}
+                          transition={{ delay: index * 0.1 }}
+                          whileHover={{ y: -5 }}
+                          className="group cursor-pointer"
+                        >
+                          <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
+                            <div className="aspect-video bg-gray-200 overflow-hidden">
+                              <img
+                                src={card.value}
+                                alt={card.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = "/placeholder-image.jpg";
+                                }}
+                              />
+                            </div>
+                            <div className="p-4">
+                              <h4 className="font-semibold text-gray-800 mb-2">
+                                {card.title}
+                              </h4>
+                              <p className="text-sm text-gray-600">
+                                {card.description}
+                              </p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                  </div>
+
+                  {/* Pagination Dots */}
+                  {linkCards.length > 4 && (
+                    <div className="flex justify-center mt-8 space-x-2">
+                      {Array.from({
+                        length: Math.ceil(linkCards.length / 4),
+                      }).map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setCurrentSlide(index)}
+                          className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+                            currentSlide === index ? "bg-blue-600" : "bg-gray-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </motion.section>
+        )}
+      </div>
+    </>
   );
 }

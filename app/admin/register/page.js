@@ -74,6 +74,7 @@ export default function AdminAuth() {
       });
 
       setSuccess("Admin registration successful! You can now login.");
+      localStorage.setItem("adminToken", response.data.adminid);
       setActiveTab("login");
       setFormData({
         ...formData,

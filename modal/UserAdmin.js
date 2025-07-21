@@ -23,9 +23,13 @@ const adminSchema = new mongoose.Schema(
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters"],
     },
-    adminCode: {
+    tenantToken: {
       type: String,
-      required: [true, "Admin registration code is required"],
+      required: [true, "Tenant token is required"],
+    },
+    validated: {
+      type: Boolean,
+      default: false,
     },
     lastLogin: {
       type: Date,

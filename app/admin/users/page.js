@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiClient from "@/utils/apiClient";
 import AdminFeedback from "../Navbar";
 
 export default function AdminDashboard() {
@@ -13,10 +13,8 @@ export default function AdminDashboard() {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("/api/user/register");
-
+        const response = await apiClient.get("/api/admin/users");
         const fetchedUsers = response.data.users;
-
         setUsers(fetchedUsers);
         setError(null);
       } catch (err) {
@@ -26,13 +24,12 @@ export default function AdminDashboard() {
         setLoading(false);
       }
     };
-
     fetchUsers();
   }, []);
 
   const handleValidationChange = async (email, validated) => {
     try {
-      await axios.put("/api/user/register", { email, validated });
+      await apiClient.put("/api/admin/register", { email, validated });
 
       setUsers(
         users.map((user) =>

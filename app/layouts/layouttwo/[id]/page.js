@@ -2,12 +2,16 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Head from "next/head";
+import DynamicPopup from "@/app/components/DynamicPopup";
 
 export default function PaymentPage() {
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { id } = useParams();
+  
+  // Get template ID from content data
+  const templateId = content?.templateId?._id || content?.templateId;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -192,96 +196,99 @@ export default function PaymentPage() {
   const bottomText2 = textSections[2];
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-gray-100 py-20 px-4 sm:px-6 lg:px-8 min-h-screen">
-      <div key={content._id}>
-        <Head>
-          <title>{content.heading} | Payment Page</title>
-          <meta name="description" content={content.subheading} />
-        </Head>
+    <>
+      {templateId && <DynamicPopup templateId={templateId} />}
+      <div className="bg-gradient-to-br from-blue-50 to-gray-100 py-20 px-4 sm:px-6 lg:px-8 min-h-screen">
+        <div key={content._id}>
+          <Head>
+            <title>{content.heading} | Payment Page</title>
+            <meta name="description" content={content.subheading} />
+          </Head>
 
-        {/* Heading and Subheading */}
-        <div className="max-w-5xl mx-auto text-center mb-16">
-          <h1 className="text-5xl sm:text-6xl font-extrabold text-gray-900 mb-6 leading-tight animate-fade-in">
-            {content.heading}
-          </h1>
-          <h2 className="text-2xl sm:text-3xl font-medium text-gray-600 leading-relaxed animate-fade-in-delayed">
-            {content.subheading}
-          </h2>
-        </div>
+          {/* Heading and Subheading */}
+          <div className="max-w-5xl mx-auto text-center mb-16">
+            <h1 className="text-5xl sm:text-6xl font-extrabold text-gray-900 mb-6 leading-tight animate-fade-in">
+              {content.heading}
+            </h1>
+            <h2 className="text-2xl sm:text-3xl font-medium text-gray-600 leading-relaxed animate-fade-in-delayed">
+              {content.subheading}
+            </h2>
+          </div>
 
-        <div className="max-w-5xl mx-auto space-y-20">
-          {/* Two-Column Layout: Left Image, Right Image with Text */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch animate-fade-in-delayed">
-            {/* Left Side: Image */}
-            <div className="order-1 lg:order-1 flex items-center justify-center">
-              {leftImage ? (
-                <div className="w-full h-[500px]">
-                  {renderImage(leftImage.value)}
-                </div>
-              ) : (
-                <p className="text-lg text-gray-500 italic">
-                  No image available
-                </p>
-              )}
+          <div className="max-w-5xl mx-auto space-y-20">
+            {/* Two-Column Layout: Left Image, Right Image with Text */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch animate-fade-in-delayed">
+              {/* Left Side: Image */}
+              <div className="order-1 lg:order-1 flex items-center justify-center">
+                {leftImage ? (
+                  <div className="w-full h-[500px]">
+                    {renderImage(leftImage.value)}
+                  </div>
+                ) : (
+                  <p className="text-lg text-gray-500 italic">
+                    No image available
+                  </p>
+                )}
+              </div>
+
+              {/* Right Side: Image and Text */}
+              <div className="order-2 lg:order-2 flex flex-col space-y-10">
+                {rightImage ? (
+                  <div className="w-full h-[300px]">
+                    {renderImage(rightImage.value)}
+                  </div>
+                ) : (
+                  <p className="text-lg text-gray-500 italic">
+                    No image available
+                  </p>
+                )}
+                {rightText ? (
+                  <p className="text-lg text-gray-700 leading-relaxed bg-white p-6 rounded-xl shadow-lg">
+                    {rightText.value}
+                  </p>
+                ) : (
+                  <p className="text-lg text-gray-500 leading-relaxed italic bg-white p-6 rounded-xl shadow-lg">
+                    No description available for this section.
+                  </p>
+                )}
+              </div>
             </div>
 
-            {/* Right Side: Image and Text */}
-            <div className="order-2 lg:order-2 flex flex-col space-y-10">
-              {rightImage ? (
-                <div className="w-full h-[300px]">
-                  {renderImage(rightImage.value)}
-                </div>
-              ) : (
-                <p className="text-lg text-gray-500 italic">
-                  No image available
-                </p>
-              )}
-              {rightText ? (
-                <p className="text-lg text-gray-700 leading-relaxed bg-white p-6 rounded-xl shadow-lg">
-                  {rightText.value}
-                </p>
-              ) : (
-                <p className="text-lg text-gray-500 leading-relaxed italic bg-white p-6 rounded-xl shadow-lg">
-                  No description available for this section.
-                </p>
-              )}
+            {/* Two Text Blocks in a Row Below */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 animate-fade-in-delayed">
+              <div className="bg-white p-8 rounded-xl shadow-lg">
+                {bottomText1 ? (
+                  <p className="text-lg text-gray-700 leading-relaxed">
+                    {bottomText1.value}
+                  </p>
+                ) : (
+                  <p className="text-lg text-gray-500 leading-relaxed italic">
+                    No description available for this section.
+                  </p>
+                )}
+              </div>
+              <div className="bg-white p-8 rounded-xl shadow-lg">
+                {bottomText2 ? (
+                  <p className="text-lg text-gray-700 leading-relaxed">
+                    {bottomText2.value}
+                  </p>
+                ) : (
+                  <p className="text-lg text-gray-500 leading-relaxed italic">
+                    No description available for this section.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Two Text Blocks in a Row Below */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 animate-fade-in-delayed">
-            <div className="bg-white p-8 rounded-xl shadow-lg">
-              {bottomText1 ? (
-                <p className="text-lg text-gray-700 leading-relaxed">
-                  {bottomText1.value}
-                </p>
-              ) : (
-                <p className="text-lg text-gray-500 leading-relaxed italic">
-                  No description available for this section.
-                </p>
-              )}
-            </div>
-            <div className="bg-white p-8 rounded-xl shadow-lg">
-              {bottomText2 ? (
-                <p className="text-lg text-gray-700 leading-relaxed">
-                  {bottomText2.value}
-                </p>
-              ) : (
-                <p className="text-lg text-gray-500 leading-relaxed italic">
-                  No description available for this section.
-                </p>
-              )}
-            </div>
+          {/* Call to Action Button */}
+          <div className="max-w-5xl mx-auto text-center mt-20 animate-fade-in-delayed">
+            <button className="px-12 py-4 bg-blue-600 text-white font-semibold rounded-xl shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
+              Proceed to Payment
+            </button>
           </div>
-        </div>
-
-        {/* Call to Action Button */}
-        <div className="max-w-5xl mx-auto text-center mt-20 animate-fade-in-delayed">
-          <button className="px-12 py-4 bg-blue-600 text-white font-semibold rounded-xl shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
-            Proceed to Payment
-          </button>
         </div>
       </div>
-    </div>
+    </>
   );
 }

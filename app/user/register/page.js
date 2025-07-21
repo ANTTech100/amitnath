@@ -12,6 +12,7 @@ export default function UserAuth() {
     email: "",
     password: "",
     confirmPassword: "",
+    tenantName: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -65,8 +66,8 @@ export default function UserAuth() {
       return;
     }
 
-    if (!formData.fullName || !formData.email || !formData.password) {
-      setError("All fields are required");
+    if (!formData.fullName || !formData.email || !formData.password || !formData.tenantName) {
+      setError("All fields are required, including organization name");
       setLoading(false);
       return;
     }
@@ -77,6 +78,7 @@ export default function UserAuth() {
         email: formData.email,
         password: formData.password,
         confirmPassword: formData.confirmPassword,
+        tenantName: formData.tenantName,
       });
       const userid = localStorage.setItem("userid", response.data.userid);
       console.log("User ID:", userid);
@@ -87,6 +89,7 @@ export default function UserAuth() {
         email: "",
         password: "",
         confirmPassword: "",
+        tenantName: "",
       });
     } catch (err) {
       console.error("Registration error:", err.response?.data || err.message);
@@ -290,6 +293,25 @@ export default function UserAuth() {
                   className="w-full px-3 py-2 bg-gray-900 border border-purple-500/30 rounded-xl text-gray-200 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                   required
                   minLength="6"
+                />
+              </div>
+
+              <div>
+                <label
+                  className="block text-sm font-medium text-gray-300 mb-1"
+                  htmlFor="tenantName"
+                >
+                  Organization Name
+                </label>
+                <input
+                  type="text"
+                  id="tenantName"
+                  name="tenantName"
+                  value={formData.tenantName}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 bg-gray-900 border border-purple-500/30 rounded-xl text-gray-200 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                  required
+                  placeholder="Enter your organization name"
                 />
               </div>
 

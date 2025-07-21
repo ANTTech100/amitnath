@@ -14,6 +14,8 @@ export default function PaymentPageCards() {
   const router = useRouter();
   // Add this state at the top with your other states
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [templateId, setTemplateId] = useState(null);
+  const [popupComplete, setPopupComplete] = useState(false);
 
   // Modified useEffect with user filtering logic
   useEffect(() => {
@@ -47,6 +49,7 @@ export default function PaymentPageCards() {
         }
 
         const templateId = paymentPageTemplate._id;
+        setTemplateId(templateId);
 
         // Step 3: Fetch content (existing code)
         const contentResponse = await fetch("/api/upload");

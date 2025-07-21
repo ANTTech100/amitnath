@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import DynamicPopup from "@/app/components/DynamicPopup";
 
 export default function ModernImageGallery() {
   // ========== CONFIGURATION ==========
@@ -14,6 +15,9 @@ export default function ModernImageGallery() {
   const params = useParams();
   const router = useRouter();
   const id = params?.id;
+  
+  // Get template ID from content data
+  const templateId = content?.templateId?._id || content?.templateId;
 
   useEffect(() => {
     if (!id) {
@@ -206,6 +210,7 @@ export default function ModernImageGallery() {
 
   return (
     <>
+      {templateId && <DynamicPopup templateId={templateId} />}
       <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-900 to-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="group">

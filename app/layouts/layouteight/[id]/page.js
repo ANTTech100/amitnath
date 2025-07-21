@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Head from "next/head";
 import { motion } from "framer-motion";
+import DynamicPopup from "@/app/components/DynamicPopup";
 
 // Animation variants
 const fadeInVariants = {
@@ -30,6 +31,9 @@ export default function TestimonialVideoLayout() {
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Get template ID from content data
+  const templateId = content?.templateId?._id || content?.templateId;
 
   useEffect(() => {
     if (!id) return;
@@ -221,134 +225,137 @@ export default function TestimonialVideoLayout() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-900 to-gray-800">
-      <Head>
-        <title>{content?.heading || "Video Testimonials"}</title>
-        <meta
-          name="description"
-          content={content?.subheading || "Hear from our amazing students"}
-        />
-      </Head>
+    <>
+      {templateId && <DynamicPopup templateId={templateId} />}
+      <div className="min-h-screen bg-gradient-to-br from-teal-900 to-gray-800">
+        <Head>
+          <title>{content?.heading || "Video Testimonials"}</title>
+          <meta
+            name="description"
+            content={content?.subheading || "Hear from our amazing students"}
+          />
+        </Head>
 
-      {/* Header Section: Heading and Subheading */}
-      <motion.header
-        variants={fadeInVariants}
-        initial="hidden"
-        animate="visible"
-        className="py-16 text-center"
-      >
-        <motion.h1
+        {/* Header Section: Heading and Subheading */}
+        <motion.header
           variants={fadeInVariants}
           initial="hidden"
           animate="visible"
-          className="text-4xl md:text-5xl lg:text-6xl font-bold text-teal-100 mb-6 leading-tight"
+          className="py-16 text-center"
         >
-          {content?.heading || "Video Testimonials"}
-        </motion.h1>
-        <motion.p
-          variants={fadeInVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ delay: 0.2 }}
-          className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
-        >
-          {content?.subheading || "Hear from our amazing students"}
-        </motion.p>
-      </motion.header>
+          <motion.h1
+            variants={fadeInVariants}
+            initial="hidden"
+            animate="visible"
+            className="text-4xl md:text-5xl lg:text-6xl font-bold text-teal-100 mb-6 leading-tight"
+          >
+            {content?.heading || "Video Testimonials"}
+          </motion.h1>
+          <motion.p
+            variants={fadeInVariants}
+            initial="hidden"
+            animate="visible"
+            transition={{ delay: 0.2 }}
+            className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
+          >
+            {content?.subheading || "Hear from our amazing students"}
+          </motion.p>
+        </motion.header>
 
-      {/* First Video and Text Section */}
-      {firstVideo && (
-        <motion.section
-          variants={scaleInVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="py-12 px-4 sm:px-6 lg:px-8"
-        >
-          <div className="max-w-5xl mx-auto">
-            {/* First Video */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="relative rounded-2xl overflow-hidden shadow-2xl bg-gray-900"
-            >
-              <div className="aspect-video">{renderVideo(firstVideo)}</div>
-            </motion.div>
-            {/* First Text in a Card */}
-            <motion.div
-              variants={fadeInVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className={`mt-8 ${gradientColors[0]} rounded-xl shadow-lg p-6 transition-transform duration-300 hover:scale-105`}
-            >
-              <p className="text-white leading-relaxed text-lg">{firstText}</p>
-            </motion.div>
-          </div>
-        </motion.section>
-      )}
+        {/* First Video and Text Section */}
+        {firstVideo && (
+          <motion.section
+            variants={scaleInVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="py-12 px-4 sm:px-6 lg:px-8"
+          >
+            <div className="max-w-5xl mx-auto">
+              {/* First Video */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className="relative rounded-2xl overflow-hidden shadow-2xl bg-gray-900"
+              >
+                <div className="aspect-video">{renderVideo(firstVideo)}</div>
+              </motion.div>
+              {/* First Text in a Card */}
+              <motion.div
+                variants={fadeInVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className={`mt-8 ${gradientColors[0]} rounded-xl shadow-lg p-6 transition-transform duration-300 hover:scale-105`}
+              >
+                <p className="text-white leading-relaxed text-lg">{firstText}</p>
+              </motion.div>
+            </div>
+          </motion.section>
+        )}
 
-      {/* Rows of Videos and Texts (2 videos per row) */}
-      {rows.length > 0 && (
-        <motion.section
-          variants={scaleInVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="py-12 px-4 sm:px-6 lg:px-8"
-        >
-          <div className="max-w-5xl mx-auto space-y-16">
-            {rows.map((row, rowIndex) => (
-              <div key={rowIndex} className="space-y-8">
-                {/* Videos Row: Two Videos Side by Side */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {row.videos.map((video, index) => (
-                    <motion.div
-                      key={index}
-                      whileHover={{ scale: 1.02 }}
-                      className="relative rounded-2xl overflow-hidden shadow-2xl bg-gray-900"
-                    >
-                      <div className="aspect-video">
-                        {renderVideo(video.value)}
-                      </div>
-                    </motion.div>
-                  ))}
-                  {row.videos.length === 1 && (
-                    <div className="hidden lg:block"></div>
-                  )}
-                </div>
-
-                {/* Texts Row: Two Text Cards Side by Side */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {row.videos.map((_, index) => {
-                    const text = row.texts[index];
-                    return (
+        {/* Rows of Videos and Texts (2 videos per row) */}
+        {rows.length > 0 && (
+          <motion.section
+            variants={scaleInVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="py-12 px-4 sm:px-6 lg:px-8"
+          >
+            <div className="max-w-5xl mx-auto space-y-16">
+              {rows.map((row, rowIndex) => (
+                <div key={rowIndex} className="space-y-8">
+                  {/* Videos Row: Two Videos Side by Side */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {row.videos.map((video, index) => (
                       <motion.div
                         key={index}
-                        variants={fadeInVariants}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true }}
-                        className={`${
-                          gradientColors[
-                            (index + rowIndex * 2 + 1) % gradientColors.length
-                          ]
-                        } rounded-xl shadow-lg p-6 transition-transform duration-300 hover:scale-105`}
+                        whileHover={{ scale: 1.02 }}
+                        className="relative rounded-2xl overflow-hidden shadow-2xl bg-gray-900"
                       >
-                        <p className="text-white leading-relaxed text-lg">
-                          {text?.value || "No description available"}
-                        </p>
+                        <div className="aspect-video">
+                          {renderVideo(video.value)}
+                        </div>
                       </motion.div>
-                    );
-                  })}
-                  {row.videos.length === 1 && row.texts.length === 1 && (
-                    <div className="hidden lg:block"></div>
-                  )}
+                    ))}
+                    {row.videos.length === 1 && (
+                      <div className="hidden lg:block"></div>
+                    )}
+                  </div>
+
+                  {/* Texts Row: Two Text Cards Side by Side */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {row.videos.map((_, index) => {
+                      const text = row.texts[index];
+                      return (
+                        <motion.div
+                          key={index}
+                          variants={fadeInVariants}
+                          initial="hidden"
+                          whileInView="visible"
+                          viewport={{ once: true }}
+                          className={`${
+                            gradientColors[
+                              (index + rowIndex * 2 + 1) % gradientColors.length
+                            ]
+                          } rounded-xl shadow-lg p-6 transition-transform duration-300 hover:scale-105`}
+                        >
+                          <p className="text-white leading-relaxed text-lg">
+                            {text?.value || "No description available"}
+                          </p>
+                        </motion.div>
+                      );
+                    })}
+                    {row.videos.length === 1 && row.texts.length === 1 && (
+                      <div className="hidden lg:block"></div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </motion.section>
-      )}
-    </div>
+              ))}
+            </div>
+          </motion.section>
+        )}
+      </div>
+    </>
   );
 }

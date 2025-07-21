@@ -2,12 +2,16 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Head from "next/head";
+import DynamicPopup from "@/app/components/DynamicPopup";
 
 export default function ThankyouPage() {
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { id } = useParams();
+  
+  // Get template ID from content data
+  const templateId = content?.templateId?._id || content?.templateId;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -211,6 +215,7 @@ export default function ThankyouPage() {
 
   return (
     <>
+      {templateId && <DynamicPopup templateId={templateId} />}
       <Head>
         <title>{content.heading} | Thank You</title>
         <meta name="description" content="Thank you for your action!" />

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Head from "next/head";
+import DynamicPopup from "../../components/DynamicPopup";
 
 export default function PaymentPageCards() {
   // ========== CONFIGURATION ==========
@@ -15,6 +16,8 @@ export default function PaymentPageCards() {
 
   // Add this state at the top with your other states
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [templateId, setTemplateId] = useState(null);
+  const [popupComplete, setPopupComplete] = useState(false);
 
   // Modified useEffect with user filtering logic
   useEffect(() => {
@@ -48,6 +51,7 @@ export default function PaymentPageCards() {
         }
 
         const templateId = paymentPageTemplate._id;
+        setTemplateId(templateId);
 
         // Step 3: Fetch content (existing code)
         const contentResponse = await fetch("/api/upload");
@@ -165,6 +169,12 @@ export default function PaymentPageCards() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {templateId && (
+        <DynamicPopup 
+          templateId={templateId} 
+          onComplete={() => setPopupComplete(true)}
+        />
+      )}
       {/* Header Section */}
       <div className="bg-slate-800/60 backdrop-blur-sm border-b border-slate-700/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

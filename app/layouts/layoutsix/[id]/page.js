@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Head from "next/head";
+import DynamicPopup from "@/app/components/DynamicPopup";
 
 // CSS animations
 const fadeInClass = "animate-fade-in";
@@ -359,6 +360,9 @@ export default function LayoutSix() {
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Get template ID from content data
+  const templateId = content?.templateId?._id || content?.templateId;
 
   useEffect(() => {
     if (!id) return;
@@ -482,7 +486,8 @@ export default function LayoutSix() {
         <meta name="description" content={content.subheading} />
       </Head>
 
-      <PopupForm />
+              <PopupForm />
+        {templateId && <DynamicPopup templateId={templateId} />}
 
       <div className="relative">
         <div

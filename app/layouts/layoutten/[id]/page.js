@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Head from "next/head";
 import { motion } from "framer-motion";
+import DynamicPopup from "@/app/components/DynamicPopup";
 
 // Animation variants
 const fadeInVariants = {
@@ -39,6 +40,9 @@ export default function TemplateTenLayout() {
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Get template ID from content data
+  const templateId = content?.templateId?._id || content?.templateId;
 
   useEffect(() => {
     if (!id) return;
@@ -156,247 +160,250 @@ export default function TemplateTenLayout() {
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
-      <Head>
-        <title>{content.heading}</title>
-        <meta name="description" content={content.subheading} />
-      </Head>
+    <>
+      {templateId && <DynamicPopup templateId={templateId} />}
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+        <Head>
+          <title>{content.heading}</title>
+          <meta name="description" content={content.subheading} />
+        </Head>
 
-      {/* Main Header */}
-      <motion.header
-        variants={fadeInVariants}
-        initial="hidden"
-        animate="visible"
-        className="py-16 px-4 text-center"
-      >
-        <motion.h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-          {content.heading || "Content Gallery"}
-        </motion.h1>
-        <motion.p
+        {/* Main Header */}
+        <motion.header
           variants={fadeInVariants}
-          transition={{ delay: 0.2 }}
-          className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed"
-        >
-          {content.subheading || "Discover amazing content"}
-        </motion.p>
-      </motion.header>
-
-      {/* Center Background Image */}
-      {centerImage && (
-        <motion.section
-          variants={scaleInVariants}
           initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="py-8 px-4 sm:px-6 lg:px-8"
+          animate="visible"
+          className="py-16 px-4 text-center"
         >
-          <div className="max-w-4xl mx-auto">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="relative rounded-2xl overflow-hidden shadow-2xl bg-gray-900/50 backdrop-blur-sm"
-              style={{ width: "90%", margin: "0 auto", marginTop: "-20px" }}
-            >
-              <img
-                src={centerImage}
-                alt="Center Image"
-                className="w-full h-auto object-cover"
-                onError={(e) => {
-                  e.target.src = "/placeholder-image.jpg";
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
-            </motion.div>
-          </div>
-        </motion.section>
-      )}
+          <motion.h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+            {content.heading || "Content Gallery"}
+          </motion.h1>
+          <motion.p
+            variants={fadeInVariants}
+            transition={{ delay: 0.2 }}
+            className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed"
+          >
+            {content.subheading || "Discover amazing content"}
+          </motion.p>
+        </motion.header>
 
-      {/* Horizontal Cards Section */}
-      {cards.length > 0 && (
-        <motion.section
-          variants={slideInVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="py-8"
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl md:text-3xl font-bold text-white">
-                Featured Content
-              </h3>
-              <div className="flex items-center gap-2 text-blue-200">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 5l7 7-7 7M5 5l7 7-7 7"
-                  />
-                </svg>
-                <span className="text-sm">Scroll to explore</span>
+        {/* Center Background Image */}
+        {centerImage && (
+          <motion.section
+            variants={scaleInVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="py-8 px-4 sm:px-6 lg:px-8"
+          >
+            <div className="max-w-4xl mx-auto">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className="relative rounded-2xl overflow-hidden shadow-2xl bg-gray-900/50 backdrop-blur-sm"
+                style={{ width: "90%", margin: "0 auto", marginTop: "-20px" }}
+              >
+                <img
+                  src={centerImage}
+                  alt="Center Image"
+                  className="w-full h-auto object-cover"
+                  onError={(e) => {
+                    e.target.src = "/placeholder-image.jpg";
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
+              </motion.div>
+            </div>
+          </motion.section>
+        )}
+
+        {/* Horizontal Cards Section */}
+        {cards.length > 0 && (
+          <motion.section
+            variants={slideInVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="py-8"
+          >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-2xl md:text-3xl font-bold text-white">
+                  Featured Content
+                </h3>
+                <div className="flex items-center gap-2 text-blue-200">
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 5l7 7-7 7M5 5l7 7-7 7"
+                    />
+                  </svg>
+                  <span className="text-sm">Scroll to explore</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="overflow-x-auto scrollbar-hide">
-            <div
-              className="flex gap-6 px-4 sm:px-6 lg:px-8 pb-4"
-              style={{ width: "max-content" }}
-            >
-              {cards.map((card, index) => (
-                <motion.div
-                  key={index}
-                  variants={scaleInVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex-shrink-0 w-80 bg-white/10 backdrop-blur-sm rounded-2xl overflow-hidden shadow-xl border border-white/20 hover:scale-105 transition-transform duration-300"
-                >
-                  {/* Card Content */}
-                  <div className="p-6">
-                    {/* Truncated Heading (15 characters) */}
-                    <h4 className="text-lg font-bold text-white mb-3">
-                      {truncateText(card.text || `Card ${index + 1}`, 15)}
-                    </h4>
+            <div className="overflow-x-auto scrollbar-hide">
+              <div
+                className="flex gap-6 px-4 sm:px-6 lg:px-8 pb-4"
+                style={{ width: "max-content" }}
+              >
+                {cards.map((card, index) => (
+                  <motion.div
+                    key={index}
+                    variants={scaleInVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex-shrink-0 w-80 bg-white/10 backdrop-blur-sm rounded-2xl overflow-hidden shadow-xl border border-white/20 hover:scale-105 transition-transform duration-300"
+                  >
+                    {/* Card Content */}
+                    <div className="p-6">
+                      {/* Truncated Heading (15 characters) */}
+                      <h4 className="text-lg font-bold text-white mb-3">
+                        {truncateText(card.text || `Card ${index + 1}`, 15)}
+                      </h4>
 
-                    {/* Full Text */}
-                    <p className="text-sm text-blue-100 leading-relaxed mb-4 line-clamp-4">
-                      {card.text || "No description available"}
-                    </p>
+                      {/* Full Text */}
+                      <p className="text-sm text-blue-100 leading-relaxed mb-4 line-clamp-4">
+                        {card.text || "No description available"}
+                      </p>
 
-                    {/* External Link Button */}
-                    {card.link && (
-                      <a
-                        href={card.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
-                      >
-                        <span>Visit Link</span>
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
+                      {/* External Link Button */}
+                      {card.link && (
+                        <a
+                          href={card.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                          />
-                        </svg>
-                      </a>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </motion.section>
-      )}
-
-      {/* Footer */}
-      <motion.footer
-        variants={fadeInVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="py-12 px-4 sm:px-6 lg:px-8 border-t border-white/10 bg-black/20 backdrop-blur-sm mt-16"
-      >
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h4 className="text-xl font-bold text-white mb-4">
-                Contact Information
-              </h4>
-              <p className="text-blue-200">
-                Email: contact@example.com
-                <br />
-                Phone: (555) 123-4567
-              </p>
-            </div>
-            <div>
-              <h4 className="text-xl font-bold text-white mb-4">Quick Links</h4>
-              <div className="space-y-2">
-                <a
-                  href="#"
-                  className="block text-blue-200 hover:text-white transition-colors"
-                >
-                  About Us
-                </a>
-                <a
-                  href="#"
-                  className="block text-blue-200 hover:text-white transition-colors"
-                >
-                  Services
-                </a>
-                <a
-                  href="#"
-                  className="block text-blue-200 hover:text-white transition-colors"
-                >
-                  Support
-                </a>
+                          <span>Visit Link</span>
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                            />
+                          </svg>
+                        </a>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             </div>
-            <div>
-              <h4 className="text-xl font-bold text-white mb-4">
-                Privacy Policy
-              </h4>
-              <p className="text-blue-200 text-sm leading-relaxed">
-                We respect your privacy and are committed to protecting your
-                personal data. This privacy policy will inform you about how we
-                look after your personal data.
+          </motion.section>
+        )}
+
+        {/* Footer */}
+        <motion.footer
+          variants={fadeInVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="py-12 px-4 sm:px-6 lg:px-8 border-t border-white/10 bg-black/20 backdrop-blur-sm mt-16"
+        >
+          <div className="max-w-6xl mx-auto text-center">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div>
+                <h4 className="text-xl font-bold text-white mb-4">
+                  Contact Information
+                </h4>
+                <p className="text-blue-200">
+                  Email: contact@example.com
+                  <br />
+                  Phone: (555) 123-4567
+                </p>
+              </div>
+              <div>
+                <h4 className="text-xl font-bold text-white mb-4">Quick Links</h4>
+                <div className="space-y-2">
+                  <a
+                    href="#"
+                    className="block text-blue-200 hover:text-white transition-colors"
+                  >
+                    About Us
+                  </a>
+                  <a
+                    href="#"
+                    className="block text-blue-200 hover:text-white transition-colors"
+                  >
+                    Services
+                  </a>
+                  <a
+                    href="#"
+                    className="block text-blue-200 hover:text-white transition-colors"
+                  >
+                    Support
+                  </a>
+                </div>
+              </div>
+              <div>
+                <h4 className="text-xl font-bold text-white mb-4">
+                  Privacy Policy
+                </h4>
+                <p className="text-blue-200 text-sm leading-relaxed">
+                  We respect your privacy and are committed to protecting your
+                  personal data. This privacy policy will inform you about how we
+                  look after your personal data.
+                </p>
+              </div>
+            </div>
+            <div className="mt-8 pt-8 border-t border-white/10">
+              <p className="text-blue-300">
+                © 2024 Template Ten. All rights reserved.
               </p>
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t border-white/10">
-            <p className="text-blue-300">
-              © 2024 Template Ten. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </motion.footer>
+        </motion.footer>
 
-      {/* Custom Scrollbar Styles */}
-      <style jsx global>{`
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
+        {/* Custom Scrollbar Styles */}
+        <style jsx global>{`
+          .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
 
-        .line-clamp-3 {
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
+          .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
 
-        /* Custom scrollbar for better UX */
-        .scrollbar-thin::-webkit-scrollbar {
-          height: 6px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 3px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: rgba(59, 130, 246, 0.5);
-          border-radius: 3px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-          background: rgba(59, 130, 246, 0.7);
-        }
-      `}</style>
-    </div>
+          /* Custom scrollbar for better UX */
+          .scrollbar-thin::-webkit-scrollbar {
+            height: 6px;
+          }
+          .scrollbar-thin::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+          }
+          .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.5);
+            border-radius: 3px;
+          }
+          .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.7);
+          }
+        `}</style>
+      </div>
+    </>
   );
 }

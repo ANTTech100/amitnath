@@ -43,6 +43,18 @@ const AdminNavbar = () => {
                 >
                   Reports
                 </Link>
+                <Link
+                  href="/admin/questions"
+                  className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700"
+                >
+                  Questions
+                </Link>
+                <Link
+                  href="/admin/responses"
+                  className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700"
+                >
+                  Responses
+                </Link>
               </div>
             </div>
           </div>
@@ -149,6 +161,18 @@ const AdminNavbar = () => {
               className="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700"
             >
               Reports
+            </Link>
+            <Link
+              href="/admin/questions"
+              className="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700"
+            >
+              Questions
+            </Link>
+            <Link
+              href="/admin/responses"
+              className="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700"
+            >
+              Responses
             </Link>
             <Link
               href="/admin/settings"

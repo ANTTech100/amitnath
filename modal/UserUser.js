@@ -25,6 +25,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false, // Indicates if the user has been validated
     },
+    tenantToken: {
+      type: String,
+      required: false, // Optional for backward compatibility
+    },
   },
   { timestamps: true }
 );

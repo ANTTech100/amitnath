@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Codeless Platform Guide</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.6;
+      color: #1f2937;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 210mm;
+      margin: 0 auto;
+      background: white;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Cover Page */
+    .cover-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cover-page::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="40" cy="80" r="1.5" fill="rgba(255,255,255,0.08)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grain)"/></svg>');
+      opacity: 0.3;
+    }
+
+    .cover-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .logo {
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      margin: 0 auto 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 700;
+      backdrop-filter: blur(10px);
+    }
+
+    .cover-title {
+      font-size: 4rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .cover-subtitle {
+      font-size: 1.5rem;
+      font-weight: 300;
+      margin-bottom: 0.5rem;
+      opacity: 0.9;
+    }
+
+    .cover-description {
+      font-size: 1.2rem;
+      font-weight: 500;
+      opacity: 0.8;
+      margin-bottom: 3rem;
+    }
+
+    .cover-version {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+
+    /* Content Pages */
+    .content {
+      padding: 3rem;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #4f46e5;
+      margin-bottom: 2rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 3px solid #e5e7eb;
+      position: relative;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: #4f46e5;
+    }
+
+    .subsection-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #374151;
+      margin: 2rem 0 1rem 0;
+      padding-left: 1rem;
+      border-left: 4px solid #4f46e5;
+    }
+
+    /* Table of Contents */
+    .toc-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .toc-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      background: #f9fafb;
+      border-radius: 8px;
+      border-left: 4px solid #4f46e5;
+      transition: all 0.3s ease;
+    }
+
+    .toc-item:hover {
+      background: #f3f4f6;
+      transform: translateX(5px);
+    }
+
+    .toc-link {
+      color: #374151;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .toc-dots {
+      flex: 1;
+      border-bottom: 2px dotted #d1d5db;
+      margin: 0 1rem;
+      height: 1px;
+    }
+
+    .toc-page {
+      color: #6b7280;
+      font-weight: 600;
+    }
+
+    /* Flow Diagrams */
+    .flow-container {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+      position: relative;
+    }
+
+    .flow-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .flow-steps {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .flow-step {
+      background: white;
+      border: 2px solid #4f46e5;
+      border-radius: 8px;
+      padding: 1rem;
+      min-width: 160px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .flow-step::after {
+      content: '→';
+      position: absolute;
+      right: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #4f46e5;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .flow-step:last-child::after {
+      display: none;
+    }
+
+    .step-title {
+      font-weight: 600;
+      color: #1e293b;
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .step-route {
+      font-size: 0.75rem;
+      color: #6b7280;
+      font-family: 'Monaco', 'Courier New', monospace;
+    }
+
+    /* Tables */
+    .routes-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 2rem 0;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .routes-table th {
+      background: #4f46e5;
+      color: white;
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .routes-table td {
+      padding: 1rem;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: top;
+    }
+
+    .routes-table tbody tr:nth-child(even) {
+      background: #f9fafb;
+    }
+
+    .routes-table tbody tr:hover {
+      background: #f3f4f6;
+    }
+
+    .route-path {
+      font-family: 'Monaco', 'Courier New', monospace;
+      background: #f1f5f9;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: #334155;
+      font-weight: 500;
+    }
+
+    /* Cards */
+    .info-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-icon {
+      width: 24px;
+      height: 24px;
+      background: #4f46e5;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.8rem;
+    }
+
+    .card-content {
+      color: #4b5563;
+      line-height: 1.6;
+    }
+
+    .highlight-box {
+      background: linear-gradient(135deg, #ddd6fe, #e0e7ff);
+      border-left: 4px solid #4f46e5;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      border-radius: 8px;
+    }
+
+    .highlight-title {
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: #1f2937;
+      color: white;
+      margin-top: 3rem;
+    }
+
+    .footer-content {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .footer-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-subtitle {
+      opacity: 0.8;
+      margin-bottom: 2rem;
+    }
+
+    .footer-meta {
+      font-size: 0.9rem;
+      opacity: 0.6;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: white;
+      }
+
+      .container {
+        box-shadow: none;
+      }
+
+      .flow-step::after {
+        right: -15px;
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .flow-steps {
+        flex-direction: column;
+      }
+
+      .flow-step::after {
+        content: '↓';
+        right: 50%;
+        top: -15px;
+        transform: translateX(50%);
+      }
+
+      .cover-title {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Cover Page -->
+    <div class="cover-page">
+      <div class="cover-content">
+        <div class="logo">C</div>
+        <h1 class="cover-title">Codeless</h1>
+        <p class="cover-subtitle">Multi-Tenant SaaS Platform</p>
+        <p class="cover-description">Professional Route & Feature Guide</p>
+      </div>
+      <div class="cover-version">Version 1.0 | 2025</div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Table of Contents -->
+      <div class="page-break">
+        <h2 class="section-title">Table of Contents</h2>
+        <ul class="toc-list">
+          <li class="toc-item">
+            <a href="#user-flow" class="toc-link">User Flow</a>
+            <div class="toc-dots"></div>
+            <span class="toc-page">3</span>
+          </li>
+          <li class="toc-item">
+            <a href="#admin-flow" class="toc-link">Admin Flow</a>
+            <div class="toc-dots"></div>
+            <span class="toc-page">4</span>
+          </li>
+          <li class="toc-item">
+            <a href="#superadmin-flow" class="toc-link">Superadmin Flow</a>
+            <div class="toc-dots"></div>
+            <span class="toc-page">5</span>
+          </li>
+          <li class="toc-item">
+            <a href="#all-routes" class="toc-link">All Routes & Pages</a>
+            <div class="toc-dots"></div>
+            <span class="toc-page">6</span>
+          </li>
+          <li class="toc-item">
+            <a href="#multi-tenancy" class="toc-link">Multi-Tenancy & Data Isolation</a>
+            <div class="toc-dots"></div>
+            <span class="toc-page">9</span>
+          </li>
+          <li class="toc-item">
+            <a href="#api-endpoints" class="toc-link">API Endpoints</a>
+            <div class="toc-dots"></div>
+            <span class="toc-page">10</span>
+          </li>
+          <li class="toc-item">
+            <a href="#summary" class="toc-link">Summary</a>
+            <div class="toc-dots"></div>
+            <span class="toc-page">11</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- User Flow -->
+      <div class="page-break" id="user-flow">
+        <h2 class="section-title">User Flow</h2>
+        <div class="flow-container">
+          <h3 class="flow-title">User Journey Through the Platform</h3>
+          <div class="flow-steps">
+            <div class="flow-step">
+              <div class="step-title">User Registration</div>
+              <div class="step-route">/user/register</div>
+            </div>
+            <div class="flow-step">
+              <div class="step-title">User Login</div>
+              <div class="step-route">/user/login</div>
+            </div>
+            <div class="flow-step">
+              <div class="step-title">Dashboard</div>
+              <div class="step-route">/user/home</div>
+            </div>
+          </div>
+          <br>
+          <div class="flow-steps">
+            <div class="flow-step">
+              <div class="step-title">View Templates</div>
+              <div class="step-route">/user/tem</div>
+            </div>
+            <div class="flow-step">
+              <div class="step-title">Fill Template</div>
+              <div class="step-route">/user/tem/[id]</div>
+            </div>
+            <div class="flow-step">
+              <div class="step-title">Profile & Support</div>
+              <div class="step-route">/user/profile/[id]</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Flow -->
+      <div class="page-break" id="admin-flow">
+        <h2 class="section-title">Admin Flow</h2>
+        <div class="flow-container">
+          <h3 class="flow-title">Administrator Management Journey</h3>
+          <div class="flow-steps">
+            <div class="flow-step">
+              <div class="step-title">Admin Setup</div>
+              <div class="step-route">/admin/setup</div>
+            </div>
+            <div class="flow-step">
+              <div class="step-title">Admin Register</div>
+              <div class="step-route">/admin/register</div>
+            </div>
+            <div class="flow-step">
+              <div class="step-title">Admin Login</div>
+              <div class="step-route">/admin/login</div>
+            </div>
+          </div>
+          <br>
+          <div class="flow-steps">
+            <div class="flow-step">
+              <div class="step-title">Dashboard</div>
+              <div class="step-route">/admin/hero</div>
+            </div>
+            <div class="flow-step">
+              <div class="step-title">Manage Users</div>
+              <div class="step-route">/admin/users</div>
+            </div>
+            <div class="flow-step">
+              <div class="step-title">Manage Content</div>
+              <div class="step-route">/admin/templates</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Superadmin Flow -->
+      <div class="page-break" id="superadmin-flow">
+        <h2 class="section-title">Superadmin Flow</h2>
+        <div class="flow-container">
+          <h3 class="flow-title">System-Wide Administration</h3>
+          <div class="flow-steps">
+            <div class="flow-step">
+              <div class="step-title">Superadmin Login</div>
+              <div class="step-route">/superadmin/login</div>
+            </div>
+            <div class="flow-step">
+              <div class="step-title">Dashboard</div>
+              <div class="step-route">/superadmin</div>
+            </div>
+            <div class="flow-step">
+              <div class="step-title">Global Management</div>
+              <div class="step-route">/superadmin/*</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Routes -->
+      <div class="page-break" id="all-routes">
+        <h2 class="section-title">All Routes & Pages</h2>
+
+        <h3 class="subsection-title">User Routes</h3>
+        <table class="routes-table">
+          <thead>
+            <tr>
+              <th>Route</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="route-path">/user/register</span></td>
+              <td>Register as a user (with organization name)</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/user/login</span></td>
+              <td>User login authentication</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/user/home</span></td>
+              <td>User dashboard with overview and quick actions</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/user/tem</span></td>
+              <td>List and browse available templates</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/user/tem/[templateId]</span></td>
+              <td>Fill out and submit a specific template</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/user/profile/[id]</span></td>
+              <td>User profile management and settings</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/user/contact</span></td>
+              <td>Contact support or administrator</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/user/FAQ</span></td>
+              <td>Frequently Asked Questions and help</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 class="subsection-title">Admin Routes</h3>
+        <table class="routes-table">
+          <thead>
+            <tr>
+              <th>Route</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="route-path">/admin/setup</span></td>
+              <td>Enter organization token to access admin registration</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/admin/register</span></td>
+              <td>Register as an organization administrator</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/admin/login</span></td>
+              <td>Admin login authentication</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/admin/hero</span></td>
+              <td>Admin dashboard with statistics, charts, and actions</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/admin/users</span></td>
+              <td>Manage users within the organization</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/admin/templates</span></td>
+              <td>Create and manage organization templates</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/admin/questions</span></td>
+              <td>Manage questions and form elements</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/admin/responses</span></td>
+              <td>View and analyze user responses</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/admin/uploads</span></td>
+              <td>Review and manage file uploads from users</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/admin/tempall</span></td>
+              <td>View and manage all templates overview</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/admin/tempall/[id]</span></td>
+              <td>Detailed view and management of specific template</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/admin/edit/[id]</span></td>
+              <td>Edit specific items, templates, or configurations</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 class="subsection-title">Superadmin Routes</h3>
+        <table class="routes-table">
+          <thead>
+            <tr>
+              <th>Route</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="route-path">/superadmin/login</span></td>
+              <td>Superadmin authentication</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/superadmin</span></td>
+              <td>Superadmin dashboard with tabs for all system features</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/superadmin/users</span></td>
+              <td>View and manage all users across all organizations</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/superadmin/admins</span></td>
+              <td>View and manage all administrators across all organizations</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/superadmin/templates</span></td>
+              <td>View and manage all templates across all organizations</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/superadmin/questions</span></td>
+              <td>View and manage all questions across all organizations</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/superadmin/responses</span></td>
+              <td>View and analyze all responses across all organizations</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/superadmin/tokens</span></td>
+              <td>Manage organization tokens and access control</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/superadmin/reports</span></td>
+              <td>System-wide reports and analytics</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Multi-Tenancy -->
+      <div class="page-break" id="multi-tenancy">
+        <h2 class="section-title">Multi-Tenancy & Data Isolation</h2>
+
+        <div class="info-card">
+          <h3 class="card-title">
+            <div class="card-icon">🏢</div>
+            Organization Isolation
+          </h3>
+          <div class="card-content">
+            Each organization (tenant) is completely isolated by a unique token or organizational identifier. This
+            ensures that data remains secure and private between different organizations using the platform.
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h3 class="card-title">
+            <div class="card-icon">👥</div>
+            Role-Based Access Control
+          </h3>
+          <div class="card-content">
+            <strong>Administrators</strong> can only see and manage data within their own organization, including users,
+            templates, questions, and responses. <strong>Users</strong> interact only with content specific to their
+            organization.
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h3 class="card-title">
+            <div class="card-icon">🔧</div>
+            Superadmin Privileges
+          </h3>
+          <div class="card-content">
+            The Superadmin role has system-wide access and can view and manage all data across all organizations. This
+            role is essential for platform maintenance, support, and global analytics.
+          </div>
+        </div>
+
+        <div class="highlight-box">
+          <div class="highlight-title">🔒 Security & Privacy</div>
+          All API endpoints automatically filter data by tenant unless the <code>?all=true</code> parameter is used by
+          superadmin. This ensures complete data isolation and prevents accidental cross-tenant data exposure.
+        </div>
+      </div>
+
+      <!-- API Endpoints -->
+      <div class="page-break" id="api-endpoints">
+        <h2 class="section-title">API Endpoints</h2>
+
+        <h3 class="subsection-title">Superadmin Endpoints</h3>
+        <table class="routes-table">
+          <thead>
+            <tr>
+              <th>Endpoint</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="route-path">/api/users?all=true</span></td>
+              <td>Get all users across all organizations (superadmin only)</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/api/admins?all=true</span></td>
+              <td>Get all administrators across all organizations (superadmin only)</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/api/templates?all=true</span></td>
+              <td>Get all templates across all organizations (superadmin only)</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/api/questions?all=true</span></td>
+              <td>Get all questions across all organizations (superadmin only)</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/api/responses?all=true</span></td>
+              <td>Get all responses across all organizations (superadmin only)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 class="subsection-title">Admin & User Endpoints</h3>
+        <table class="routes-table">
+          <thead>
+            <tr>
+              <th>Endpoint</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="route-path">/api/admin/users</span></td>
+              <td>Get users for a specific organization (admin access)</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/api/admin/register</span></td>
+              <td>Admin registration or retrieve admin information</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/api/admin/login</span></td>
+              <td>Administrator authentication endpoint</td>
+            </tr>
+            <tr>
+              <td><span class="route-path">/api/user/register</span></td>
+              <td>User registration with organization association</td>

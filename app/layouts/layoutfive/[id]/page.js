@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Head from "next/head";
 import { ChevronDown, ChevronUp, Quote, Video, FileText } from "lucide-react";
+import DynamicPopup from "@/app/components/DynamicPopup";
 
 export default function LayoutFive() {
   const [content, setContent] = useState(null);
@@ -12,6 +13,9 @@ export default function LayoutFive() {
   const [error, setError] = useState("");
   const { id } = useParams();
   const router = useRouter();
+  
+  // Get template ID from content data
+  const templateId = content?.templateId?._id || content?.templateId;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -289,145 +293,148 @@ export default function LayoutFive() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
-      <Head>
-        <title>{content.heading} | Testimonial Section</title>
-        <meta name="description" content={content.subheading} />
-      </Head>
+    <>
+      {templateId && <DynamicPopup templateId={templateId} />}
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
+        <Head>
+          <title>{content.heading} | Testimonial Section</title>
+          <meta name="description" content={content.subheading} />
+        </Head>
 
-      {/* Header Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 backdrop-blur-sm"></div>
-        <div className="relative max-w-7xl mx-auto px-6 py-16 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-            {content.heading}
-          </h1>
-          <p className="text-xl md:text-2xl text-purple-200 max-w-3xl mx-auto leading-relaxed">
-            {content.subheading}
-          </p>
-        </div>
-      </div>
-
-      {/* Guides Section */}
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        <div className="space-y-6">
-          {groupedSections.length === 0 ? (
-            <p className="text-xl text-purple-200 text-center">
-              No sections available for this content.
+        {/* Header Section */}
+        <div className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 backdrop-blur-sm"></div>
+          <div className="relative max-w-7xl mx-auto px-6 py-16 text-center">
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+              {content.heading}
+            </h1>
+            <p className="text-xl md:text-2xl text-purple-200 max-w-3xl mx-auto leading-relaxed">
+              {content.subheading}
             </p>
-          ) : (
-            groupedSections.map((sections, index) => {
-              const phase = getPhaseInfo(index);
-              const isOpen = openGuides.has(index);
+          </div>
+        </div>
 
-              return (
-                <div key={index} className="group">
-                  {/* Guide Header */}
-                  <button
-                    onClick={() => toggleGuide(index)}
-                    className="w-full bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:border-white/30 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div
-                          className={`w-12 h-12 bg-gradient-to-r ${phase.color} rounded-full flex items-center justify-center shadow-lg`}
-                        >
-                          <span className="text-white font-bold text-lg">
-                            {index + 1}
-                          </span>
-                        </div>
-                        <div className="text-left">
-                          <h3 className="text-xl font-bold text-white">
-                            GUIDE {index + 1}
-                          </h3>
-                          <p className="text-purple-200 text-sm">
-                            {getSectionStats(sections)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <div className="flex space-x-2">
-                          <Video className="w-5 h-5 text-blue-400" />
-                          <FileText className="w-5 h-5 text-green-400" />
-                        </div>
-                        {isOpen ? (
-                          <ChevronUp className="w-6 h-6 text-white transition-transform duration-300" />
-                        ) : (
-                          <ChevronDown className="w-6 h-6 text-white transition-transform duration-300" />
-                        )}
-                      </div>
-                    </div>
-                  </button>
+        {/* Guides Section */}
+        <div className="max-w-6xl mx-auto px-6 py-12">
+          <div className="space-y-6">
+            {groupedSections.length === 0 ? (
+              <p className="text-xl text-purple-200 text-center">
+                No sections available for this content.
+              </p>
+            ) : (
+              groupedSections.map((sections, index) => {
+                const phase = getPhaseInfo(index);
+                const isOpen = openGuides.has(index);
 
-                  {/* Guide Content */}
-                  {isOpen && (
-                    <div className="mt-6 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
-                      <div className="space-y-8">
-                        {sections.map((section, sectionIndex) => (
-                          <div key={sectionIndex}>
-                            <div className="flex items-center mb-4">
-                              <div
-                                className={`w-8 h-8 bg-gradient-to-r ${phase.color} rounded-full flex items-center justify-center mr-4`}
-                              >
-                                {section.type === "video" ? (
-                                  <Video className="w-4 h-4 text-white" />
-                                ) : (
-                                  <FileText className="w-4 h-4 text-white" />
-                                )}
-                              </div>
-                              <h4 className="text-lg font-semibold text-white">
-                                {section.type === "video"
-                                  ? "Video Tutorial"
-                                  : "Text Guide"}{" "}
-                                {sectionIndex + 1}
-                              </h4>
-                            </div>
-
-                            <div className="transition-all duration-500">
-                              {section.type === "text"
-                                ? renderText(section.value)
-                                : renderVideo(section.value)}
-                            </div>
+                return (
+                  <div key={index} className="group">
+                    {/* Guide Header */}
+                    <button
+                      onClick={() => toggleGuide(index)}
+                      className="w-full bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:border-white/30 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div
+                            className={`w-12 h-12 bg-gradient-to-r ${phase.color} rounded-full flex items-center justify-center shadow-lg`}
+                          >
+                            <span className="text-white font-bold text-lg">
+                              {index + 1}
+                            </span>
                           </div>
-                        ))}
+                          <div className="text-left">
+                            <h3 className="text-xl font-bold text-white">
+                              GUIDE {index + 1}
+                            </h3>
+                            <p className="text-purple-200 text-sm">
+                              {getSectionStats(sections)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <div className="flex space-x-2">
+                            <Video className="w-5 h-5 text-blue-400" />
+                            <FileText className="w-5 h-5 text-green-400" />
+                          </div>
+                          {isOpen ? (
+                            <ChevronUp className="w-6 h-6 text-white transition-transform duration-300" />
+                          ) : (
+                            <ChevronDown className="w-6 h-6 text-white transition-transform duration-300" />
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })
-          )}
+                    </button>
+
+                    {/* Guide Content */}
+                    {isOpen && (
+                      <div className="mt-6 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
+                        <div className="space-y-8">
+                          {sections.map((section, sectionIndex) => (
+                            <div key={sectionIndex}>
+                              <div className="flex items-center mb-4">
+                                <div
+                                  className={`w-8 h-8 bg-gradient-to-r ${phase.color} rounded-full flex items-center justify-center mr-4`}
+                                >
+                                  {section.type === "video" ? (
+                                    <Video className="w-4 h-4 text-white" />
+                                  ) : (
+                                    <FileText className="w-4 h-4 text-white" />
+                                  )}
+                                </div>
+                                <h4 className="text-lg font-semibold text-white">
+                                  {section.type === "video"
+                                    ? "Video Tutorial"
+                                    : "Text Guide"}{" "}
+                                  {sectionIndex + 1}
+                                </h4>
+                              </div>
+
+                              <div className="transition-all duration-500">
+                                {section.type === "text"
+                                  ? renderText(section.value)
+                                  : renderVideo(section.value)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Back Button */}
+          <div className="text-center mt-20">
+            <button
+              onClick={() => router.push("/layouts/layoutfive")}
+              className="px-12 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-2xl shadow-2xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 hover:shadow-purple-500/25"
+            >
+              Back to Testimonial Sections
+            </button>
+          </div>
         </div>
 
-        {/* Back Button */}
-        <div className="text-center mt-20">
-          <button
-            onClick={() => router.push("/layouts/layoutfive")}
-            className="px-12 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-2xl shadow-2xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 hover:shadow-purple-500/25"
-          >
-            Back to Testimonial Sections
-          </button>
-        </div>
+        <style jsx>{`
+          @keyframes fade-in {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          .animate-fade-in {
+            animation: fade-in 0.5s ease-out;
+          }
+          .animation-delay-150 {
+            animation-delay: 0.15s;
+          }
+        `}</style>
       </div>
-
-      <style jsx>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.5s ease-out;
-        }
-        .animation-delay-150 {
-          animation-delay: 0.15s;
-        }
-      `}</style>
-    </div>
+    </>
   );
 }

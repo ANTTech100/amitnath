@@ -26,12 +26,13 @@ export async function POST(request) {
       );
     }
 
-    // Respond with success message
+    // Respond with success message and tenantToken
     return NextResponse.json(
       {
         message: "Login successful",
         adminid: admin._id,
         admin: { name: admin.name, email: admin.email },
+        tenantToken: admin.tenantToken,
       },
       { status: 200 }
     );

@@ -12,7 +12,7 @@ export default function LayoutOne() {
   const [showMoreSections, setShowMoreSections] = useState(false);
   const { id } = useParams();
 
-  useEffect(() => {
+  useEffect(() =>
     const fetchData = async () => {
       try {
         setLoading(true);

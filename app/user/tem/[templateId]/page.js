@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import UserNavbar from "../../Header";
 import React from "react";
+import InfoTooltip from "../../../components/InfoTooltip";
 
 export default function ContentUploadPage({ params }) {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function ContentUploadPage({ params }) {
   const [inputTypes, setInputTypes] = useState({});
   const [userId, setUserId] = useState(null);
   const [videoUrlErrors, setVideoUrlErrors] = useState({});
-  const [showAllSections, setShowAllSections] = useState(false);
+  const [visibleSectionCount, setVisibleSectionCount] = useState(5);
 
   const fallbackImage =
     "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
@@ -514,12 +515,9 @@ export default function ContentUploadPage({ params }) {
   };
 
   // Get sections to display based on showAllSections state
-  const sectionsToShow =
-    template?.sections?.sort((a, b) => a.order - b.order) || [];
-  const visibleSections = showAllSections
-    ? sectionsToShow
-    : sectionsToShow.slice(0, 5);
-  const hiddenSectionsCount = sectionsToShow.length - 5;
+  const sectionsToShow = template?.sections?.sort((a, b) => a.order - b.order) || [];
+  const visibleSections = sectionsToShow.slice(0, visibleSectionCount);
+  const hiddenSectionsCount = Math.max(0, sectionsToShow.length - visibleSectionCount);
 
   if (loading) {
     return (
@@ -576,8 +574,12 @@ export default function ContentUploadPage({ params }) {
   return (
     <>
       <UserNavbar />
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        {/* Animated background blobs */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600 opacity-30 rounded-full filter blur-3xl animate-pulse z-0" />
+        <div className="absolute top-1/2 right-0 w-96 h-96 bg-purple-600 opacity-20 rounded-full filter blur-3xl animate-pulse z-0" />
+        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-blue-400 opacity-10 rounded-full filter blur-2xl animate-pulse z-0" />
+        <div className="max-w-5xl mx-auto w-full z-10">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -585,7 +587,7 @@ export default function ContentUploadPage({ params }) {
           >
             <Link
               href="/user/tem"
-              className="inline-flex items-center text-purple-400 hover:text-purple-300 font-semibold transition-colors duration-200"
+              className="inline-flex items-center text-blue-300 hover:text-blue-200 font-semibold transition-colors duration-200"
             >
               <svg
                 className="w-5 h-5 mr-2"
@@ -602,19 +604,20 @@ export default function ContentUploadPage({ params }) {
               </svg>
               Back to Templates
             </Link>
-            <h1 className="text-3xl font-bold text-purple-100 mt-2">
+            <h1 className="text-4xl font-extrabold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-transparent mt-2 drop-shadow-lg">
               {template?.name || "Create Content"}
             </h1>
-            <p className="text-gray-400">{template?.description}</p>
+            <p className="text-blue-200/80 mt-2 text-lg font-medium">
+              {template?.description}
+            </p>
           </motion.div>
-
           <AnimatePresence>
             {success && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="bg-green-500/20 border border-green-500/50 text-green-300 p-4 rounded-xl mb-6"
+                className="bg-green-500/20 border border-green-500/50 text-green-300 p-4 rounded-xl mb-6 shadow-lg backdrop-blur-md"
               >
                 {success}
               </motion.div>
@@ -624,82 +627,78 @@ export default function ContentUploadPage({ params }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="bg-red-500/20 border border-red-500/50 text-red-300 p-4 rounded-xl mb-6"
+                className="bg-red-500/20 border border-red-500/50 text-red-300 p-4 rounded-xl mb-6 shadow-lg backdrop-blur-md"
               >
                 Error: {errors.global}
               </motion.div>
             )}
           </AnimatePresence>
-
           <motion.form
             variants={formVariants}
             initial="hidden"
             animate="visible"
             onSubmit={handleSubmit}
-            className="space-y-6"
+            className="space-y-8"
           >
+            <div className="mb-4 flex items-center gap-2">
+              <span className="text-red-400 text-lg font-bold">*</span>
+              <span className="text-blue-200 text-sm">Fields marked with * are required.</span>
+            </div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gray-800 p-6 rounded-xl shadow-lg border border-purple-500/30"
+              className="bg-white/10 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border-2 border-blue-500/30 hover:border-blue-400/60 transition-all duration-300 mb-8"
             >
-              <h3 className="text-xl font-semibold text-purple-200 mb-4">
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-transparent mb-4 drop-shadow">
                 Content Details
               </h3>
               <div className="space-y-4">
+                {/* Heading input */}
                 <div>
-                  <label className="block text-gray-300 mb-2" htmlFor="heading">
-                    Heading
+                  <label className="block text-blue-100 mb-2 font-semibold" htmlFor="heading">
+                    Heading <span className="text-red-400">*</span>
                   </label>
                   <input
                     id="heading"
                     type="text"
-                    className="w-full p-3 bg-gray-900 border border-purple-500/30 rounded-xl text-gray-200 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full p-3 bg-white/20 border border-blue-400/30 rounded-2xl text-blue-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner placeholder-blue-300"
                     value={formData.heading}
                     onChange={(e) => handleInputChange(e, "heading")}
                     placeholder="Enter the heading for this content"
                     required
                   />
                   {errors.heading && (
-                    <p className="mt-2 text-sm text-red-400">
-                      {errors.heading}
-                    </p>
+                    <p className="mt-2 text-sm text-red-400">{errors.heading}</p>
                   )}
                 </div>
+                {/* Subheading input */}
                 <div>
-                  <label
-                    className="block text-gray-300 mb-2"
-                    htmlFor="subheading"
-                  >
-                    Subheading
+                  <label className="block text-blue-100 mb-2 font-semibold" htmlFor="subheading">
+                    Subheading <span className="text-red-400">*</span>
                   </label>
                   <input
                     id="subheading"
                     type="text"
-                    className="w-full p-3 bg-gray-900 border border-purple-500/30 rounded-xl text-gray-200 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full p-3 bg-white/20 border border-blue-400/30 rounded-2xl text-blue-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner placeholder-blue-300"
                     value={formData.subheading}
                     onChange={(e) => handleInputChange(e, "subheading")}
                     placeholder="Enter the subheading for this content"
                     required
                   />
                   {errors.subheading && (
-                    <p className="mt-2 text-sm text-red-400">
-                      {errors.subheading}
-                    </p>
+                    <p className="mt-2 text-sm text-red-400">{errors.subheading}</p>
                   )}
                 </div>
+                {/* Background color input */}
                 <div>
-                  <label
-                    className="block text-gray-300 mb-2"
-                    htmlFor="backgroundColor"
-                  >
-                    Background Color
+                  <label className="block text-blue-100 mb-2 font-semibold" htmlFor="backgroundColor">
+                    Background Color <span className="text-red-400">*</span>
                   </label>
                   <div className="flex items-center space-x-4">
                     <input
                       id="backgroundColor"
                       type="text"
-                      className="w-full p-3 bg-gray-900 border border-purple-500/30 rounded-xl text-gray-200 focus:ring-purple-500 focus:border-purple-500"
+                      className="w-full p-3 bg-white/20 border border-blue-400/30 rounded-2xl text-blue-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner placeholder-blue-300"
                       value={formData.backgroundColor}
                       onChange={(e) => handleInputChange(e, "backgroundColor")}
                       placeholder="Enter hex color code (e.g., #ffffff)"
@@ -707,32 +706,30 @@ export default function ContentUploadPage({ params }) {
                     />
                     <input
                       type="color"
-                      className="w-12 h-12 border border-purple-500/30 rounded-xl cursor-pointer"
+                      className="w-12 h-12 border-2 border-blue-400/30 rounded-2xl cursor-pointer shadow"
                       value={formData.backgroundColor}
                       onChange={(e) => handleInputChange(e, "backgroundColor")}
                     />
                   </div>
                   {errors.backgroundColor && (
-                    <p className="mt-2 text-sm text-red-400">
-                      {errors.backgroundColor}
-                    </p>
+                    <p className="mt-2 text-sm text-red-400">{errors.backgroundColor}</p>
                   )}
                 </div>
               </div>
             </motion.div>
-
+            {/* Section cards: update each to use glassy blue theme, gradient headers, and modern input styles */}
             {visibleSections.map((section) => (
               <motion.div
                 key={section.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: section.order * 0.1 }}
-                className="bg-gray-800 p-6 rounded-xl shadow-lg border border-purple-500/30"
+                className="bg-white/10 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border-2 border-blue-500/30 hover:border-blue-400/60 transition-all duration-300 mb-8"
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center">
                     {getSectionIcon(section.type)}
-                    <h3 className="text-xl font-semibold text-purple-200 ml-2">
+                    <h3 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-transparent ml-2 drop-shadow">
                       {section.title}
                     </h3>
                   </div>
@@ -740,33 +737,40 @@ export default function ContentUploadPage({ params }) {
                     <span className="text-red-400 text-sm">*</span>
                   )}
                 </div>
-                <p className="text-gray-400 mb-4">{section.description}</p>
-
+                <p className="text-blue-200/80 mb-4 text-base font-medium flex items-center">
+                  {section.description}
+                  <InfoTooltip text={section.config?.helpText || `Fill out this section as required.`} />
+                </p>
+                {/* Text Section */}
                 {section.type === "text" && (
                   <div>
+                    <div className="flex items-center mb-1">
+                      <label className="block text-blue-100 mr-2 font-semibold" htmlFor={section.id}>
+                        {section.title}
+                        {section.required && <span className="text-red-400 ml-1">*</span>}
+                      </label>
+                      <InfoTooltip text={section.config?.helpText || `Enter detailed text for this section. Example: \"Describe your experience...\"`} />
+                    </div>
                     <textarea
-                      className="w-full p-3 bg-gray-900 border border-purple-500/30 rounded-xl text-gray-200 focus:ring-purple-500 focus:border-purple-500 resize-y"
+                      id={section.id}
+                      className="w-full p-3 bg-white/20 border border-blue-400/30 rounded-2xl text-blue-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner placeholder-blue-300 resize-y"
                       rows="5"
                       value={formData[section.id] || ""}
                       onChange={(e) => handleInputChange(e, section.id)}
                       required={section.required}
-                      placeholder={
-                        section.config?.placeholder ||
-                        `Enter ${section.title.toLowerCase()}`
-                      }
+                      placeholder={section.config?.placeholder || `E.g., \"Describe your experience...\"`}
                     />
                     {errors[section.id] && (
-                      <p className="mt-2 text-sm text-red-400">
-                        {errors[section.id]}
-                      </p>
+                      <p className="mt-2 text-sm text-red-400">{errors[section.id]}</p>
                     )}
                   </div>
                 )}
 
+                {/* Image/Video Section */}
                 {(section.type === "image" || section.type === "video") && (
                   <div>
                     <div className="flex space-x-4 mb-4">
-                      <label className="flex items-center space-x-2 text-gray-300 cursor-pointer">
+                      <label className="flex items-center space-x-2 text-blue-100 cursor-pointer">
                         <input
                           type="radio"
                           name={`${section.id}-input-type`}
@@ -775,11 +779,11 @@ export default function ContentUploadPage({ params }) {
                           onChange={() =>
                             handleInputTypeChange(section.id, "url")
                           }
-                          className="text-purple-500 focus:ring-purple-500"
+                          className="text-blue-400 focus:ring-blue-400"
                         />
                         <span>Enter URL</span>
                       </label>
-                      <label className="flex items-center space-x-2 text-gray-300 cursor-pointer">
+                      <label className="flex items-center space-x-2 text-blue-100 cursor-pointer">
                         <input
                           type="radio"
                           name={`${section.id}-input-type`}
@@ -788,7 +792,7 @@ export default function ContentUploadPage({ params }) {
                           onChange={() =>
                             handleInputTypeChange(section.id, "file")
                           }
-                          className="text-purple-500 focus:ring-purple-500"
+                          className="text-blue-400 focus:ring-blue-400"
                         />
                         <span>Upload File</span>
                       </label>
@@ -797,7 +801,7 @@ export default function ContentUploadPage({ params }) {
                     {inputTypes[section.id] === "url" ? (
                       <input
                         type="url"
-                        className="w-full p-3 bg-gray-900 border border-purple-500/30 rounded-xl text-gray-200 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-full p-3 bg-white/20 border border-blue-400/30 rounded-2xl text-blue-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner placeholder-blue-300"
                         value={formData[section.id] || ""}
                         onChange={(e) => handleInputChange(e, section.id)}
                         required={section.required}
@@ -809,11 +813,11 @@ export default function ContentUploadPage({ params }) {
                     ) : (
                       <motion.div
                         whileHover={{ scale: 1.02 }}
-                        className="flex justify-center px-6 pt-5 pb-6 border-2 border-purple-500/30 border-dashed rounded-xl hover:bg-purple-500/10 transition-colors duration-200"
+                        className="flex justify-center px-6 pt-5 pb-6 border-2 border-blue-400/30 border-dashed rounded-2xl hover:bg-blue-500/10 transition-colors duration-200"
                       >
                         <div className="space-y-1 text-center">
                           <svg
-                            className="mx-auto h-12 w-12 text-purple-400"
+                            className="mx-auto h-12 w-12 text-blue-400"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -825,10 +829,10 @@ export default function ContentUploadPage({ params }) {
                               d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
                             />
                           </svg>
-                          <div className="flex text-sm text-gray-400">
+                          <div className="flex text-sm text-blue-300">
                             <label
                               htmlFor={`${section.id}-file-upload`}
-                              className="relative cursor-pointer bg-gray-800 rounded-md font-medium text-purple-400 hover:text-purple-300"
+                              className="relative cursor-pointer bg-white/20 rounded-md font-medium text-blue-400 hover:text-blue-300"
                             >
                               <span>Upload a file</span>
                               <input
@@ -848,7 +852,7 @@ export default function ContentUploadPage({ params }) {
                             </label>
                             <p className="pl-1">or drag and drop</p>
                           </div>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-blue-200/60">
                             {section.type === "image"
                               ? "PNG, JPG, GIF"
                               : "MP4, MOV, AVI"}{" "}
@@ -875,7 +879,7 @@ export default function ContentUploadPage({ params }) {
                           <img
                             src={formData[section.id] || fallbackImage}
                             alt="Preview"
-                            className="w-full h-32 object-cover rounded-xl"
+                            className="w-full h-32 object-cover rounded-2xl"
                             onError={(e) => {
                               e.target.src = fallbackImage;
                               setErrors((prev) => ({
@@ -903,7 +907,7 @@ export default function ContentUploadPage({ params }) {
                               return (
                                 <iframe
                                   src={validation.youtubeEmbedUrl}
-                                  className="w-full h-32 rounded-xl"
+                                  className="w-full h-32 rounded-2xl"
                                   frameBorder="0"
                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                   allowFullScreen
@@ -923,7 +927,7 @@ export default function ContentUploadPage({ params }) {
                                 <video
                                   src={formData[section.id]}
                                   controls
-                                  className="w-full h-32 rounded-xl"
+                                  className="w-full h-32 rounded-2xl"
                                   onError={(e) => {
                                     e.target.style.display = "none";
                                     setVideoUrlErrors((prev) => ({
@@ -945,13 +949,13 @@ export default function ContentUploadPage({ params }) {
                           <img
                             src={filePreviews[section.id]}
                             alt="File Preview"
-                            className="w-full h-32 object-cover rounded-xl"
+                            className="w-full h-32 object-cover rounded-2xl"
                           />
                         ) : (
                           <video
                             src={filePreviews[section.id]}
                             controls
-                            className="w-full h-32 rounded-xl"
+                            className="w-full h-32 rounded-2xl"
                           />
                         )}
                       </div>
@@ -959,11 +963,19 @@ export default function ContentUploadPage({ params }) {
                   </div>
                 )}
 
+                {/* Link Section */}
                 {section.type === "link" && (
                   <div>
+                    <div className="flex items-center mb-1">
+                      <label className="block text-blue-100 mr-2 font-semibold" htmlFor={section.id}>
+                        {section.title}
+                        {section.required && <span className="text-red-400 ml-1">*</span>}
+                      </label>
+                      <InfoTooltip text={section.config?.helpText || `Paste a valid URL. Example: https://example.com`} />
+                    </div>
                     <input
                       type="url"
-                      className="w-full p-3 bg-gray-900 border border-purple-500/30 rounded-xl text-gray-200 focus:ring-purple-500 focus:border-purple-500"
+                      className="w-full p-3 bg-white/20 border border-blue-400/30 rounded-2xl text-blue-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner placeholder-blue-300"
                       value={formData[section.id] || ""}
                       onChange={(e) => handleInputChange(e, section.id)}
                       required={section.required}
@@ -981,8 +993,8 @@ export default function ContentUploadPage({ params }) {
                 )}
               </motion.div>
             ))}
-
-            {!showAllSections && hiddenSectionsCount > 0 && (
+            {/* Show more sections button */}
+            {hiddenSectionsCount > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -991,8 +1003,8 @@ export default function ContentUploadPage({ params }) {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setShowAllSections(true)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-xl flex items-center"
+                  onClick={() => setVisibleSectionCount((prev) => prev + 5)}
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold py-2 px-6 rounded-2xl shadow-lg transition-all duration-300 flex items-center"
                 >
                   <svg
                     className="w-5 h-5 mr-2"
@@ -1007,19 +1019,18 @@ export default function ContentUploadPage({ params }) {
                       d="M12 4v16m8-8H4"
                     />
                   </svg>
-                  Show {hiddenSectionsCount} More Section
-                  {hiddenSectionsCount > 1 ? "s" : ""}
+                  Show 5 More Section{hiddenSectionsCount > 1 ? "s" : ""}
                 </motion.button>
               </motion.div>
             )}
-
+            {/* Submit button */}
             <div className="flex justify-end">
               <motion.button
                 type="submit"
                 disabled={submitting}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-xl disabled:opacity-50 transition-colors duration-300"
+                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-3 px-8 rounded-2xl shadow-lg disabled:opacity-50 transition-all duration-300 text-lg tracking-wide"
               >
                 {submitting ? "Submitting..." : "Create Content"}
               </motion.button>
