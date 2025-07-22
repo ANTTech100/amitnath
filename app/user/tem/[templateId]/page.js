@@ -6,19 +6,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import UserNavbar from "../../Header";
 import React from "react";
 import InfoTooltip from "../../../components/InfoTooltip";
+import { FaArrowLeft, FaCheckCircle, FaExclamationCircle, FaImage, FaLink, FaRegFileAlt, FaSpinner } from "react-icons/fa";
+
+console.log('Loaded: app/user/tem/[templateId]/page.js');
 
 export default function ContentUploadPage({ params }) {
   const router = useRouter();
-  const { templateId } = React.use(params); // Unwrap params with React.use()
+  const { templateId } = React.use(params);
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [template, setTemplate] = useState(null);
-  const [formData, setFormData] = useState({
-    heading: "",
-    subheading: "",
-    backgroundColor: "#ffffff",
-  });
+  const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState(null);
   const [filePreviews, setFilePreviews] = useState({});
@@ -26,11 +25,18 @@ export default function ContentUploadPage({ params }) {
   const [userId, setUserId] = useState(null);
   const [videoUrlErrors, setVideoUrlErrors] = useState({});
   const [visibleSectionCount, setVisibleSectionCount] = useState(5);
+  const [imageInputModes, setImageInputModes] = useState({});
+  const [selectedFiles, setSelectedFiles] = useState({});
+  const setImageMode = (sectionId, mode) => {
+    setImageInputModes(prev => ({ ...prev, [sectionId]: mode }));
+    console.log(`Image section [${sectionId}] mode set to:`, mode);
+  };
 
   const fallbackImage =
     "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
-  // Function to get section icon with text label based on type
+
+  // Helper to set mode for a section
   const getSectionIcon = (type) => {
     const iconClass = "w-5 h-5 mr-2";
     let icon;
@@ -173,7 +179,7 @@ export default function ContentUploadPage({ params }) {
         if (url) URL.revokeObjectURL(url);
       });
     };
-  }, [templateId, router, filePreviews]);
+  }, [templateId, router]);
 
   const fetchTemplateDetails = async () => {
     try {
@@ -187,12 +193,9 @@ export default function ContentUploadPage({ params }) {
         throw new Error(data.message || "Failed to fetch template");
       }
       setTemplate(data.data);
+      console.log('Template data:', data.data);
 
-      const initialFormData = {
-        heading: "",
-        subheading: "",
-        backgroundColor: "#ffffff",
-      };
+      const initialFormData = {};
       const initialInputTypes = {};
       if (data.data.sections) {
         data.data.sections.forEach((section) => {
@@ -437,7 +440,8 @@ export default function ContentUploadPage({ params }) {
       if (error) newErrors[key] = error;
     });
 
-    template?.sections?.forEach((section) => {
+    // Validate all sections
+    await Promise.all(template?.sections?.map(async (section) => {
       const value = formData[section.id];
       const error = validateField(
         section.id,
@@ -445,14 +449,13 @@ export default function ContentUploadPage({ params }) {
         typeof value !== "string" ? value : null
       );
       if (error) newErrors[section.id] = error;
-
       if (section.type === "video" && typeof value === "string" && value) {
         const videoError = validateVideoUrl(section.id, value);
         if (typeof videoError === "string") {
           newVideoUrlErrors[section.id] = videoError;
         }
       }
-    });
+    }));
 
     if (
       Object.keys(newErrors).length > 0 ||
@@ -465,19 +468,18 @@ export default function ContentUploadPage({ params }) {
     }
 
     try {
+      // 4. On submit, send all formData (files and URLs) to the backend as FormData
       const submissionData = new FormData();
       submissionData.append("templateId", templateId);
       submissionData.append("heading", formData.heading);
       submissionData.append("subheading", formData.subheading);
       submissionData.append("backgroundColor", formData.backgroundColor);
       submissionData.append("userId", userId);
-
       template?.sections?.forEach((section) => {
-        const value = formData[section.id];
-        if (value instanceof File) {
-          submissionData.append(section.id, value);
+        if (selectedFiles[section.id]) {
+          submissionData.append(section.id, selectedFiles[section.id]);
         } else {
-          submissionData.append(section.id, value || "");
+          submissionData.append(section.id, formData[section.id] || "");
         }
       });
 
@@ -487,8 +489,6 @@ export default function ContentUploadPage({ params }) {
       });
 
       const data = await response.json();
-      console.log("Server response:", data);
-
       if (!response.ok) {
         throw new Error(data.message || `Server error: ${response.status}`);
       }
@@ -496,7 +496,6 @@ export default function ContentUploadPage({ params }) {
       setSuccess("Content created successfully!");
       setTimeout(() => router.push(`/publish`), 1500);
     } catch (err) {
-      console.error("Error submitting content:", err);
       setErrors({
         global: err.message || "Failed to create content. Please try again.",
       });
@@ -504,6 +503,32 @@ export default function ContentUploadPage({ params }) {
       setSubmitting(false);
     }
   };
+
+  // Handle image upload to Cloudinary
+  // const handleCloudinaryUpload = async (file, sectionId) => {
+  //   if (!file) return;
+  //   setUploadingSections(prev => ({ ...prev, [sectionId]: true }));
+  //   setErrors((prev) => ({ ...prev, [sectionId]: null }));
+  //   setFormData((prev) => ({ ...prev, [sectionId]: "Uploading..." }));
+  //   try {
+  //     const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+  //     const formDataCloud = new FormData();
+  //     formDataCloud.append("file", file);
+  //     formDataCloud.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+  //     const res = await fetch(url, { method: "POST", body: formDataCloud });
+  //     const data = await res.json();
+  //     if (data.secure_url) {
+  //       setFormData((prev) => ({ ...prev, [sectionId]: data.secure_url }));
+  //       setFilePreviews((prev) => ({ ...prev, [sectionId]: data.secure_url }));
+  //     } else {
+  //       setErrors((prev) => ({ ...prev, [sectionId]: "Cloudinary upload failed" }));
+  //     }
+  //   } catch (err) {
+  //     setErrors((prev) => ({ ...prev, [sectionId]: "Cloudinary upload error" }));
+  //   } finally {
+  //     setUploadingSections(prev => ({ ...prev, [sectionId]: false }));
+  //   }
+  // };
 
   const formVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -518,6 +543,9 @@ export default function ContentUploadPage({ params }) {
   const sectionsToShow = template?.sections?.sort((a, b) => a.order - b.order) || [];
   const visibleSections = sectionsToShow.slice(0, visibleSectionCount);
   const hiddenSectionsCount = Math.max(0, sectionsToShow.length - visibleSectionCount);
+
+  // Remove stepper/accordion logic and SectionCard, restore open layout
+  // Remove FloatingInput and use previous input style with modern touches
 
   if (loading) {
     return (
@@ -570,6 +598,8 @@ export default function ContentUploadPage({ params }) {
       </div>
     );
   }
+
+  console.log('Rendering ContentUploadPage');
 
   return (
     <>
@@ -637,7 +667,7 @@ export default function ContentUploadPage({ params }) {
             variants={formVariants}
             initial="hidden"
             animate="visible"
-            onSubmit={handleSubmit}
+            onSubmit={e => { e.preventDefault(); handleSubmit(e); }}
             className="space-y-8"
           >
             <div className="mb-4 flex items-center gap-2">
@@ -717,10 +747,10 @@ export default function ContentUploadPage({ params }) {
                 </div>
               </div>
             </motion.div>
-            {/* Section cards: update each to use glassy blue theme, gradient headers, and modern input styles */}
-            {visibleSections.map((section) => (
+            {/* Section cards: all visible, modernized but open layout */}
+            {visibleSections.map((section, idx) => (
               <motion.div
-                key={section.id}
+                key={section.id || idx}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: section.order * 0.1 }}
@@ -765,204 +795,252 @@ export default function ContentUploadPage({ params }) {
                     )}
                   </div>
                 )}
-
-                {/* Image/Video Section */}
-                {(section.type === "image" || section.type === "video") && (
-                  <div>
-                    <div className="flex space-x-4 mb-4">
-                      <label className="flex items-center space-x-2 text-blue-100 cursor-pointer">
-                        <input
-                          type="radio"
-                          name={`${section.id}-input-type`}
-                          value="url"
-                          checked={inputTypes[section.id] === "url"}
-                          onChange={() =>
-                            handleInputTypeChange(section.id, "url")
-                          }
-                          className="text-blue-400 focus:ring-blue-400"
-                        />
-                        <span>Enter URL</span>
-                      </label>
-                      <label className="flex items-center space-x-2 text-blue-100 cursor-pointer">
-                        <input
-                          type="radio"
-                          name={`${section.id}-input-type`}
-                          value="file"
-                          checked={inputTypes[section.id] === "file"}
-                          onChange={() =>
-                            handleInputTypeChange(section.id, "file")
-                          }
-                          className="text-blue-400 focus:ring-blue-400"
-                        />
-                        <span>Upload File</span>
-                      </label>
-                    </div>
-
-                    {inputTypes[section.id] === "url" ? (
-                      <input
-                        type="url"
-                        className="w-full p-3 bg-white/20 border border-blue-400/30 rounded-2xl text-blue-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner placeholder-blue-300"
-                        value={formData[section.id] || ""}
-                        onChange={(e) => handleInputChange(e, section.id)}
-                        required={section.required}
-                        placeholder={
-                          section.config?.placeholder ||
-                          `Enter ${section.type} URL`
-                        }
-                      />
-                    ) : (
-                      <motion.div
-                        whileHover={{ scale: 1.02 }}
-                        className="flex justify-center px-6 pt-5 pb-6 border-2 border-blue-400/30 border-dashed rounded-2xl hover:bg-blue-500/10 transition-colors duration-200"
-                      >
-                        <div className="space-y-1 text-center">
-                          <svg
-                            className="mx-auto h-12 w-12 text-blue-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
-                            />
-                          </svg>
-                          <div className="flex text-sm text-blue-300">
-                            <label
-                              htmlFor={`${section.id}-file-upload`}
-                              className="relative cursor-pointer bg-white/20 rounded-md font-medium text-blue-400 hover:text-blue-300"
-                            >
-                              <span>Upload a file</span>
-                              <input
-                                id={`${section.id}-file-upload`}
-                                name={`${section.id}-file-upload`}
-                                type="file"
-                                accept={
-                                  section.type === "image"
-                                    ? "image/*"
-                                    : "video/*"
-                                }
-                                className="sr-only"
-                                onChange={(e) =>
-                                  handleInputChange(e, section.id, true)
-                                }
-                              />
-                            </label>
-                            <p className="pl-1">or drag and drop</p>
-                          </div>
-                          <p className="text-xs text-blue-200/60">
-                            {section.type === "image"
-                              ? "PNG, JPG, GIF"
-                              : "MP4, MOV, AVI"}{" "}
-                            up to {section.config?.maxSize || 10}MB
-                          </p>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {errors[section.id] && (
-                      <p className="mt-2 text-sm text-red-400">
-                        {errors[section.id]}
-                      </p>
-                    )}
-                    {videoUrlErrors[section.id] && (
-                      <p className="mt-2 text-sm text-red-400">
-                        {videoUrlErrors[section.id]}
-                      </p>
-                    )}
-                    {formData[section.id] &&
-                      typeof formData[section.id] === "string" &&
-                      section.type === "image" && (
-                        <div className="mt-4">
-                          <img
-                            src={formData[section.id] || fallbackImage}
-                            alt="Preview"
-                            className="w-full h-32 object-cover rounded-2xl"
-                            onError={(e) => {
-                              e.target.src = fallbackImage;
-                              setErrors((prev) => ({
-                                ...prev,
-                                [section.id]: "Failed to load image",
-                              }));
-                            }}
-                          />
-                        </div>
-                      )}
-                    {formData[section.id] &&
-                      typeof formData[section.id] === "string" &&
-                      section.type === "video" &&
-                      !videoUrlErrors[section.id] && (
-                        <div className="mt-4">
-                          {(() => {
-                            const validation = validateVideoUrl(
-                              section.id,
-                              formData[section.id]
-                            );
-                            if (
-                              validation?.isYouTubeUrl &&
-                              validation.youtubeEmbedUrl
-                            ) {
-                              return (
-                                <iframe
-                                  src={validation.youtubeEmbedUrl}
-                                  className="w-full h-32 rounded-2xl"
-                                  frameBorder="0"
-                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                  allowFullScreen
-                                  title="YouTube video"
-                                  onError={(e) => {
-                                    e.target.style.display = "none";
-                                    setVideoUrlErrors((prev) => ({
-                                      ...prev,
-                                      [section.id]:
-                                        "Failed to load YouTube video. Please check the URL.",
-                                    }));
-                                  }}
-                                />
-                              );
-                            } else if (validation?.isValidUrl) {
-                              return (
-                                <video
-                                  src={formData[section.id]}
-                                  controls
-                                  className="w-full h-32 rounded-2xl"
-                                  onError={(e) => {
-                                    e.target.style.display = "none";
-                                    setVideoUrlErrors((prev) => ({
-                                      ...prev,
-                                      [section.id]:
-                                        "Failed to load video. Please check the URL.",
-                                    }));
-                                  }}
-                                />
-                              );
-                            }
-                            return null;
-                          })()}
-                        </div>
-                      )}
-                    {filePreviews[section.id] && (
-                      <div className="mt-4">
-                        {section.type === "image" ? (
-                          <img
-                            src={filePreviews[section.id]}
-                            alt="File Preview"
-                            className="w-full h-32 object-cover rounded-2xl"
-                          />
-                        ) : (
-                          <video
-                            src={filePreviews[section.id]}
-                            controls
-                            className="w-full h-32 rounded-2xl"
-                          />
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-
+                {/* Modernized image section (tabbed upload/url, preview) */}
+                {section.type === "image" && (
+  <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 rounded-2xl p-6 shadow-xl border border-blue-700/40">
+    <div className="flex items-center mb-3">
+      <label className="block text-blue-100 mr-2 font-semibold text-lg" htmlFor={section.id}>
+        {section.title}
+        {section.required && <span className="text-red-400 ml-1">*</span>}
+      </label>
+      <InfoTooltip text={`Upload an image (JPG, PNG, GIF). Max size: ${section.config?.maxSize || 10}MB.`} />
+    </div>
+    {/* Tabbed interface for upload vs URL */}
+    <div className="flex space-x-2 mb-4">
+      <button
+        type="button"
+        className={`px-4 py-2 rounded-tl-2xl rounded-bl-2xl font-semibold transition-all duration-200 shadow-md border-2 border-blue-700 focus:outline-none ${imageInputModes[section.id] !== 'url' ? 'bg-blue-600 text-white' : 'bg-blue-900 text-blue-200'}`}
+        onClick={() => setImageMode(section.id, "file")}
+      >
+        <svg className="w-5 h-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        Upload
+      </button>
+      <button
+        type="button"
+        className={`px-4 py-2 rounded-tr-2xl rounded-br-2xl font-semibold transition-all duration-200 shadow-md border-2 border-blue-700 focus:outline-none ${imageInputModes[section.id] === 'url' ? 'bg-blue-600 text-white' : 'bg-blue-900 text-blue-200'}`}
+        onClick={() => setImageMode(section.id, "url")}
+      >
+        <svg className="w-5 h-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        Image URL
+      </button>
+    </div>
+    {/* Upload from device */}
+    {imageInputModes[section.id] !== 'url' && (
+      <div className="flex flex-col items-center mb-4 w-full bg-blue-950/60 rounded-xl p-4 border border-blue-700/30">
+        <input
+          id={`${section.id}-file-upload`}
+          name={`${section.id}-file-upload`}
+          type="file"
+          accept="image/*"
+          autoComplete="off"
+          className="block w-full text-sm text-blue-100 bg-blue-900 border border-blue-700 rounded-xl cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner mb-2"
+          onKeyDown={e => e.stopPropagation()}
+          onClick={e => { e.stopPropagation(); }}
+          onChange={e => {
+            console.log('File input changed');
+            e.preventDefault();
+            e.stopPropagation();
+            const file = e.target.files[0];
+            if (file) {
+              if (!file.type.startsWith('image/')) {
+                setErrors(prev => ({ ...prev, [section.id]: 'Please select a valid image file.' }));
+                return;
+              }
+              setErrors(prev => ({ ...prev, [section.id]: null }));
+              setSelectedFiles(prev => ({ ...prev, [section.id]: file }));
+              setFilePreviews(prev => ({ ...prev, [section.id]: URL.createObjectURL(file) }));
+            }
+          }}
+        />
+        <p className="text-xs text-blue-300">PNG, JPG, GIF up to {section.config?.maxSize || 10}MB</p>
+      </div>
+    )}
+    {/* Enter image URL */}
+    {imageInputModes[section.id] === 'url' && (
+      <div className="flex flex-col items-center mb-4 w-full bg-blue-950/60 rounded-xl p-4 border border-blue-700/30">
+        <input
+          type="url"
+          className="w-full p-3 bg-blue-900 border border-blue-700 rounded-xl text-blue-100 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner placeholder-blue-400"
+          value={formData[section.id] || ""}
+          onChange={e => handleInputChange(e, section.id)}
+          placeholder="Paste image URL (https://...)"
+        />
+        <p className="text-xs text-blue-300 mt-1">Paste a direct image link (JPG, PNG, GIF, etc.)</p>
+      </div>
+    )}
+    {/* Uploading state */}
+    {formData[section.id] === "Uploading..." && (
+      <div className="flex items-center mt-2 text-blue-400 animate-pulse">
+        <svg className="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /></svg>
+        Uploading to Cloudinary...
+      </div>
+    )}
+    {/* Error state */}
+    {errors[section.id] && (
+      <div className="mt-2 text-sm text-red-400 flex items-center">
+        <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        {errors[section.id]}
+      </div>
+    )}
+    {/* Preview for uploaded or URL image */}
+    {filePreviews[section.id] && (
+      <div className="mt-6 flex flex-col items-center">
+        <span className="text-blue-200 text-sm mb-2">Image Preview:</span>
+        <div className="w-full flex justify-center">
+          <img
+            src={filePreviews[section.id]}
+            alt="Preview"
+            className="w-full max-w-xs h-48 object-cover rounded-2xl border-4 border-blue-700 shadow-lg bg-blue-950"
+            onError={e => { e.target.onerror = null; e.target.src = fallbackImage; }}
+          />
+        </div>
+      </div>
+    )}
+  </div>
+)}
+                {/* Video Section - Add tabbed upload/url and preview */}
+                {section.type === "video" && (
+  <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 rounded-2xl p-6 shadow-xl border border-blue-700/40">
+    <div className="flex items-center mb-3">
+      <label className="block text-blue-100 mr-2 font-semibold text-lg" htmlFor={section.id}>
+        {section.title}
+        {section.required && <span className="text-red-400 ml-1">*</span>}
+      </label>
+      <InfoTooltip text={`Upload a video (MP4, MOV, AVI, MKV, WEBM). Max size: ${section.config?.maxSize || 50}MB.`} />
+    </div>
+    {/* Tabbed interface for upload vs URL */}
+    <div className="flex space-x-2 mb-4">
+      <button
+        type="button"
+        className={`px-4 py-2 rounded-tl-2xl rounded-bl-2xl font-semibold transition-all duration-200 shadow-md border-2 border-blue-700 focus:outline-none ${inputTypes[section.id] !== 'url' ? 'bg-blue-600 text-white' : 'bg-blue-900 text-blue-200'}`}
+        onClick={() => handleInputTypeChange(section.id, "file")}
+      >
+        <svg className="w-5 h-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        Upload
+      </button>
+      <button
+        type="button"
+        className={`px-4 py-2 rounded-tr-2xl rounded-br-2xl font-semibold transition-all duration-200 shadow-md border-2 border-blue-700 focus:outline-none ${inputTypes[section.id] === 'url' ? 'bg-blue-600 text-white' : 'bg-blue-900 text-blue-200'}`}
+        onClick={() => handleInputTypeChange(section.id, "url")}
+      >
+        <svg className="w-5 h-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        Video URL
+      </button>
+    </div>
+    {/* Upload from device */}
+    {inputTypes[section.id] !== 'url' && (
+      <div className="flex flex-col items-center mb-4 w-full bg-blue-950/60 rounded-xl p-4 border border-blue-700/30">
+        <input
+          id={`${section.id}-file-upload`}
+          name={`${section.id}-file-upload`}
+          type="file"
+          accept="video/*"
+          autoComplete="off"
+          className="block w-full text-sm text-blue-100 bg-blue-900 border border-blue-700 rounded-xl cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner mb-2"
+          onKeyDown={e => e.stopPropagation()}
+          onClick={e => { e.stopPropagation(); }}
+          onChange={e => {
+            console.log('File input changed');
+            e.preventDefault();
+            e.stopPropagation();
+            const file = e.target.files[0];
+            if (file) {
+              if (!file.type.startsWith('video/')) {
+                setErrors(prev => ({ ...prev, [section.id]: 'Please select a valid video file.' }));
+                return;
+              }
+              setErrors(prev => ({ ...prev, [section.id]: null }));
+              setSelectedFiles(prev => ({ ...prev, [section.id]: file }));
+              setFilePreviews(prev => ({ ...prev, [section.id]: URL.createObjectURL(file) }));
+            }
+          }}
+        />
+        <p className="text-xs text-blue-300">MP4, MOV, AVI, MKV, WEBM up to {section.config?.maxSize || 50}MB</p>
+      </div>
+    )}
+    {/* Enter video URL */}
+    {inputTypes[section.id] === 'url' && (
+      <div className="flex flex-col items-center mb-4 w-full bg-blue-950/60 rounded-xl p-4 border border-blue-700/30">
+        <input
+          type="url"
+          className="w-full p-3 bg-blue-900 border border-blue-700 rounded-xl text-blue-100 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner placeholder-blue-400"
+          value={formData[section.id] || ""}
+          onChange={e => handleInputChange(e, section.id)}
+          placeholder="Paste video URL (YouTube or direct .mp4, .mov, etc.)"
+        />
+        <p className="text-xs text-blue-300 mt-1">Paste a YouTube link or direct video file link</p>
+      </div>
+    )}
+    {/* Uploading state */}
+    {formData[section.id] === "Uploading..." && (
+      <div className="flex items-center mt-2 text-blue-400 animate-pulse">
+        <svg className="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /></svg>
+        Uploading video...
+      </div>
+    )}
+    {/* Error state */}
+    {errors[section.id] && (
+      <div className="mt-2 text-sm text-red-400 flex items-center">
+        <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        {errors[section.id]}
+      </div>
+    )}
+    {/* Preview for uploaded or URL video */}
+    {(formData[section.id] && typeof formData[section.id] === "string" && formData[section.id].startsWith("http")) && (
+      <div className="mt-6 flex flex-col items-center w-full">
+        <span className="text-blue-200 text-sm mb-2">Video Preview:</span>
+        <div className="w-full flex justify-center">
+          {/* YouTube embed */}
+          {(() => {
+            const value = formData[section.id];
+            let youtubeEmbedUrl = null;
+            try {
+              const parsedUrl = new URL(value);
+              if (
+                parsedUrl.hostname.includes("youtube.com") ||
+                parsedUrl.hostname.includes("youtu.be")
+              ) {
+                let videoId = null;
+                if (parsedUrl.hostname.includes("youtube.com")) {
+                  const params = new URLSearchParams(parsedUrl.search);
+                  videoId = params.get("v");
+                } else if (parsedUrl.hostname.includes("youtu.be")) {
+                  videoId = parsedUrl.pathname.split("/")[1];
+                }
+                if (videoId) {
+                  youtubeEmbedUrl = `https://www.youtube.com/embed/${videoId}`;
+                }
+              }
+            } catch {}
+            if (youtubeEmbedUrl) {
+              return (
+                <iframe
+                  width="400"
+                  height="225"
+                  src={youtubeEmbedUrl}
+                  title="YouTube video preview"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="rounded-xl border-2 border-blue-700 shadow-lg"
+                ></iframe>
+              );
+            } else {
+              // Direct video file
+              return (
+                <video
+                  src={formData[section.id]}
+                  controls
+                  className="w-full max-w-xs h-48 object-cover rounded-2xl border-4 border-blue-700 shadow-lg bg-blue-950"
+                />
+              );
+            }
+          })()}
+        </div>
+      </div>
+    )}
+  </div>
+)}
                 {/* Link Section */}
                 {section.type === "link" && (
                   <div>

@@ -3,6 +3,10 @@ import { connectDB } from "@/config/Database";
 import Content from "@/modal/Upload";
 import Template from "@/modal/Template";
 import mongoose from "mongoose";
+import fetch from "node-fetch";
+// Cloudinary config (hardcoded for demo)
+const CLOUDINARY_UPLOAD_PRESET = "tempelate"; // replace with your unsigned preset
+const CLOUDINARY_CLOUD_NAME = "ddyhobnzf"; // replace with your cloud name
 
 export async function POST(request) {
   try {
@@ -76,11 +80,34 @@ export async function POST(request) {
     for (const section of template.sections) {
       const sectionId = section.id;
       if (fields[sectionId]) {
-        // Handle text/URL
-        contentData.sections[sectionId] = {
-          type: section.type,
-          value: fields[sectionId],
-        };
+        if (section.type === "image" && typeof fields[sectionId] === "object" && fields[sectionId].name) {
+          // Upload to Cloudinary
+          const uploadForm = new FormData();
+          uploadForm.append("file", fields[sectionId]);
+          uploadForm.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+          const cloudinaryRes = await fetch(
+            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+            { method: "POST", body: uploadForm }
+          );
+          const cloudinaryData = await cloudinaryRes.json();
+          if (cloudinaryData.secure_url) {
+            contentData.sections[sectionId] = {
+              type: section.type,
+              value: cloudinaryData.secure_url,
+            };
+          } else {
+            return NextResponse.json(
+              { success: false, message: "Cloudinary upload failed" },
+              { status: 500 }
+            );
+          }
+        } else {
+          // Handle text/URL
+          contentData.sections[sectionId] = {
+            type: section.type,
+            value: fields[sectionId],
+          };
+        }
       } else if (section.required) {
         return NextResponse.json(
           { success: false, message: `${section.title} is required` },
