@@ -203,7 +203,7 @@ export default function AdminHome() {
           <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-cyan-200 mb-4">
             Admin Dashboard
           </h1>
-          <p className="text-xl text-blue-200/80">Welcome back! Here's what's happening with your platform.</p>
+          <p className="text-xl text-blue-200/80">Welcome back! Here&#39;s what&#39;s happening with your platform.</p>
         </motion.div>
 
         {/* Stats Cards */}

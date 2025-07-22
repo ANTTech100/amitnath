@@ -148,7 +148,7 @@ export default function AdminSetupPage() {
 
         <div className="mt-6 text-center">
           <p className="text-blue-200/60 text-sm">
-            Don't have an admin token?{" "}
+            Don&#39;t have an admin token?{" "}
             <span className="text-blue-300 font-medium">Contact your administrator</span>
           </p>
         </div>
