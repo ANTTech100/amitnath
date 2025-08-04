@@ -1,15 +1,5 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { Toaster } from "react-hot-toast";
 
 // FIXED: Clean metadata without conflicts
 export const metadata = {
@@ -27,9 +17,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className="font-sans antialiased"
       >
         {children}
+        <Toaster position="top-right" />
 
         <footer className=" text-white py-8 mt-auto border-t border-gray-700">
           <div className="container mx-auto px-6 max-w-6xl">
@@ -81,6 +72,3 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
-
-// Alternative approach if the above doesn't work:
-// Try this version with explicit metadata types

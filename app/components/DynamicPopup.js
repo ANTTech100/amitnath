@@ -19,15 +19,33 @@ export default function DynamicPopup({ templateId, onComplete }) {
   const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    const storedUserId = localStorage.getItem("userid");
-    if (storedUserId) {
-      setUserId(storedUserId);
-      checkUserResponse(storedUserId);
-    } else {
-      setLoading(false);
-      setShowPopup(true);
-    }
+    // Always show popup for anonymous users, don't check for existing responses
+    setLoading(false);
+    setShowPopup(true);
+    loadQuestions();
   }, [templateId]);
+
+  const loadQuestions = async () => {
+    try {
+      const response = await axios.get(`/api/user/responses?templateId=${templateId}`);
+      
+      if (response.data.success) {
+        if (response.data.hasQuestions) {
+          // Questions exist for this template
+          setQuestions(response.data.questions);
+          setResponses(response.data.questions.map(() => ({ selectedOption: "" })));
+        } else {
+          // No questions for this template
+          setShowPopup(false);
+          if (onComplete) onComplete();
+        }
+      }
+    } catch (error) {
+      console.error("Error loading questions:", error);
+      setShowPopup(false);
+      if (onComplete) onComplete();
+    }
+  };
 
   const checkUserResponse = async (userId) => {
     try {
@@ -86,7 +104,6 @@ export default function DynamicPopup({ templateId, onComplete }) {
     try {
       const response = await axios.post("/api/user/responses", {
         templateId,
-        userId: userId || "anonymous",
         userInfo,
         responses,
       });
@@ -207,7 +224,7 @@ export default function DynamicPopup({ templateId, onComplete }) {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Password
+                    Phone
                   </label>
                   <input
                     type="password"

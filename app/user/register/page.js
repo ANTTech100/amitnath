@@ -14,9 +14,11 @@ export default function UserAuth() {
     confirmPassword: "",
     tenantName: "",
   });
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
 
   const router = useRouter();
 
@@ -101,6 +103,34 @@ export default function UserAuth() {
     }
   };
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setForgotPasswordLoading(true);
+    setError("");
+    setSuccess("");
+
+    if (!forgotPasswordEmail) {
+      setError("Please enter your email address");
+      setForgotPasswordLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post("/api/user/forgot-password", {
+        email: forgotPasswordEmail,
+      });
+
+      setSuccess("Password reset email sent! Please check your inbox.");
+      setForgotPasswordEmail("");
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Failed to send reset email. Please try again."
+      );
+    } finally {
+      setForgotPasswordLoading(false);
+    }
+  };
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -146,6 +176,16 @@ export default function UserAuth() {
               onClick={() => handleTabChange("register")}
             >
               Register
+            </button>
+            <button
+              className={`flex-1 py-2 font-medium text-center rounded-t-xl ${
+                activeTab === "forgot"
+                  ? "bg-purple-500/20 text-purple-300 border-b-2 border-purple-600"
+                  : "text-gray-400 hover:text-purple-300"
+              }`}
+              onClick={() => handleTabChange("forgot")}
+            >
+              Forgot Password
             </button>
           </div>
 
@@ -322,6 +362,53 @@ export default function UserAuth() {
               >
                 {loading ? "Registering..." : "Register"}
               </button>
+            </form>
+          )}
+
+          {/* Forgot Password Form */}
+          {activeTab === "forgot" && (
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="text-center mb-4">
+                <p className="text-gray-300 text-sm">
+                  Enter your email address and we'll send you a link to reset your password.
+                </p>
+              </div>
+
+              <div>
+                <label
+                  className="block text-sm font-medium text-gray-300 mb-1"
+                  htmlFor="forgotEmail"
+                >
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="forgotEmail"
+                  value={forgotPasswordEmail}
+                  onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-900 border border-purple-500/30 rounded-xl text-gray-200 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-300"
+                disabled={forgotPasswordLoading}
+              >
+                {forgotPasswordLoading ? "Sending..." : "Send Reset Link"}
+              </button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("login")}
+                  className="text-purple-400 hover:text-purple-300 text-sm"
+                >
+                  Back to Login
+                </button>
+              </div>
             </form>
           )}
         </motion.div>

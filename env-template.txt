@@ -1,0 +1,5 @@
+# Copy this content to .env.local file
+GMAIL_USER=amit.nath.calls@gmail.com
+GMAIL_APP_PASSWORD=your_16_character_app_password_here
+
+# Replace 'your_16_character_app_password_here' with the actual app password from Google 

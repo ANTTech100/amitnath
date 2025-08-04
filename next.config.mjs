@@ -1,6 +1,9 @@
 // next.config.mjs
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    turbo: false,
+  },
   images: {
     domains: [
       "existing-domain.com",

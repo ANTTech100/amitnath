@@ -43,7 +43,7 @@ export default function AdminAuth() {
       });
 
       setSuccess("Login successful!");
-      localStorage.setItem("adminToken", response.data.adminid);
+      localStorage.setItem("adminToken", response.data.tenantToken);
       router.push("/admin/hero");
     } catch (err) {
       setError(
@@ -70,11 +70,11 @@ export default function AdminAuth() {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        adminCode: formData.adminCode,
+        adminToken: formData.adminCode,
       });
 
       setSuccess("Admin registration successful! You can now login.");
-      localStorage.setItem("adminToken", response.data.adminid);
+      localStorage.setItem("adminToken", response.data.tenantToken);
       setActiveTab("login");
       setFormData({
         ...formData,

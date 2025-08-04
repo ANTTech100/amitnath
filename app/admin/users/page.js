@@ -29,7 +29,7 @@ export default function AdminDashboard() {
 
   const handleValidationChange = async (email, validated) => {
     try {
-      await apiClient.put("/api/admin/register", { email, validated });
+      await apiClient.put("/api/admin/users", { email, validated });
 
       setUsers(
         users.map((user) =>
