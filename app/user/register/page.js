@@ -68,7 +68,12 @@ export default function UserAuth() {
       return;
     }
 
-    if (!formData.fullName || !formData.email || !formData.password || !formData.tenantName) {
+    if (
+      !formData.fullName ||
+      !formData.email ||
+      !formData.password ||
+      !formData.tenantName
+    ) {
       setError("All fields are required, including organization name");
       setLoading(false);
       return;
@@ -124,7 +129,8 @@ export default function UserAuth() {
       setForgotPasswordEmail("");
     } catch (err) {
       setError(
-        err.response?.data?.message || "Failed to send reset email. Please try again."
+        err.response?.data?.message ||
+          "Failed to send reset email. Please try again."
       );
     } finally {
       setForgotPasswordLoading(false);
@@ -370,7 +376,8 @@ export default function UserAuth() {
             <form onSubmit={handleForgotPassword} className="space-y-4">
               <div className="text-center mb-4">
                 <p className="text-gray-300 text-sm">
-                  Enter your email address and we'll send you a link to reset your password.
+                  Enter your email address and we will send you a link to reset
+                  your password.
                 </p>
               </div>
 
