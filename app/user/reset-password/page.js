@@ -1,12 +1,12 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { motion } from "framer-motion";
 import UserNavbar from "../Header";
 import { Eye, EyeOff, Lock, CheckCircle } from "lucide-react";
 
-export default function ResetPassword() {
+function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -265,5 +265,27 @@ export default function ResetPassword() {
         </motion.div>
       </div>
     </>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <>
+      <UserNavbar />
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-300 mx-auto"></div>
+          <p className="mt-4 text-purple-200">Loading...</p>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default function ResetPassword() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 } 
