@@ -2,7 +2,7 @@
 import mongoose from "mongoose";
 
 const MONGODB_URI =
-  process.env.MONGODB_URI || 
+  process.env.MONGODB_URI ||
   "mongodb+srv://saurabhiitr01:4uprAFSOQufMvGVO@cluster0.4pxd0b8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 if (!MONGODB_URI) {
@@ -36,7 +36,8 @@ export async function connectDB() {
       retryReads: true,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts)
+    cached.promise = mongoose
+      .connect(MONGODB_URI, opts)
       .then((mongoose) => {
         console.log("MongoDB connected successfully");
         return mongoose;
@@ -66,15 +67,15 @@ export async function checkDBHealth() {
     if (!cached.conn) {
       await connectDB();
     }
-    
+
     // Ping the database
     await mongoose.connection.db.admin().ping();
-    return { status: 'healthy', message: 'Database connection is active' };
+    return { status: "healthy", message: "Database connection is active" };
   } catch (error) {
-    return { 
-      status: 'unhealthy', 
+    return {
+      status: "unhealthy",
       message: error.message,
-      error: error
+      error: error,
     };
   }
 }
