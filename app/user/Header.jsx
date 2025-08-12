@@ -39,7 +39,7 @@ const UserNavbar = () => {
         window.location.href = `/user/profile/${userid}`;
       }
     } else {
-      router.push("/login");
+      router.push("/user/register");
     }
   };
 
@@ -168,11 +168,10 @@ const UserNavbar = () => {
 
       {/* Mobile menu */}
       <div
-        className={`md:hidden bg-indigo-900/90 backdrop-blur-xl border-t border-purple-400/20 shadow-lg transition-all duration-300 ease-in-out ${
-          isMenuOpen
-            ? "max-h-96 opacity-100 visible"
-            : "max-h-0 opacity-0 invisible"
-        }`}
+        className={`md:hidden bg-indigo-900/90 backdrop-blur-xl border-t border-purple-400/20 shadow-lg transition-all duration-300 ease-in-out ${isMenuOpen
+          ? "max-h-96 opacity-100 visible"
+          : "max-h-0 opacity-0 invisible"
+          }`}
       >
         <div className="px-4 pt-3 pb-4 space-y-2">
           {[
@@ -187,11 +186,11 @@ const UserNavbar = () => {
             },
             isLoggedIn
               ? {
-                  href: "#",
-                  label: "Logout",
-                  icon: "🚪",
-                  onClick: handleLogout,
-                }
+                href: "#",
+                label: "Logout",
+                icon: "🚪",
+                onClick: handleLogout,
+              }
               : { href: "/user/register", label: "Register", icon: "✨" },
           ].map((item, index) => (
             <div
@@ -207,11 +206,10 @@ const UserNavbar = () => {
               {item.onClick ? (
                 <button
                   onClick={item.onClick}
-                  className={`w-full text-left px-4 py-3 rounded-xl text-base font-semibold transition-all duration-300 flex items-center gap-3 ${
-                    item.label === "Logout"
-                      ? "bg-gradient-to-r from-red-600/80 to-pink-600/80 text-white hover:from-red-700 hover:to-pink-700 shadow-lg"
-                      : "text-gray-100 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20"
-                  }`}
+                  className={`w-full text-left px-4 py-3 rounded-xl text-base font-semibold transition-all duration-300 flex items-center gap-3 ${item.label === "Logout"
+                    ? "bg-gradient-to-r from-red-600/80 to-pink-600/80 text-white hover:from-red-700 hover:to-pink-700 shadow-lg"
+                    : "text-gray-100 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20"
+                    }`}
                 >
                   <span className="text-sm">{item.icon}</span>
                   {item.label}
@@ -219,11 +217,10 @@ const UserNavbar = () => {
               ) : (
                 <Link
                   href={item.href}
-                  className={`block px-4 py-3 rounded-xl text-base font-semibold transition-all duration-300 flex items-center gap-3 ${
-                    item.label === "Register"
-                      ? "bg-gradient-to-r from-purple-600/80 to-blue-600/80 text-white hover:from-purple-700 hover:to-blue-700 shadow-lg"
-                      : "text-gray-100 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20"
-                  }`}
+                  className={`block px-4 py-3 rounded-xl text-base font-semibold transition-all duration-300 flex items-center gap-3 ${item.label === "Register"
+                    ? "bg-gradient-to-r from-purple-600/80 to-blue-600/80 text-white hover:from-purple-700 hover:to-blue-700 shadow-lg"
+                    : "text-gray-100 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20"
+                    }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <span className="text-sm">{item.icon}</span>
