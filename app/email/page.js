@@ -1,42 +1,49 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Send, Mail, User, MessageSquare, FileText } from 'lucide-react';
-import toast from 'react-hot-toast';
-import EmailNavbar from '../components/EmailNavbar';
+import { useState } from "react";
+import { Send, Mail, User, MessageSquare, FileText } from "lucide-react";
+import toast from "react-hot-toast";
+import EmailNavbar from "../components/EmailNavbar";
 
 export default function EmailPage() {
   const [formData, setFormData] = useState({
-    to: '',
-    subject: '',
-    message: '',
-    fromName: ''
+    to: "",
+    subject: "",
+    message: "",
+    fromName: "",
   });
   const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.to || !formData.subject || !formData.message) {
-      toast.error('Please fill in all required fields');
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.to)) {
+      toast.error("Please enter a valid email address");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/email-gmail', {
-        method: 'POST',
+      const response = await fetch("/api/email", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
@@ -44,19 +51,19 @@ export default function EmailPage() {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success('Email sent successfully!');
+        toast.success("Email sent successfully!");
         setFormData({
-          to: '',
-          subject: '',
-          message: '',
-          fromName: ''
+          to: "",
+          subject: "",
+          message: "",
+          fromName: "",
         });
       } else {
-        toast.error(data.error || 'Failed to send email');
+        toast.error(data.error || "Failed to send email");
       }
     } catch (error) {
-      console.error('Error sending email:', error);
-      toast.error('Failed to send email. Please try again.');
+      console.error("Error sending email:", error);
+      toast.error("Failed to send email. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -76,7 +83,7 @@ export default function EmailPage() {
               Send Email
             </h1>
             <p className="text-gray-600">
-              Send beautiful emails to anyone using Resend
+              Send beautiful emails to anyone using Resend API
             </p>
           </div>
 
@@ -87,7 +94,7 @@ export default function EmailPage() {
                 Compose Your Email
               </h2>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
               {/* From Name */}
               <div>
@@ -111,15 +118,15 @@ export default function EmailPage() {
                   <Mail className="inline w-4 h-4 mr-2" />
                   To Email *
                 </label>
-                                                   <input
-                    type="email"
-                    name="to"
-                    value={formData.to}
-                    onChange={handleInputChange}
-                    placeholder="anyone@example.com"
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  />
+                <input
+                  type="email"
+                  name="to"
+                  value={formData.to}
+                  onChange={handleInputChange}
+                  placeholder="recipient@example.com"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                />
               </div>
 
               {/* Subject */}
@@ -179,7 +186,7 @@ export default function EmailPage() {
             </form>
           </div>
 
-          {/* Info Card */}
+          {/* Info Card - Updated */}
           <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="flex items-start">
               <div className="flex-shrink-0">
@@ -191,11 +198,12 @@ export default function EmailPage() {
                 <h3 className="text-sm font-medium text-blue-800">
                   How it works
                 </h3>
-                                 <div className="mt-2 text-sm text-blue-700">
-                   <p>• This uses Gmail SMTP to send emails to anyone</p>
-                   <p>• You need to set up Gmail App Password</p>
-                   <p>• Can send emails to any email address worldwide!</p>
-                 </div>
+                <div className="mt-2 text-sm text-blue-700">
+                  <p>• This uses Resend API to send emails reliably</p>
+                  <p>• You need a verified domain/email with Resend</p>
+                  <p>• Can send emails to any email address worldwide!</p>
+                  <p>• Fast delivery with excellent deliverability rates</p>
+                </div>
               </div>
             </div>
           </div>
@@ -203,4 +211,4 @@ export default function EmailPage() {
       </div>
     </div>
   );
-} 
+}

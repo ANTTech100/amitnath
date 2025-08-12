@@ -3,3 +3,8 @@ GMAIL_USER=amit.nath.calls@gmail.com
 GMAIL_APP_PASSWORD=your_16_character_app_password_here
 
 # Replace 'your_16_character_app_password_here' with the actual app password from Google 
+
+# Resend email settings
+RESEND_API_KEY=your_resend_api_key_here
+EMAIL_FROM=support@your-domain.com
+NEXT_PUBLIC_BASE_URL=http://localhost:3000

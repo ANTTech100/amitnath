@@ -7,9 +7,9 @@ import User from "@/modal/UserUser";
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const templateId = searchParams.get('templateId');
-    const userId = searchParams.get('userId');
-    const isAdmin = searchParams.get('admin') === 'true';
+    const templateId = searchParams.get("templateId");
+    const userId = searchParams.get("userId");
+    const isAdmin = searchParams.get("admin") === "true";
 
     await connectDB();
 
@@ -20,8 +20,8 @@ export async function GET(request) {
       if (userId) query.userId = userId;
 
       const userResponses = await UserResponse.find(query)
-        .populate('templateId', 'name description')
-        .populate('userId', 'fullName email')
+        .populate("templateId", "name description")
+        .populate("userId", "fullName email")
         .sort({ createdAt: -1 });
 
       return NextResponse.json({
@@ -64,7 +64,11 @@ export async function GET(request) {
       isActive: true,
     });
 
-    if (!templateQuestions || !Array.isArray(templateQuestions.questions) || templateQuestions.questions.length === 0) {
+    if (
+      !templateQuestions ||
+      !Array.isArray(templateQuestions.questions) ||
+      templateQuestions.questions.length === 0
+    ) {
       return NextResponse.json({
         success: true,
         completed: false,
@@ -78,7 +82,7 @@ export async function GET(request) {
       questionText: q.questionText || `Question ${idx + 1}`,
       options: Array.isArray(q.options) ? q.options : [],
       required: q.required !== undefined ? q.required : true,
-      order: q.order !== undefined ? q.order : idx + 1
+      order: q.order !== undefined ? q.order : idx + 1,
     }));
 
     return NextResponse.json({
@@ -117,8 +121,8 @@ export async function POST(request) {
 
     await connectDB();
 
-    // Generate anonymous userId if not provided
-    const finalUserId = userId || `anonymous_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Generate anonymous userId if not provided (store as a constant string so it is identifiable)
+    const finalUserId = userId || "not_registered";
 
     // Check if user has already completed questions for this template (only if userId is provided)
     if (userId) {
@@ -129,10 +133,13 @@ export async function POST(request) {
       });
 
       if (existingResponse) {
-        return NextResponse.json({
-          success: false,
-          message: "User has already completed questions for this template",
-        }, { status: 400 });
+        return NextResponse.json(
+          {
+            success: false,
+            message: "User has already completed questions for this template",
+          },
+          { status: 400 }
+        );
       }
     }
 
@@ -143,25 +150,34 @@ export async function POST(request) {
     });
 
     if (!templateQuestions) {
-      return NextResponse.json({
-        success: false,
-        message: "No questions found for this template",
-      }, { status: 404 });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "No questions found for this template",
+        },
+        { status: 404 }
+      );
     }
 
     // Validate responses
-    if (!Array.isArray(responses) || responses.length !== templateQuestions.questions.length) {
-      return NextResponse.json({
-        success: false,
-        message: "Invalid responses format or missing responses",
-      }, { status: 400 });
+    if (
+      !Array.isArray(responses) ||
+      responses.length !== templateQuestions.questions.length
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid responses format or missing responses",
+        },
+        { status: 400 }
+      );
     }
 
     // Process responses and check correctness
     const processedResponses = responses.map((response, index) => {
       const question = templateQuestions.questions[index];
-      const correctOption = question.options.find(opt => opt.isCorrect);
-      
+      const correctOption = question.options.find((opt) => opt.isCorrect);
+
       return {
         questionText: question.questionText,
         selectedOption: response.selectedOption,
@@ -196,55 +212,71 @@ export async function POST(request) {
     // Send welcome email to the user
     try {
       const emailSubject = "Welcome to Codeless! 🎉";
+      const origin = new URL(request.url).origin;
+      const ctaUrl = `${origin}`;
+      const year = new Date().getFullYear();
       const emailBody = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #8b5cf6; margin-bottom: 10px;">Welcome to Codeless!</h1>
-            <p style="color: #666; font-size: 18px;">Thank you for your time and participation</p>
-          </div>
-          
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 15px; color: white; margin-bottom: 30px;">
-            <h2 style="margin-bottom: 15px;">Hello ${userInfo.name}! 👋</h2>
-            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-              Thank you for taking the time to complete our questionnaire. Your feedback and participation are incredibly valuable to us.
-            </p>
-            <p style="font-size: 16px; line-height: 1.6;">
-              We're excited to have you as part of our community and look forward to providing you with the best possible experience.
-            </p>
-          </div>
-          
-          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-            <h3 style="color: #333; margin-bottom: 15px;">What's Next?</h3>
-            <ul style="color: #666; line-height: 1.8;">
-              <li>We'll review your responses and personalize your experience</li>
-              <li>You'll receive updates about new features and improvements</li>
-              <li>Stay tuned for exclusive content and offers</li>
-            </ul>
-          </div>
-          
-          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-            <p style="color: #999; font-size: 14px;">
-              If you have any questions or need assistance, feel free to reach out to our support team.
-            </p>
-            <p style="color: #999; font-size: 14px; margin-top: 10px;">
-              Best regards,<br>
-              The Codeless Team
-            </p>
-          </div>
-        </div>
-      `;
+      <div style="margin:0;padding:0;background-color:#f0f6ff;font-family:Inter,Arial,Helvetica,sans-serif;color:#0f172a;">
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
+          <tr>
+            <td align="center" style="padding:32px 16px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="max-width:600px;background:#ffffff;border-radius:16px;box-shadow:0 10px 30px rgba(15,23,42,0.08);overflow:hidden;">
+                <tr>
+                  <td style="background:linear-gradient(135deg,#60a5fa 0%, #93c5fd 100%);padding:32px 24px;text-align:center;color:#0b1220;">
+                    <div style="font-size:14px;letter-spacing:1px;text-transform:uppercase;color:#0b1220;opacity:0.9;font-weight:600;">Codeless</div>
+                    <h1 style="margin:10px 0 6px;font-size:26px;line-height:1.25;color:#0b1220;">Welcome to Codeless</h1>
+                    <p style="margin:0;font-size:15px;color:#0b1220;opacity:0.9;">We’re thrilled to have you on board</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:28px 24px;">
+                    <p style="margin:0 0 12px;font-size:16px;line-height:1.6;color:#0f172a;">Hi <strong>${userInfo.name}</strong> 👋,</p>
+                    <p style="margin:0 0 14px;font-size:15px;line-height:1.7;color:#334155;">Thanks for taking a moment to complete the quick setup. Your input helps us tailor the experience just for you.</p>
+                    <p style="margin:0 0 18px;font-size:15px;line-height:1.7;color:#334155;">Here’s what you can do next:</p>
+                    <ul style="margin:0 0 22px 18px;padding:0;color:#334155;font-size:15px;line-height:1.8;">
+                      <li>Explore templates and create beautiful pages</li>
+                      <li>Customize content and publish instantly</li>
+                      <li>Get insights and iterate effortlessly</li>
+                    </ul>
+                    <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 8px;">
+                      <tr>
+                        <td align="center" style="border-radius:10px;" bgcolor="#3b82f6">
+                          <a href="${ctaUrl}" style="display:inline-block;padding:12px 20px;font-size:15px;color:#ffffff;text-decoration:none;border-radius:10px;background:#3b82f6;">Explore Codeless</a>
+                        </td>
+                      </tr>
+                    </table>
+                    <div style="margin-top:24px;padding:16px 14px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:12px;">
+                      <div style="font-weight:600;color:#0f172a;margin:0 0 6px;font-size:15px;">Need help?</div>
+                      <div style="margin:0;color:#475569;font-size:14px;line-height:1.7;">Reply to this email anytime—our team is here to help you get the most out of Codeless.</div>
+                    </div>
+                    <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;" />
+                    <p style="margin:0;color:#64748b;font-size:12px;">You’re receiving this email because you recently interacted with Codeless.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="background:#f8fafc;padding:18px 24px;text-align:center;color:#64748b;font-size:12px;">
+                    © ${year} Codeless Pages · All rights reserved
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>`;
 
-      // Send email using the existing email API
-      const emailResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/email-gmail`, {
-        method: 'POST',
+      // Send email using the email API configured for Resend
+      // Build absolute URL from the incoming request for server-side fetch
+      const emailEndpoint = new URL("/api/email", request.url).toString();
+      const emailResponse = await fetch(emailEndpoint, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           to: userInfo.email,
           subject: emailSubject,
           message: emailBody,
-          fromName: "Codeless Team"
+          fromName: "Codeless Team",
         }),
       });
 
@@ -253,17 +285,19 @@ export async function POST(request) {
       } else {
         console.log("Welcome email sent successfully to:", userInfo.email);
       }
-
     } catch (emailError) {
       console.error("Error sending welcome email:", emailError);
       // Don't fail the main request if email fails
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "User responses submitted successfully",
-      data: userResponse,
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "User responses submitted successfully",
+        data: userResponse,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error submitting user responses:", error);
     return NextResponse.json(
@@ -276,5 +310,3 @@ export async function POST(request) {
     );
   }
 }
-
- 

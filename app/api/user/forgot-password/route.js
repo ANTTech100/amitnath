@@ -50,21 +50,8 @@ export async function POST(request) {
     console.log("Verification - User has resetTokenExpiry:", !!verifyUser.resetTokenExpiry);
 
     // Create reset URL
-    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/user/reset-password?token=${resetToken}`;
+    const resetUrl = `${'https://www.codelesspages.com/'|| 'http://localhost:3000'}/user/reset-password?token=${resetToken}`;
 
-    // TEMPORARILY SKIP EMAIL SENDING FOR TESTING
-    console.log("Reset URL for testing:", resetUrl);
-
-    return NextResponse.json(
-      { 
-        message: "Password reset token generated successfully. Check console for reset URL.",
-        success: true,
-        resetUrl: resetUrl // Include the URL in response for testing
-      },
-      { status: 200 }
-    );
-
-    /* COMMENTED OUT EMAIL SENDING FOR TESTING
     // Email content
     const emailSubject = "Password Reset Request";
     const emailBody = `
@@ -83,9 +70,10 @@ export async function POST(request) {
       </div>
     `;
 
-    // Send email using the existing email API
+    // Send email using the email API configured for Resend
     try {
-      const emailResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/email-gmail`, {
+      const emailEndpoint = new URL('/api/email', request.url).toString();
+      const emailResponse = await fetch(emailEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -123,7 +111,6 @@ export async function POST(request) {
         { status: 500 }
       );
     }
-    */
 
   } catch (error) {
     console.error("Error in forgot password:", error);

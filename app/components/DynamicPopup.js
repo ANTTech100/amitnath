@@ -19,7 +19,28 @@ export default function DynamicPopup({ templateId, onComplete }) {
   const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    // Always show popup for anonymous users, don't check for existing responses
+    // Determine a stable key per content id if available, otherwise per template
+    let contentIdFromPath = null;
+    try {
+      const segments = window.location.pathname.split("/").filter(Boolean);
+      contentIdFromPath = segments[segments.length - 1] || null;
+    } catch (_) {
+      // ignore
+    }
+
+    const completionKey = contentIdFromPath
+      ? `content_${contentIdFromPath}_completed`
+      : `template_${templateId}_completed`;
+    const alreadyCompleted = localStorage.getItem(completionKey);
+
+    if (alreadyCompleted === "true") {
+      setLoading(false);
+      setShowPopup(false);
+      if (onComplete) onComplete();
+      return;
+    }
+
+    // For anonymous users, still show the popup
     setLoading(false);
     setShowPopup(true);
     loadQuestions();
@@ -109,10 +130,13 @@ export default function DynamicPopup({ templateId, onComplete }) {
       });
 
       if (response.data.success) {
+        // Mark this content/template as completed locally
+        const segments = window.location.pathname.split("/").filter(Boolean);
+        const cid = segments[segments.length - 1];
+        const key = cid ? `content_${cid}_completed` : `template_${templateId}_completed`;
+        localStorage.setItem(key, "true");
         setShowPopup(false);
         if (onComplete) onComplete();
-        // Refresh the page after successful submission
-        window.location.reload();
       }
     } catch (error) {
       setError(error.response?.data?.message || "Failed to submit responses");
