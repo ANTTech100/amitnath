@@ -25,262 +25,247 @@ import {
   Eye,
   ThumbsUp,
   PlayCircle,
+  CheckCircle,
+  Smartphone,
+  Share2,
+  Rocket,
+  Users,
+  Target,
+  BookOpen,
+  GraduationCap,
+  Building2,
+  MessageCircle,
+  Mail,
+  HelpCircle,
+  Settings,
+  CreditCard,
+  BarChart3,
+  Globe2,
+  Languages,
 } from "lucide-react";
 import UserNavbar from "../Header";
 import FAQ from "../FAQ";
 
 export default function UserDashboard() {
-  const [templates, setTemplates] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [templateScrollIndex, setTemplateScrollIndex] = useState(0);
-  const [customerScrollIndex, setCustomerScrollIndex] = useState(0);
-  const [videoScrollIndex, setVideoScrollIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-  // Google Sign-in handler
-  const handleGoogleSignIn = () => {
-    console.log("Google Sign-in clicked");
+  // Handle CTA button clicks
+  const handleTryInstantly = () => {
+    console.log("Try It Instantly clicked");
+    // Add your logic here
   };
 
-  // Fetch templates from API
-  useEffect(() => {
-    const fetchTemplates = async () => {
-      try {
-        // Simulating API call with fallback templates
-        const limitedTemplates = getFallbackTemplates();
-        setTemplates(limitedTemplates);
-      } catch (error) {
-        console.error("Error fetching templates:", error);
-        setTemplates(getFallbackTemplates());
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTemplates();
-  }, []);
-
-  // Helper functions for styling
-  const getGradientColor = (index) => {
-    const gradients = [
-      "from-emerald-500 to-teal-600",
-      "from-violet-500 to-purple-600",
-      "from-cyan-500 to-blue-600",
-      "from-rose-500 to-pink-600",
-      "from-amber-500 to-orange-600",
-      "from-indigo-500 to-blue-600",
-      "from-green-500 to-emerald-600",
-      "from-red-500 to-rose-600",
-    ];
-    return gradients[index % gradients.length];
+  const handleSignUpFree = () => {
+    console.log("Sign Up Free clicked");
+    // Add your logic here
   };
 
-  const getBgColor = (index) => {
-    const bgColors = [
-      "bg-emerald-500/10",
-      "bg-violet-500/10",
-      "bg-cyan-500/10",
-      "bg-rose-500/10",
-      "bg-amber-500/10",
-      "bg-indigo-500/10",
-      "bg-green-500/10",
-      "bg-red-500/10",
-    ];
-    return bgColors[index % bgColors.length];
-  };
-
-  const getIconColor = (index) => {
-    const iconColors = [
-      "text-emerald-400",
-      "text-violet-400",
-      "text-cyan-400",
-      "text-rose-400",
-      "text-amber-400",
-      "text-indigo-400",
-      "text-green-400",
-      "text-red-400",
-    ];
-    return iconColors[index % iconColors.length];
-  };
-
-  const getTemplateIcon = (name) => {
-    const lowerName = name?.toLowerCase() || "";
-    if (lowerName.includes("blog") || lowerName.includes("post"))
-      return FileText;
-    if (
-      lowerName.includes("image") ||
-      lowerName.includes("photo") ||
-      lowerName.includes("gallery")
-    )
-      return Image;
-    if (lowerName.includes("video")) return Video;
-    if (lowerName.includes("portfolio")) return Palette;
-    if (
-      lowerName.includes("web") ||
-      lowerName.includes("site") ||
-      lowerName.includes("landing")
-    )
-      return Globe;
-    if (lowerName.includes("magnet") || lowerName.includes("lead")) return Star;
-    if (lowerName.includes("page")) return FileText;
-    return Sparkles;
-  };
-
-  const getFallbackTemplates = () => [
+  // Features data
+  const features = [
     {
-      name: "Blog Post",
-      description: "Create engaging text-based blog posts with rich formatting",
-      id: "blog-post",
+      icon: Settings,
+      title: "No-Code Simplicity",
+      description: "Build your page with zero tech skills. If you can type, you're ready.",
       color: "from-emerald-500 to-teal-600",
       bgColor: "bg-emerald-500/10",
       iconColor: "text-emerald-400",
-      icon: FileText,
     },
     {
-      name: "Photo Gallery",
-      description: "Showcase multiple images in beautiful gallery layouts",
-      id: "gallery",
+      icon: Palette,
+      title: "Ready-Made Templates",
+      description: "Choose a layout. Add your content. Your brand, your vibe - already designed.",
       color: "from-violet-500 to-purple-600",
       bgColor: "bg-violet-500/10",
       iconColor: "text-violet-400",
-      icon: Image,
     },
     {
-      name: "Video Content",
-      description: "Upload and manage video content with metadata",
-      id: "video",
+      icon: Upload,
+      title: "Upload Anything",
+      description: "Text, headlines, images, videos, buttons - drop it in, and it fits perfectly.",
       color: "from-cyan-500 to-blue-600",
       bgColor: "bg-cyan-500/10",
       iconColor: "text-cyan-400",
-      icon: Video,
     },
     {
-      name: "Portfolio Site",
-      description: "Professional portfolio to showcase your work",
-      id: "portfolio",
+      icon: Rocket,
+      title: "Instant Preview & Publish",
+      description: "Click once. Your page is live. Share the link anywhere - no extra tools needed.",
       color: "from-rose-500 to-pink-600",
       bgColor: "bg-rose-500/10",
       iconColor: "text-rose-400",
-      icon: Palette,
     },
     {
-      name: "Landing Page",
-      description: "High-converting landing pages for your business",
-      id: "landing",
+      icon: Smartphone,
+      title: "Mobile & SEO Ready",
+      description: "Looks great on any screen. Google loves it too.",
       color: "from-amber-500 to-orange-600",
       bgColor: "bg-amber-500/10",
       iconColor: "text-amber-400",
-      icon: Globe,
+    },
+    {
+      icon: Share2,
+      title: "Smart Sharable Link",
+      description: "Each page gets a custom link - perfect for Bios, Messages, DMs, QR codes, and more.",
+      color: "from-indigo-500 to-blue-600",
+      bgColor: "bg-indigo-500/10",
+      iconColor: "text-indigo-400",
     },
   ];
 
-  // Hardcoded customer testimonials
-  const customers = [
+  // Target users data
+  const targetUsers = [
+    {
+      icon: Users,
+      title: "Solopreneurs & Hustlers",
+      description: "Want to look pro online, without hiring anyone.",
+      color: "from-emerald-500 to-teal-600",
+    },
+    {
+      icon: Target,
+      title: "Coaches & Trainers",
+      description: "Need a page for their next workshop, session, or course.",
+      color: "from-violet-500 to-purple-600",
+    },
+    {
+      icon: TrendingUp,
+      title: "Salespeople & Marketers",
+      description: "Want to pitch or promote fast, with zero tech-blocks.",
+      color: "from-cyan-500 to-blue-600",
+    },
+    {
+      icon: Star,
+      title: "Creators & Influencers",
+      description: "Share your link-in-bio page, media kit, or latest drop.",
+      color: "from-rose-500 to-pink-600",
+    },
+    {
+      icon: Building2,
+      title: "Startup Founders",
+      description: "MVP page? Investor deck? Hiring? Handle it in minutes.",
+      color: "from-amber-500 to-orange-600",
+    },
+    {
+      icon: GraduationCap,
+      title: "Students & Educators",
+      description: "Create a project, resume, or profile page - and impress.",
+      color: "from-indigo-500 to-blue-600",
+    },
+  ];
+
+  // Testimonials data
+  const testimonials = [
     {
       id: 1,
-      name: "Sarah Johnson",
-      image:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=80&h=80&fit=crop&crop=face",
-      text: "Amazing templates! Saved me hours of work and the results look professional.",
+      name: "Riya M.",
+      role: "Freelance Coach",
+      text: "I created my event page during lunch. No calls, no help, no stress. This thing's a blessing!",
       rating: 5,
     },
     {
       id: 2,
-      name: "Mike Chen",
-      image:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
-      text: "The video templates are exactly what I needed for my YouTube channel.",
+      name: "Aditya K.",
+      role: "Startup Founder",
+      text: "CodelessPages saved me from hiring a designer. I launched my course page in 5 minutes flat.",
       rating: 5,
     },
     {
       id: 3,
-      name: "Emily Davis",
-      image:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&crop=face",
-      text: "User-friendly interface and beautiful designs. Highly recommend!",
-      rating: 4,
+      name: "Sonal P.",
+      role: "Career Mentor",
+      text: "I'm not techy at all. But this? I just typed and boom — my link was live.",
+      rating: 5,
     },
     {
       id: 4,
-      name: "Alex Rodriguez",
-      image:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face",
-      text: "Great value for money. The templates are modern and responsive.",
+      name: "Imran D.",
+      role: "Solopreneur",
+      text: "Finally… something that doesn't make me feel dumb. Looks great, works instantly.",
       rating: 5,
     },
     {
       id: 5,
-      name: "Lisa Wang",
-      image:
-        "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&h=80&fit=crop&crop=face",
-      text: "Perfect for my business needs. Clean designs and easy customization.",
+      name: "Manisha R.",
+      role: "Design Student",
+      text: "Used it for my portfolio. Sent the link. Got 3 callbacks. Not kidding.",
+      rating: 5,
+    },
+    {
+      id: 6,
+      name: "Rahul S.",
+      role: "Marketing Consultant",
+      text: "This replaced Canva + Google Docs + my dev guy. All in one.",
       rating: 5,
     },
   ];
 
-  // Tutorial/Demo videos data
-  const tutorialVideos = [
+  // How it works steps
+  const howItWorks = [
     {
-      id: 1,
-      title: "HTML & CSS Basics - Build Your First Website",
-      videoLink: "https://youtu.be/qz0aGYrrlhU",
+      step: 1,
+      title: "Drop Your Content",
+      description: "Write your headline, add to some text, upload a video or image — whatever you've got.",
+      icon: Upload,
+      color: "from-emerald-500 to-teal-600",
     },
     {
-      id: 2,
-      title: "JavaScript Full Course for Beginners",
-      videoLink: "https://youtu.be/PkZNo7MFNFg",
+      step: 2,
+      title: "Pick a Layout",
+      description: "Choose a ready-made design. No settings. No tweaking. It just fits.",
+      icon: Palette,
+      color: "from-violet-500 to-purple-600",
     },
     {
-      id: 3,
-      title: "React Tutorial for Beginners",
-      videoLink: "https://youtu.be/bMknfKXIFA8",
-    },
-    {
-      id: 4,
-      title: "Responsive Web Design Course",
-      videoLink: "https://youtu.be/srvUrASNdxk",
-    },
-    {
-      id: 5,
-      title: "Node.js and Express.js Full Course",
-      videoLink: "https://youtu.be/Oe421EPjeBE",
+      step: 3,
+      title: "Go Live & Share",
+      description: "Hit publish. Get your link. Send it anywhere - from DMs to QR codes.",
+      icon: Rocket,
+      color: "from-cyan-500 to-blue-600",
     },
   ];
 
-  // Scroll functions
-  const scrollTemplates = (direction) => {
-    const maxIndex = Math.max(0, templates.length - 3);
-    if (direction === "left") {
-      setTemplateScrollIndex(Math.max(0, templateScrollIndex - 1));
-    } else {
-      setTemplateScrollIndex(Math.min(maxIndex, templateScrollIndex + 1));
-    }
-  };
-
-  const scrollCustomers = (direction) => {
-    const maxIndex = Math.max(0, customers.length - 3);
-    if (direction === "left") {
-      setCustomerScrollIndex(Math.max(0, customerScrollIndex - 1));
-    } else {
-      setCustomerScrollIndex(Math.min(maxIndex, customerScrollIndex + 1));
-    }
-  };
-
-  const scrollVideos = (direction) => {
-    const maxIndex = Math.max(0, tutorialVideos.length - 4);
-    if (direction === "left") {
-      setVideoScrollIndex(Math.max(0, videoScrollIndex - 1));
-    } else {
-      setVideoScrollIndex(Math.min(maxIndex, videoScrollIndex + 1));
-    }
-  };
-
-  const openVideo = (videoId) => {
-    window.open(`https://www.youtube.com/watch?v=${videoId}`, "_blank");
-  };
+  // Coming soon features
+  const comingSoonFeatures = [
+    {
+      icon: Globe2,
+      title: "Connect Your Own Domain",
+      description: "Use your own domain name for your pages",
+    },
+    {
+      icon: Target,
+      title: "Lead Capture + Form Builder",
+      description: "Collect leads and build forms easily",
+    },
+    {
+      icon: CreditCard,
+      title: "Simple Payment Links",
+      description: "Accept payments directly on your pages",
+    },
+    {
+      icon: BarChart3,
+      title: "Basic Analytics",
+      description: "Track page views and engagement",
+    },
+    {
+      icon: Palette,
+      title: "More Templates & Layout Packs",
+      description: "Expanded design options for every need",
+    },
+    {
+      icon: Users,
+      title: "Team Collaboration",
+      description: "Work together with your team or agency",
+    },
+    {
+      icon: Languages,
+      title: "Multilingual Page Support",
+      description: "Create pages in multiple languages",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 relative overflow-hidden">
-      <UserNavbar></UserNavbar>
+      <UserNavbar />
+      
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -289,303 +274,309 @@ export default function UserDashboard() {
         <div className="absolute top-20 left-20 w-64 h-64 bg-rose-500/5 rounded-full blur-2xl animate-pulse delay-2000"></div>
       </div>
 
-      {/* Google Sign-in Button - Top Right */}
-      {/* <div className="absolute top-20 right-6 z-50">
-        <button
-          onClick={handleGoogleSignIn}
-          className="flex items-center px-6 py-3 bg-white/95 backdrop-blur-sm text-gray-700 font-semibold rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-white/20"
-        >
-          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-            <path
-              fill="#4285F4"
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-            />
-            <path
-              fill="#34A853"
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-            />
-            <path
-              fill="#FBBC05"
-              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-            />
-            <path
-              fill="#EA4335"
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-            />
-          </svg>
-          Sign in with Google
-        </button>
-      </div> */}
-
       <div className="container mx-auto px-6 py-12 pt-24">
-        {/* Main Title Section */}
-        <div className="text-center mb-16">
+        {/* Hero Section */}
+        <div className="text-center mb-20">
           <h1 className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 via-white to-violet-200 mb-8 animate-pulse">
-            Create Amazing Content Instantly
+            Type. Upload. Go Live.
           </h1>
 
-          <p className="text-xl text-slate-200/90 leading-relaxed max-w-2xl mx-auto mb-12">
-            Transform your ideas into stunning, professional content with our
-            AI-powered templates. Save time, boost creativity, and engage your
-            audience like never before with our cutting-edge design tools.
+          <p className="text-xl text-slate-200/90 leading-relaxed max-w-3xl mx-auto mb-12">
+            Just bring your content. No coding. No waiting. No calling your geeky friend for help. One page. All yours. In seconds.
           </p>
 
-          {/* Main Demo Video Section */}
-          <div className="max-w-4xl mx-auto mb-16">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/20 to-violet-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-
-              <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-2xl hover:shadow-emerald-500/20 transition-all duration-500 hover:scale-[1.02] transform">
-                <div className="aspect-video relative overflow-hidden">
-                  <iframe
-                    src="https://www.youtube.com/embed/McSh1ewsFQ4?si=dOKMYuD7_fAt_UCS"
-                    title="Demo Video"
-                    className="absolute inset-0 w-full h-full rounded-3xl"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                  ></iframe>
-                </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <button
+              onClick={handleTryInstantly}
+              className="group relative px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-lg rounded-2xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 shadow-2xl hover:shadow-emerald-500/25 transform hover:scale-105"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-2xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+              <div className="relative flex items-center">
+                <Zap className="mr-3 h-5 w-5" />
+                Try It Instantly
               </div>
-            </div>
-          </div>
+            </button>
 
-          <p className="text-lg text-slate-200/80 leading-relaxed max-w-3xl mx-auto mb-16">
-            Our platform combines the power of artificial intelligence with
-            beautiful design to help you create content that stands out. Whether
-            youare building websites, creating social media posts, or designing
-            marketing materials, we have got you covered with templates that
-            adapt to your unique style and brand.
-          </p>
-        </div>
-
-        {/* Templates Scroller Section */}
-        <div className="mb-16">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200">
-              Featured Templates
-            </h2>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => scrollTemplates("left")}
-                disabled={templateScrollIndex === 0}
-                className="p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
-              >
-                <ChevronLeft className="h-5 w-5 text-white" />
-              </button>
-              <button
-                onClick={() => scrollTemplates("right")}
-                disabled={
-                  templateScrollIndex >= Math.max(0, templates.length - 3)
-                }
-                className="p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
-              >
-                <ChevronRight className="h-5 w-5 text-white" />
-              </button>
-            </div>
-          </div>
-
-          <div className="overflow-hidden">
-            <div
-              className="flex transition-transform duration-500 ease-in-out"
-              style={{
-                transform: `translateX(-${templateScrollIndex * 33.333}%)`,
-              }}
+            <button
+              onClick={handleSignUpFree}
+              className="group relative px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold text-lg rounded-2xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-2xl hover:shadow-violet-500/25 transform hover:scale-105"
             >
-              {templates.map((template, index) => {
-                const IconComponent = template.icon || Sparkles;
-                return (
-                  <div
-                    key={template.id || index}
-                    className="w-1/3 flex-shrink-0 px-3"
-                  >
-                    <div className="group cursor-pointer">
-                      <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-emerald-500/20 transition-all duration-500 transform hover:scale-105">
-                        <div
-                          className={`absolute inset-0 bg-gradient-to-br ${template.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
-                        ></div>
-
-                        <div className="relative p-6">
-                          <div
-                            className={`${template.bgColor} backdrop-blur-sm rounded-2xl p-4 w-fit mb-4`}
-                          >
-                            <IconComponent
-                              className={`h-8 w-8 ${template.iconColor}`}
-                            />
-                          </div>
-
-                          <h3 className="text-xl font-bold text-white mb-2">
-                            {template.name}
-                          </h3>
-                          <p className="text-slate-200/70 text-sm line-clamp-2">
-                            {template.description}
-                          </p>
-
-                          <div className="mt-4 text-xs text-slate-300/60">
-                            <span className="capitalize">premium template</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-purple-400 rounded-2xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+              <div className="relative flex items-center">
+                <User className="mr-3 h-5 w-5" />
+                Sign Up Free
+              </div>
+            </button>
           </div>
         </div>
 
-        {/* Try Now Buy Later Button */}
-        <div className="text-center mb-16">
-          <button className="group relative px-12 py-6 bg-gradient-to-r from-emerald-600 to-violet-600 text-white font-bold text-xl rounded-3xl hover:from-emerald-700 hover:to-violet-700 transition-all duration-300 shadow-2xl hover:shadow-emerald-500/25 transform hover:scale-105">
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-violet-400 rounded-3xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
-            <div className="relative flex items-center">
-              <Zap className="mr-4 h-6 w-6" />
-              Try Now, Buy Later
-              <ShoppingCart className="ml-4 h-6 w-6" />
-            </div>
-          </button>
-        </div>
-
-        {/* Happy Customers Scroller */}
-        <div className="mb-16">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200">
-              Happy Customers
+        {/* Features Section */}
+        <div className="mb-20">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200 mb-4">
+              Everything You Need. Nothing You Don't.
             </h2>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => scrollCustomers("left")}
-                disabled={customerScrollIndex === 0}
-                className="p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
-              >
-                <ChevronLeft className="h-5 w-5 text-white" />
-              </button>
-              <button
-                onClick={() => scrollCustomers("right")}
-                disabled={
-                  customerScrollIndex >= Math.max(0, customers.length - 3)
-                }
-                className="p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
-              >
-                <ChevronRight className="h-5 w-5 text-white" />
-              </button>
-            </div>
+            <p className="text-lg text-slate-200/70">
+              Let's keep it sharp, visual, and clear for fast decision-making.
+            </p>
           </div>
 
-          <div className="overflow-hidden">
-            <div
-              className="flex transition-transform duration-500 ease-in-out"
-              style={{
-                transform: `translateX(-${customerScrollIndex * 33.333}%)`,
-              }}
-            >
-              {customers.map((customer) => (
-                <div key={customer.id} className="w-1/3 flex-shrink-0 px-3">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 p-6 shadow-xl hover:shadow-2xl hover:shadow-violet-500/20 transition-all duration-300 hover:scale-105">
-                    <div className="flex items-center mb-4">
-                      <img
-                        src={customer.image}
-                        alt={customer.name}
-                        className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-emerald-400/30"
-                      />
-                      <div>
-                        <h4 className="text-white font-semibold">
-                          {customer.name}
-                        </h4>
-                        <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`h-4 w-4 ${
-                                i < customer.rating
-                                  ? "text-amber-400 fill-current"
-                                  : "text-gray-400"
-                              }`}
-                            />
-                          ))}
-                        </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {features.map((feature, index) => {
+              const IconComponent = feature.icon;
+              return (
+                <div key={index} className="group cursor-pointer">
+                  <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-emerald-500/20 transition-all duration-500 transform hover:scale-105">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
+                    
+                    <div className="relative p-6">
+                      <div className={`${feature.bgColor} backdrop-blur-sm rounded-2xl p-4 w-fit mb-4`}>
+                        <IconComponent className={`h-8 w-8 ${feature.iconColor}`} />
                       </div>
+
+                      <h3 className="text-xl font-bold text-white mb-3">
+                        {feature.title}
+                      </h3>
+                      <p className="text-slate-200/70 text-sm leading-relaxed">
+                        {feature.description}
+                      </p>
                     </div>
-                    <p className="text-slate-200/80 text-sm leading-relaxed">
-                      {customer.text}
-                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
+          </div>
+
+          <div className="text-center">
+            <p className="text-lg text-slate-200/80 font-medium">
+              No designers. No developers. No delays.
+            </p>
+            <p className="text-lg text-slate-200/80 font-medium">
+              Just your message - launched.
+            </p>
           </div>
         </div>
 
-        {/* Video Tutorials Section */}
-        <div className="mb-16">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200 mb-2">
-                Video Tutorials
-              </h2>
-              <p className="text-slate-200/70">
-                Learn how to use our platform with these helpful guides
-              </p>
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => scrollVideos("left")}
-                disabled={videoScrollIndex === 0}
-                className="p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
-              >
-                <ChevronLeft className="h-5 w-5 text-white" />
-              </button>
-              <button
-                onClick={() => scrollVideos("right")}
-                disabled={
-                  videoScrollIndex >= Math.max(0, tutorialVideos.length - 4)
-                }
-                className="p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
-              >
-                <ChevronRight className="h-5 w-5 text-white" />
-              </button>
-            </div>
+        {/* Who It's For Section */}
+        <div className="mb-20">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200 mb-4">
+              Built for People Who Hate Waiting on Developers.
+            </h2>
+            <p className="text-lg text-slate-200/70 max-w-3xl mx-auto">
+              If you've got something to say or sell - but don't want to learn code, chase freelancers, or spend hours on "digital stuff" - this is made for you.
+            </p>
           </div>
-        </div>
-        <div className="overflow-hidden">
-          <div
-            className="flex transition-transform duration-500 ease-in-out"
-            style={{
-              transform: `translateX(-${videoScrollIndex * 25}%)`,
-            }}
-          >
-            {tutorialVideos.map((video, index) => (
-              <div key={video.id} className="w-1/4 flex-shrink-0 px-2">
-                <div className="group cursor-pointer">
-                  <div className="relative bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-cyan-500/20 transition-all duration-500 transform hover:scale-105">
-                    {/* Video iframe */}
-                    <div className="relative aspect-video overflow-hidden">
-                      <iframe
-                        src={`https://www.youtube.com/embed/${
-                          video.videoLink.split("/").pop().split("?")[0]
-                        }`}
-                        title={video.title}
-                        className="w-full h-full"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      ></iframe>
-                    </div>
 
-                    {/* Video Info */}
-                    <div className="p-4">
-                      <h3 className="text-white font-semibold text-sm mb-2 line-clamp-2 group-hover:text-emerald-300 transition-colors">
-                        {video.title}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {targetUsers.map((user, index) => {
+              const IconComponent = user.icon;
+              return (
+                <div key={index} className="group cursor-pointer">
+                  <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-violet-500/20 transition-all duration-500 transform hover:scale-105">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${user.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
+                    
+                    <div className="relative p-6">
+                      <div className={`bg-gradient-to-br ${user.color} rounded-2xl p-4 w-fit mb-4`}>
+                        <IconComponent className="h-8 w-8 text-white" />
+                      </div>
+
+                      <h3 className="text-xl font-bold text-white mb-3">
+                        {user.title}
                       </h3>
+                      <p className="text-slate-200/70 text-sm leading-relaxed">
+                        {user.description}
+                      </p>
                     </div>
                   </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="text-center">
+            <p className="text-lg text-slate-200/80 font-medium">
+              If you've ever said "I just wish someone could do it for me"… this is that someone.
+            </p>
+          </div>
+        </div>
+
+        {/* Testimonials Section */}
+        <div className="mb-20">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200 mb-4">
+              Real People. Real Wins.
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {testimonials.map((testimonial) => (
+              <div key={testimonial.id} className="bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 p-6 shadow-xl hover:shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300 hover:scale-105">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mr-4">
+                    <User className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-semibold">
+                      {testimonial.name}
+                    </h4>
+                    <p className="text-emerald-300 text-sm">{testimonial.role}</p>
+                  </div>
+                </div>
+                <p className="text-slate-200/80 text-sm leading-relaxed">
+                  {testimonial.text}
+                </p>
+                <div className="flex items-center mt-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-4 w-4 ${
+                        i < testimonial.rating
+                          ? "text-amber-400 fill-current"
+                          : "text-gray-400"
+                      }`}
+                    />
+                  ))}
                 </div>
               </div>
             ))}
           </div>
         </div>
+
+        {/* How It Works Section */}
+        <div className="mb-20">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200 mb-4">
+              3 Steps. That's It.
+            </h2>
+            <p className="text-lg text-slate-200/70">
+              From blank to brilliant in under a minute.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {howItWorks.map((step) => {
+              const IconComponent = step.icon;
+              return (
+                <div key={step.step} className="text-center group">
+                  <div className="relative mb-6">
+                    <div className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                      <IconComponent className="h-10 w-10 text-white" />
+                    </div>
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                      <span className="text-slate-900 font-bold text-sm">{step.step}</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">
+                    {step.title}
+                  </h3>
+                  <p className="text-slate-200/70 text-sm leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Final CTA Section */}
+        <div className="text-center mb-20">
+          <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200 mb-4">
+            Stop Waiting. Start Sharing.
+          </h2>
+          <p className="text-lg text-slate-200/70 mb-8 max-w-2xl mx-auto">
+            You've got something to show. Let the world see it - without a single line of code.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+            <button
+              onClick={handleTryInstantly}
+              className="group relative px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-lg rounded-2xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 shadow-2xl hover:shadow-emerald-500/25 transform hover:scale-105"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-2xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+              <div className="relative flex items-center">
+                <Zap className="mr-3 h-5 w-5" />
+                Try It Instantly
+              </div>
+            </button>
+
+            <button
+              onClick={handleSignUpFree}
+              className="group relative px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold text-lg rounded-2xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-2xl hover:shadow-violet-500/25 transform hover:scale-105"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-purple-400 rounded-2xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+              <div className="relative flex items-center">
+                <User className="mr-3 h-5 w-5" />
+                Sign Up Free
+              </div>
+            </button>
+          </div>
+
+          {/* Support Badge */}
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 p-6 max-w-2xl mx-auto">
+            <h3 className="text-lg font-semibold text-white mb-3">
+              Have a question or stuck somewhere?
+            </h3>
+            <p className="text-slate-200/70 text-sm mb-3">
+              Message us on WhatsApp or email support@codelesspages.com — we're real people, and we respond fast.
+            </p>
+            <div className="flex justify-center space-x-4">
+              <button className="flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
+                <MessageCircle className="h-4 w-4 mr-2" />
+                WhatsApp
+              </button>
+              <button className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                <Mail className="h-4 w-4 mr-2" />
+                Email Support
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Coming Soon Features */}
+        <div className="mb-20">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200 mb-4">
+              Coming Soon on CodelessPages
+            </h2>
+            <p className="text-lg text-slate-200/70">
+              We're constantly adding new features to make your experience even better.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {comingSoonFeatures.map((feature, index) => {
+              const IconComponent = feature.icon;
+              return (
+                <div key={index} className="group cursor-pointer">
+                  <div className="relative bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105">
+                    <div className="relative p-6">
+                      <div className="bg-slate-600/30 backdrop-blur-sm rounded-2xl p-4 w-fit mb-4">
+                        <IconComponent className="h-8 w-8 text-slate-300" />
+                      </div>
+
+                      <div className="flex items-center mb-2">
+                        <span className="text-xs bg-amber-500/20 text-amber-300 px-2 py-1 rounded-full mr-2">
+                          Coming Soon
+                        </span>
+                      </div>
+
+                      <h3 className="text-lg font-bold text-white mb-2">
+                        {feature.title}
+                      </h3>
+                      <p className="text-slate-300/70 text-sm leading-relaxed">
+                        {feature.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
-      <FAQ></FAQ>
+      
+      <FAQ />
     </div>
   );
 }
