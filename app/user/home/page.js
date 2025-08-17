@@ -314,10 +314,10 @@ export default function UserDashboard() {
         <div className="mb-20">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200 mb-4">
-              Everything You Need. Nothing You Don't.
+              Everything You Need. Nothing You Do not.
             </h2>
             <p className="text-lg text-slate-200/70">
-              Let's keep it sharp, visual, and clear for fast decision-making.
+              Let&apos;s keep it sharp, visual, and clear for fast decision-making.
             </p>
           </div>
 
@@ -364,7 +364,7 @@ export default function UserDashboard() {
               Built for People Who Hate Waiting on Developers.
             </h2>
             <p className="text-lg text-slate-200/70 max-w-3xl mx-auto">
-              If you've got something to say or sell - but don't want to learn code, chase freelancers, or spend hours on "digital stuff" - this is made for you.
+              If you have got something to say or sell - but do not want to learn code, chase freelancers, or spend hours on &quot;digital stuff&quot; - this is made for you.
             </p>
           </div>
 
@@ -396,7 +396,7 @@ export default function UserDashboard() {
 
           <div className="text-center">
             <p className="text-lg text-slate-200/80 font-medium">
-              If you've ever said "I just wish someone could do it for me"… this is that someone.
+              If you have ever said &ldquo;I just wish someone could do it for me&rdquo;… this is that someone.
             </p>
           </div>
         </div>
@@ -447,7 +447,7 @@ export default function UserDashboard() {
         <div className="mb-20">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200 mb-4">
-              3 Steps. That's It.
+              3 Steps. That is It.
             </h2>
             <p className="text-lg text-slate-200/70">
               From blank to brilliant in under a minute.
@@ -485,7 +485,7 @@ export default function UserDashboard() {
             Stop Waiting. Start Sharing.
           </h2>
           <p className="text-lg text-slate-200/70 mb-8 max-w-2xl mx-auto">
-            You've got something to show. Let the world see it - without a single line of code.
+            You have got something to show. Let the world see it - without a single line of code.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
@@ -518,7 +518,7 @@ export default function UserDashboard() {
               Have a question or stuck somewhere?
             </h3>
             <p className="text-slate-200/70 text-sm mb-3">
-              Message us on WhatsApp or email support@codelesspages.com — we're real people, and we respond fast.
+              Message us on WhatsApp or email support@codelesspages.com — we are real people, and we respond fast.
             </p>
             <div className="flex justify-center space-x-4">
               <button className="flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
@@ -540,7 +540,7 @@ export default function UserDashboard() {
               Coming Soon on CodelessPages
             </h2>
             <p className="text-lg text-slate-200/70">
-              We're constantly adding new features to make your experience even better.
+              We are constantly adding new features to make your experience even better.
             </p>
           </div>
 
