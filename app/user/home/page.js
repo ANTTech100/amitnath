@@ -51,11 +51,13 @@ export default function UserDashboard() {
 
   // Handle CTA button clicks
   const handleTryInstantly = () => {
+    router.push("/user/register");
     console.log("Try It Instantly clicked");
     // Add your logic here
   };
 
   const handleSignUpFree = () => {
+    router.push("/user/register");
     console.log("Sign Up Free clicked");
     // Add your logic here
   };
