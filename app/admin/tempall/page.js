@@ -7,7 +7,6 @@ import Head from "next/head";
 import {
   PlusCircle,
   Edit,
-  Trash,
   Eye,
   Search,
   Clock,
@@ -66,23 +65,7 @@ export default function TemplateList() {
     }
   };
 
-  const deleteTemplate = async (templateId) => {
-    if (window.confirm("Are you sure you want to delete this template?")) {
-      try {
-        const response = await axios.delete(`/api/tempall/${templateId}`);
-
-        if (response.data.success) {
-          // Remove template from state
-          setTemplates(templates.filter((t) => t._id !== templateId));
-        } else {
-          setError("Failed to delete template");
-        }
-      } catch (err) {
-        console.error("Error deleting template:", err);
-        setError("An error occurred while deleting the template");
-      }
-    }
-  };
+  // Delete action removed per requirements
 
   const filteredTemplates =
     templates?.filter((template) => {
@@ -269,19 +252,18 @@ export default function TemplateList() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             <button
-                              onClick={() =>
-                                router.push(`/admin/tempall/${template._id}`)
-                              }
+                              onClick={() => {
+                                if (isPremium) {
+                                  router.push(`/admin/tempall/${template._id}`);
+                                } else {
+                                  setShowPremiumModal(true);
+                                }
+                              }}
                               className="text-indigo-600 hover:text-indigo-900"
                             >
                               <Edit className="h-5 w-5" />
                             </button>
-                            <button
-                              onClick={() => deleteTemplate(template._id)}
-                              className="ml-2 text-red-600 hover:text-red-900"
-                            >
-                              <Trash className="h-5 w-5" />
-                            </button>
+                            {/* Delete action removed */}
                           </td>
                         </tr>
                       ))}
@@ -319,17 +301,13 @@ export default function TemplateList() {
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex items-center justify-center space-x-4 text-sm text-gray-600">
+                  <div className="flex items-center justify-center text-sm text-gray-600">
                     <div className="flex items-center space-x-2">
                       <Mail className="h-4 w-4" />
-                      <span>contact@example.com</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Phone className="h-4 w-4" />
-                      <span>+1 (555) 123-4567</span>
+                      <span>support@codelesspage.info</span>
                     </div>
                   </div>
-                  
+
                   <p className="text-xs text-gray-500">
                     For any details about premium features, please contact us.
                   </p>

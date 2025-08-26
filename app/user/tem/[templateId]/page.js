@@ -1079,6 +1079,7 @@ export default function ContentUploadPage({ params }) {
                 className="flex justify-center mt-4"
               >
                 <motion.button
+                  type="button"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setVisibleSectionCount((prev) => prev + 5)}

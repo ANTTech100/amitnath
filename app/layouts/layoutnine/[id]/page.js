@@ -432,9 +432,9 @@ export default function TemplateTenLayout() {
                   Contact Information
                 </h4>
                 <p className="text-rose-200">
-                  Email: contact@example.com
+                  Email: support@codelesspage.info
                   <br />
-                  Phone: (555) 123-4567
+                  Phone: +1 (555) 123-4567
                 </p>
               </div>
               <div>

@@ -87,7 +87,7 @@ const ContactUs = () => {
                       <h3 className="text-white font-semibold">
                         Email Support
                       </h3>
-                      <p className="text-gray-400">support@work.com</p>
+                      <p className="text-gray-400">support@codelesspage.info</p>
                     </div>
                   </div>
 

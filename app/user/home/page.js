@@ -45,13 +45,21 @@ import {
 } from "lucide-react";
 import UserNavbar from "../Header";
 import FAQ from "../FAQ";
+import { useRouter } from "next/navigation";
 
 export default function UserDashboard() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const userid = typeof window !== "undefined" ? localStorage.getItem("userid") : null;
+    setIsLoggedIn(!!userid);
+  }, []);
 
   // Handle CTA button clicks
   const handleTryInstantly = () => {
-    router.push("/user/register");
+    router.push("/user/tem");
     console.log("Try It Instantly clicked");
     // Add your logic here
   };
@@ -299,16 +307,18 @@ export default function UserDashboard() {
               </div>
             </button>
 
-            <button
-              onClick={handleSignUpFree}
-              className="group relative px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold text-lg rounded-2xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-2xl hover:shadow-violet-500/25 transform hover:scale-105"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-purple-400 rounded-2xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
-              <div className="relative flex items-center">
-                <User className="mr-3 h-5 w-5" />
-                Sign Up Free
-              </div>
-            </button>
+            {!isLoggedIn && (
+              <button
+                onClick={handleSignUpFree}
+                className="group relative px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold text-lg rounded-2xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-2xl hover:shadow-violet-500/25 transform hover:scale-105"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-purple-400 rounded-2xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+                <div className="relative flex items-center">
+                  <User className="mr-3 h-5 w-5" />
+                  Sign Up Free
+                </div>
+              </button>
+            )}
           </div>
         </div>
 
@@ -502,16 +512,18 @@ export default function UserDashboard() {
               </div>
             </button>
 
-            <button
-              onClick={handleSignUpFree}
-              className="group relative px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold text-lg rounded-2xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-2xl hover:shadow-violet-500/25 transform hover:scale-105"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-purple-400 rounded-2xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
-              <div className="relative flex items-center">
-                <User className="mr-3 h-5 w-5" />
-                Sign Up Free
-              </div>
-            </button>
+            {!isLoggedIn && (
+              <button
+                onClick={handleSignUpFree}
+                className="group relative px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold text-lg rounded-2xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-2xl hover:shadow-violet-500/25 transform hover:scale-105"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-purple-400 rounded-2xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+                <div className="relative flex items-center">
+                  <User className="mr-3 h-5 w-5" />
+                  Sign Up Free
+                </div>
+              </button>
+            )}
           </div>
 
           {/* Support Badge */}

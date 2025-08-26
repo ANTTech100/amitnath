@@ -10,6 +10,11 @@ export default function Page({ params }) {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [info, setInfo] = useState(null);
+  const [form, setForm] = useState({ fullName: "" });
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
 
   useEffect(() => {
     // Check authorization without localStorage
@@ -56,6 +61,61 @@ export default function Page({ params }) {
     checkAuth();
     fetchUserProfile();
   }, [unwrappedParams.id]);
+
+  useEffect(() => {
+    if (userData) {
+      setForm({ fullName: userData.fullName || "" });
+    }
+  }, [userData]);
+
+  const handleEditToggle = () => {
+    setInfo(null);
+    setError(null);
+    setEditMode((prev) => !prev);
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+      setInfo(null);
+      const res = await fetch(`/api/user/profile/${unwrappedParams.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fullName: form.fullName }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to update profile");
+      }
+      setUserData((prev) => ({ ...prev, fullName: form.fullName }));
+      setEditMode(false);
+      setInfo("Profile updated successfully.");
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    try {
+      setError(null);
+      setInfo(null);
+      const res = await fetch("/api/user/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: userData?.email }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to send reset email");
+      }
+      setInfo("Password reset link sent to your email.");
+    } catch (e) {
+      setError(e.message);
+    }
+  };
 
   // Loading state
   if (loading) {
@@ -136,9 +196,18 @@ export default function Page({ params }) {
 
                 {/* User Info */}
                 <div className="flex-1">
-                  <h2 className="text-3xl font-bold text-white mb-2">
-                    {userData?.fullName || "User"}
-                  </h2>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      className="text-3xl font-bold text-white mb-2 bg-transparent border-b border-purple-400 focus:outline-none"
+                      value={form.fullName}
+                      onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                    />
+                  ) : (
+                    <h2 className="text-3xl font-bold text-white mb-2">
+                      {userData?.fullName || "User"}
+                    </h2>
+                  )}
                   <p className="text-purple-200 text-lg">
                     {userData?.email || "No email provided"}
                   </p>
@@ -153,6 +222,16 @@ export default function Page({ params }) {
 
             {/* Profile Details */}
             <div className="p-8">
+              {info && (
+                <div className="mb-4 px-4 py-3 rounded-lg bg-green-900/30 border border-green-500/40 text-green-200">
+                  {info}
+                </div>
+              )}
+              {error && (
+                <div className="mb-4 px-4 py-3 rounded-lg bg-red-900/30 border border-red-500/40 text-red-200">
+                  {error}
+                </div>
+              )}
               <h3 className="text-xl font-semibold text-purple-100 mb-6 flex items-center">
                 <svg
                   className="w-5 h-5 mr-2 text-purple-400"
@@ -176,11 +255,20 @@ export default function Page({ params }) {
                   <label className="block text-sm font-medium text-gray-300 uppercase tracking-wider">
                     Full Name
                   </label>
-                  <div className="bg-gray-700/50 border border-gray-600/50 rounded-lg px-4 py-3">
-                    <p className="text-gray-100 text-lg font-medium">
-                      {userData?.fullName || "Not provided"}
-                    </p>
-                  </div>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-lg px-4 py-3 text-gray-100 text-lg font-medium focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      value={form.fullName}
+                      onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                    />
+                  ) : (
+                    <div className="bg-gray-700/50 border border-gray-600/50 rounded-lg px-4 py-3">
+                      <p className="text-gray-100 text-lg font-medium">
+                        {userData?.fullName || "Not provided"}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Email */}
@@ -231,18 +319,66 @@ export default function Page({ params }) {
 
               {/* Action Buttons */}
               <div className="mt-8 flex flex-wrap gap-4">
-                <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105">
-                  Edit Profile
-                </button>
-                <button className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-gray-200 font-semibold rounded-lg border border-gray-600 transition-all duration-200">
-                  Change Password
-                </button>
-                <button className="px-6 py-3 bg-red-600/20 hover:bg-red-600/30 text-red-300 font-semibold rounded-lg border border-red-500/30 transition-all duration-200">
+                {editMode ? (
+                  <>
+                    <button
+                      onClick={handleSaveProfile}
+                      disabled={saving}
+                      className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 disabled:opacity-60"
+                    >
+                      {saving ? "Saving..." : "Save Changes"}
+                    </button>
+                    <button
+                      onClick={handleEditToggle}
+                      className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-gray-200 font-semibold rounded-lg border border-gray-600 transition-all duration-200"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={handleEditToggle}
+                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105"
+                  >
+                    Edit Profile
+                  </button>
+                )}
+             
+                <button
+                  onClick={() => setShowDeletePopup(true)}
+                  className="px-6 py-3 bg-red-600/20 hover:bg-red-600/30 text-red-300 font-semibold rounded-lg border border-red-500/30 transition-all duration-200"
+                >
                   Delete Account
                 </button>
               </div>
             </div>
           </div>
+
+          {showDeletePopup && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+              <div className="bg-gray-800 border border-purple-500/40 rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 mr-3 mt-1">
+                    <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Delete Account</h3>
+                    <p className="mt-2 text-gray-300">Please contact your administrator to delete your profile.</p>
+                  </div>
+                </div>
+                <div className="mt-6 flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowDeletePopup(false)}
+                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg border border-gray-600 transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Additional Info Cards */}
           <div className="grid md:grid-cols-2 gap-6 mt-8">

@@ -56,3 +56,47 @@ export async function GET(request, { params }) {
     );
   }
 }
+
+export async function PUT(request, { params }) {
+  try {
+    await connectDB();
+
+    const { id } = params;
+    if (!id) {
+      return NextResponse.json({ message: "User ID is required" }, { status: 400 });
+    }
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ message: "Invalid user ID format" }, { status: 400 });
+    }
+
+    const body = await request.json();
+    const { fullName } = body || {};
+    if (typeof fullName !== "string" || fullName.trim().length < 2) {
+      return NextResponse.json({ message: "fullName must be at least 2 characters" }, { status: 400 });
+    }
+
+    const updated = await User.findByIdAndUpdate(
+      id,
+      { $set: { fullName: fullName.trim() } },
+      { new: true, runValidators: true, select: "fullName email" }
+    );
+
+    if (!updated) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(
+      {
+        message: "Profile updated successfully",
+        user: { fullName: updated.fullName, email: updated.email },
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Profile update error:", { message: error.message, stack: error.stack, params });
+    return NextResponse.json(
+      { message: "Internal server error", error: error.message },
+      { status: 500 }
+    );
+  }
+}

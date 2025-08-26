@@ -57,7 +57,7 @@ const UserNavbar = () => {
                 href="/"
                 className="font-black text-3xl bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent hover:from-purple-300 hover:via-pink-300 hover:to-blue-300 transition-all duration-500 transform hover:scale-110"
               >
-                WORK
+                Codeless
               </Link>
             </div>
 
