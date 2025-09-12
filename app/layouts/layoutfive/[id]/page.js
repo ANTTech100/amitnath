@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Head from "next/head";
-import { ChevronDown, ChevronUp, Quote, Video, FileText } from "lucide-react";
+import { ChevronDown, ChevronUp, Video, FileText, Award } from "lucide-react";
 import DynamicPopup from "@/app/components/DynamicPopup";
 
 export default function LayoutFive() {
@@ -96,7 +96,7 @@ export default function LayoutFive() {
         console.log("Filtered Content:", filteredContent);
         setContent(filteredContent);
 
-        // Step 5: Group sections (allow any number of sections)
+        // Step 5: Group sections - 7 in first guide, 6 in subsequent guides
         const sections = Object.keys(filteredContent.sections || {}).map(
           (sectionId) => ({
             id: sectionId,
@@ -107,7 +107,20 @@ export default function LayoutFive() {
 
         const groups = [];
         if (sections.length > 0) {
-          groups.push(sections);
+          // First group has 7 sections
+          if (sections.length >= 7) {
+            groups.push(sections.slice(0, 7));
+            
+            // Remaining sections in groups of 6
+            let remainingSections = sections.slice(7);
+            while (remainingSections.length > 0) {
+              groups.push(remainingSections.slice(0, 6));
+              remainingSections = remainingSections.slice(6);
+            }
+          } else {
+            // If less than 7 sections, put all in first group
+            groups.push(sections);
+          }
         }
 
         console.log("Grouped Sections:", groups);
@@ -128,52 +141,46 @@ export default function LayoutFive() {
   const renderVideo = (url) => {
     console.log("Video URL:", url);
     if (!url || typeof url !== "string") {
-      return <p className="text-lg text-gray-500 italic">Invalid video URL</p>;
+      return <p className="text-lg text-gray-600 italic">Invalid video URL</p>;
     }
     if (url.includes("youtube.com") || url.includes("youtu.be")) {
       const videoId = url.split("v=")[1]?.split("&")[0] || url.split("/").pop();
       if (!videoId) {
         console.error("Invalid YouTube URL:", url);
         return (
-          <p className="text-lg text-gray-500 italic">Invalid video URL</p>
+          <p className="text-lg text-gray-600 italic">Invalid video URL</p>
         );
       }
       return (
-        <div className="relative group">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
-          <div className="relative bg-black rounded-2xl overflow-hidden shadow-2xl">
-            <iframe
-              width="100%"
-              height="400"
-              src={`https://www.youtube.com/embed/${videoId}`}
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="rounded-2xl"
-            />
-          </div>
+        <div className="relative bg-gray-900 rounded-lg overflow-hidden shadow-lg">
+          <iframe
+            width="100%"
+            height="300"
+            src={`https://www.youtube.com/embed/${videoId}`}
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="rounded-lg"
+          />
         </div>
       );
     } else if (url.includes("mux.com")) {
       return (
-        <div className="relative group">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
-          <div className="relative bg-black rounded-2xl overflow-hidden shadow-2xl">
-            <video
-              width="100%"
-              height="400"
-              controls
-              src={url}
-              className="rounded-2xl"
-            />
-          </div>
+        <div className="relative bg-gray-900 rounded-lg overflow-hidden shadow-lg">
+          <video
+            width="100%"
+            height="300"
+            controls
+            src={url}
+            className="rounded-lg"
+          />
         </div>
       );
     } else {
       console.error("Unsupported video platform:", url);
       return (
-        <p className="text-lg text-gray-500 italic">
+        <p className="text-lg text-gray-600 italic">
           Unsupported video platform
         </p>
       );
@@ -183,21 +190,16 @@ export default function LayoutFive() {
   const renderText = (text) => {
     if (!text || typeof text !== "string") {
       return (
-        <p className="text-lg text-gray-500 leading-relaxed italic">
+        <p className="text-lg text-gray-600 leading-relaxed italic">
           No testimonial text available.
         </p>
       );
     }
     return (
-      <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-2xl p-8 shadow-lg border border-gray-100">
-        <div className="absolute top-6 left-6 w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-          <Quote className="w-6 h-6 text-white" />
-        </div>
-        <div className="pl-16">
-          <p className="text-lg text-gray-800 leading-relaxed font-medium">
-            {text}
-          </p>
-        </div>
+      <div className="bg-gray-50 rounded-lg p-6 shadow-sm">
+        <p className="text-lg text-gray-800 leading-relaxed">
+          {text}
+        </p>
       </div>
     );
   };
@@ -213,52 +215,19 @@ export default function LayoutFive() {
     console.log(`Toggled Guide ${index + 1}:`, groupedSections[index]);
   };
 
-  const getPhaseInfo = (index) => {
-    const phases = [
-      { name: "Onboarding", color: "from-green-500 to-emerald-600" },
-      { name: "Phase 1", color: "from-blue-500 to-cyan-600" },
-      { name: "Phase 1", color: "from-purple-500 to-violet-600" },
-      { name: "Phase 1", color: "from-orange-500 to-red-600" },
-      { name: "Phase 1", color: "from-pink-500 to-rose-600" },
-      { name: "Phase 1", color: "from-indigo-500 to-blue-600" },
-      { name: "Phase 1", color: "from-yellow-500 to-orange-600" },
-      { name: "Phase 1", color: "from-teal-500 to-cyan-600" },
-      { name: "Phase 2", color: "from-violet-500 to-purple-600" },
-      {
-        name: "Phase 2",
-        color: "from- Vulnerability scanningrose-500 to-pink-600",
-      },
-      { name: "Phase 2", color: "from-cyan-500 to-blue-600" },
-      { name: "Phase 2", color: "from-emerald-500 to-green-600" },
-      { name: "Phase 3", color: "from-amber-500 to-yellow-600" },
-      { name: "Phase 3", color: "from-red-500 to-orange-600" },
-      { name: "Phase 3", color: "from-blue-500 to-indigo-600" },
-    ];
-    return (
-      phases[index] || { name: "Phase", color: "from-gray-500 to-gray-600" }
-    );
-  };
-
   const getSectionStats = (sections) => {
     const videoCount = sections.filter((s) => s.type === "video").length;
     const textCount = sections.filter((s) => s.type === "text").length;
-    return `${sections.length} section${
-      sections.length !== 1 ? "s" : ""
-    } • ${videoCount} video${
-      videoCount !== 1 ? "s" : ""
-    } • ${textCount} text guide${textCount !== 1 ? "s" : ""}`;
+    return `${sections.length} items • ${videoCount} videos • ${textCount} reviews`;
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-yellow-50 to-amber-50">
         <div className="text-center">
-          <div className="relative">
-            <div className="w-20 h-20 border-4 border-purple-300 border-t-purple-600 rounded-full animate-spin mx-auto mb-6"></div>
-            <div className="absolute inset-0 w-20 h-20 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin mx-auto animation-delay-150"></div>
-          </div>
-          <p className="text-2xl font-semibold text-white">
-            Loading your guides...
+          <div className="w-16 h-16 border-4 border-yellow-300 border-t-yellow-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-xl font-semibold text-gray-800">
+            Loading testimonials...
           </p>
         </div>
       </div>
@@ -267,15 +236,15 @@ export default function LayoutFive() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-red-900 to-pink-900">
-        <div className="bg-white/10 backdrop-blur-md p-10 rounded-2xl shadow-2xl max-w-md w-full text-center border border-white/20">
-          <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-white text-2xl">!</span>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-red-50 to-pink-50">
+        <div className="bg-white shadow-xl p-8 rounded-xl max-w-md w-full text-center">
+          <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-white text-xl">!</span>
           </div>
-          <p className="text-xl font-medium text-white mb-6">{error}</p>
+          <p className="text-lg font-medium text-gray-800 mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-8 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white font-semibold rounded-xl shadow-lg hover:from-red-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-105"
+            className="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors"
           >
             Try Again
           </button>
@@ -286,8 +255,8 @@ export default function LayoutFive() {
 
   if (!content) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
-        <p className="text-2xl font-medium text-white">No content found.</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-yellow-50 to-amber-50">
+        <p className="text-xl font-medium text-gray-800">No content found.</p>
       </div>
     );
   }
@@ -295,71 +264,69 @@ export default function LayoutFive() {
   return (
     <>
       {templateId && <DynamicPopup templateId={templateId} />}
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
+      <div className="min-h-screen bg-gradient-to-br from-white via-yellow-50 to-amber-50">
         <Head>
-          <title>{content.heading} | Testimonial Section</title>
+          <title>{content.heading} | Professional Testimonials</title>
           <meta name="description" content={content.subheading} />
         </Head>
 
-        {/* Header Section */}
+        {/* Header Section - Reduced Height */}
         <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 backdrop-blur-sm"></div>
-          <div className="relative max-w-7xl mx-auto px-6 py-16 text-center">
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 to-amber-400/10"></div>
+          <div className="relative max-w-7xl mx-auto px-6 py-8 text-center">
+            <div className="flex justify-center mb-4">
+              <div className="bg-gradient-to-r from-yellow-400 to-amber-500 p-3 rounded-full shadow-lg">
+                <Award className="w-8 h-8 text-white" />
+              </div>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3 leading-tight">
               {content.heading}
             </h1>
-            <p className="text-xl md:text-2xl text-purple-200 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               {content.subheading}
             </p>
           </div>
         </div>
 
         {/* Guides Section */}
-        <div className="max-w-6xl mx-auto px-6 py-12">
-          <div className="space-y-6">
+        <div className="max-w-4xl mx-auto px-6 py-8">
+          <div className="space-y-4">
             {groupedSections.length === 0 ? (
-              <p className="text-xl text-purple-200 text-center">
-                No sections available for this content.
+              <p className="text-lg text-gray-600 text-center">
+                No testimonials available for this content.
               </p>
             ) : (
               groupedSections.map((sections, index) => {
-                const phase = getPhaseInfo(index);
                 const isOpen = openGuides.has(index);
 
                 return (
-                  <div key={index} className="group">
+                  <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
                     {/* Guide Header */}
                     <button
                       onClick={() => toggleGuide(index)}
-                      className="w-full bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:border-white/30 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20"
+                      className="w-full p-4 text-left hover:bg-gray-50 transition-colors"
                     >
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div
-                            className={`w-12 h-12 bg-gradient-to-r ${phase.color} rounded-full flex items-center justify-center shadow-lg`}
-                          >
-                            <span className="text-white font-bold text-lg">
-                              {index + 1}
-                            </span>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-lg flex items-center justify-center">
+                            <span className="text-white font-bold">{index + 1}</span>
                           </div>
-                          <div className="text-left">
-                            <h3 className="text-xl font-bold text-white">
-                              GUIDE {index + 1}
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-800">
+                              Guide {index + 1}
                             </h3>
-                            <p className="text-purple-200 text-sm">
+                            <p className="text-sm text-gray-600">
                               {getSectionStats(sections)}
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-4">
-                          <div className="flex space-x-2">
-                            <Video className="w-5 h-5 text-blue-400" />
-                            <FileText className="w-5 h-5 text-green-400" />
-                          </div>
+                        <div className="flex items-center space-x-2">
+                          <Video className="w-5 h-5 text-yellow-500" />
+                          <FileText className="w-5 h-5 text-amber-500" />
                           {isOpen ? (
-                            <ChevronUp className="w-6 h-6 text-white transition-transform duration-300" />
+                            <ChevronUp className="w-5 h-5 text-gray-600" />
                           ) : (
-                            <ChevronDown className="w-6 h-6 text-white transition-transform duration-300" />
+                            <ChevronDown className="w-5 h-5 text-gray-600" />
                           )}
                         </div>
                       </div>
@@ -367,33 +334,13 @@ export default function LayoutFive() {
 
                     {/* Guide Content */}
                     {isOpen && (
-                      <div className="mt-6 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
-                        <div className="space-y-8">
+                      <div className="border-t border-gray-200 p-4">
+                        <div className="space-y-4">
                           {sections.map((section, sectionIndex) => (
-                            <div key={sectionIndex}>
-                              <div className="flex items-center mb-4">
-                                <div
-                                  className={`w-8 h-8 bg-gradient-to-r ${phase.color} rounded-full flex items-center justify-center mr-4`}
-                                >
-                                  {section.type === "video" ? (
-                                    <Video className="w-4 h-4 text-white" />
-                                  ) : (
-                                    <FileText className="w-4 h-4 text-white" />
-                                  )}
-                                </div>
-                                <h4 className="text-lg font-semibold text-white">
-                                  {section.type === "video"
-                                    ? "Video Tutorial"
-                                    : "Text Guide"}{" "}
-                                  {sectionIndex + 1}
-                                </h4>
-                              </div>
-
-                              <div className="transition-all duration-500">
-                                {section.type === "text"
-                                  ? renderText(section.value)
-                                  : renderVideo(section.value)}
-                              </div>
+                            <div key={sectionIndex} className="p-4 border border-gray-200 rounded-lg">
+                              {section.type === "text"
+                                ? renderText(section.value)
+                                : renderVideo(section.value)}
                             </div>
                           ))}
                         </div>
@@ -406,34 +353,15 @@ export default function LayoutFive() {
           </div>
 
           {/* Back Button */}
-          <div className="text-center mt-20">
+          <div className="text-center mt-8">
             <button
               onClick={() => router.push("/layouts/layoutfive")}
-              className="px-12 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-2xl shadow-2xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 hover:shadow-purple-500/25"
+              className="px-8 py-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-white font-semibold rounded-lg shadow-lg hover:from-yellow-500 hover:to-amber-600 transition-all duration-300"
             >
-              Back to Testimonial Sections
+              ← Back to All Testimonials
             </button>
           </div>
         </div>
-
-        <style jsx>{`
-          @keyframes fade-in {
-            from {
-              opacity: 0;
-              transform: translateY(20px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-          .animate-fade-in {
-            animation: fade-in 0.5s ease-out;
-          }
-          .animation-delay-150 {
-            animation-delay: 0.15s;
-          }
-        `}</style>
       </div>
     </>
   );

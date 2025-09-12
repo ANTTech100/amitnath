@@ -29,18 +29,7 @@ export async function GET(request, context) {
       );
     }
 
-    // After fetching the template (in GET or PUT), add this logic:
-    if (template && (!template.sections || !template.sections.some(s => s.type === 'image'))) {
-      template.sections = template.sections || [];
-      template.sections.push({
-        id: 'img1',
-        type: 'image',
-        title: 'Main Banner',
-        description: 'Upload a banner image for your landing page.',
-        required: true,
-        config: { maxSize: 5 }
-      });
-    }
+ 
 
     return NextResponse.json({
       success: true,
