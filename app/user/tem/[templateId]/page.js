@@ -131,7 +131,7 @@ export default function ContentUploadPage({ params }) {
             />
           </svg>
         );
-        label = "Link Section";
+        label = "Link Section for button";
         break;
       default:
         icon = (
