@@ -288,7 +288,7 @@ export default function ModernVideoTestimonialLayout() {
                       </div>
                     </div>
                     <blockquote className="text-xl md:text-2xl text-gray-700 leading-relaxed font-medium italic mb-8">
-                      "{testimonials[0]?.text?.value}"
+                      {testimonials[0]?.text?.value}
                     </blockquote>
                     
                     {/* CTA Button for first testimonial */}
@@ -353,7 +353,7 @@ export default function ModernVideoTestimonialLayout() {
                         {/* Testimonial text */}
                         {testimonial.text && (
                           <blockquote className="text-gray-600 text-sm mb-6 italic leading-relaxed">
-                            "{testimonial.text.value}"
+                            {testimonial.text.value}
                           </blockquote>
                         )}
                         
