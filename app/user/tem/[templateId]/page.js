@@ -767,10 +767,7 @@ export default function ContentUploadPage({ params }) {
                     <span className="text-red-400 text-sm">*</span>
                   )}
                 </div>
-                <p className="text-blue-200/80 mb-4 text-base font-medium flex items-center">
-                  {section.description}
-                  <InfoTooltip text={section.config?.helpText || `Fill out this section as required.`} />
-                </p>
+               
                 {/* Text Section */}
                 {section.type === "text" && (
                   <div>
@@ -779,7 +776,7 @@ export default function ContentUploadPage({ params }) {
                         {section.title}
                         {section.required && <span className="text-red-400 ml-1">*</span>}
                       </label>
-                      <InfoTooltip text={section.config?.helpText || `Enter detailed text for this section. Example: \"Describe your experience...\"`} />
+                      
                     </div>
                     <textarea
                       id={section.id}
@@ -797,13 +794,14 @@ export default function ContentUploadPage({ params }) {
                 )}
                 {/* Modernized image section (tabbed upload/url, preview) */}
                 {section.type === "image" && (
-  <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 rounded-2xl p-6 shadow-xl border border-blue-700/40">
+  <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 rounded-2xl p-6 shadow-xl border border-blue-700/40"> 
     <div className="flex items-center mb-3">
-      <label className="block text-blue-100 mr-2 font-semibold text-lg" htmlFor={section.id}>
-        {section.title}
+      <label className="block text-blue-100 mr-2 font-semibold text-lg" htmlFor={section.id} >
+        {section.title} 
         {section.required && <span className="text-red-400 ml-1">*</span>}
+        
       </label>
-      <InfoTooltip text={`Upload an image (JPG, PNG, GIF). Max size: ${section.config?.maxSize || 10}MB.`} />
+     
     </div>
     {/* Tabbed interface for upload vs URL */}
     <div className="flex space-x-2 mb-4">
@@ -902,11 +900,8 @@ export default function ContentUploadPage({ params }) {
                 {section.type === "video" && (
   <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 rounded-2xl p-6 shadow-xl border border-blue-700/40">
     <div className="flex items-center mb-3">
-      <label className="block text-blue-100 mr-2 font-semibold text-lg" htmlFor={section.id}>
-        {section.title}
-        {section.required && <span className="text-red-400 ml-1">*</span>}
-      </label>
-      <InfoTooltip text={`Upload a video (MP4, MOV, AVI, MKV, WEBM). Max size: ${section.config?.maxSize || 50}MB.`} />
+     <label className="block text-blue-100 mr-2 font-semibold text-lg" htmlFor={section.id}>{section.title}{section.required && <span className="text-red-400 ml-1">*</span>}</label>
+      
     </div>
     {/* Tabbed interface for upload vs URL */}
     <div className="flex space-x-2 mb-4">
