@@ -98,40 +98,36 @@ export default function PaymentPage() {
   }, [id]);
 
   const renderImage = (url) => (
-    <div className="relative group">
+    <div className="relative group overflow-hidden rounded-2xl">
       <img
         src={url}
         alt="Section Image"
-        className="rounded-xl shadow-lg border border-gray-200 object-cover transition-transform duration-300 group-hover:scale-105 w-full h-full"
+        className="w-full h-auto object-cover transition-all duration-700 ease-out group-hover:scale-110"
       />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
     </div>
   );
 
+  const handleCTAClick = (link) => {
+    if (link) {
+      // Check if it's an external link or internal
+      if (link.startsWith('http://') || link.startsWith('https://')) {
+        window.open(link, '_blank', 'noopener,noreferrer');
+      } else {
+        window.location.href = link;
+      }
+    }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
         <div className="text-center">
-          <svg
-            className="animate-spin h-12 w-12 text-blue-600 mx-auto mb-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8H4z"
-            />
-          </svg>
-          <p className="text-xl font-medium text-gray-800">Loading...</p>
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-6"></div>
+            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-cyan-400 rounded-full animate-pulse mx-auto"></div>
+          </div>
+          <p className="text-xl font-semibold text-gray-800 animate-pulse">Loading your experience...</p>
         </div>
       </div>
     );
@@ -139,28 +135,19 @@ export default function PaymentPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100">
-        <div className="bg-white p-10 rounded-xl shadow-lg max-w-md w-full text-center">
-          <svg
-            className="h-14 w-14 text-red-500 mx-auto mb-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <p className="text-xl font-medium text-red-500 mb-6">{error}</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-orange-50">
+        <div className="bg-white p-12 rounded-2xl shadow-2xl max-w-md w-full text-center border border-red-100">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="h-10 w-10 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p className="text-xl font-semibold text-red-600 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition"
+            className="px-8 py-3 bg-gradient-to-r from-red-500 to-pink-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
           >
-            Retry
+            Try Again
           </button>
         </div>
       </div>
@@ -169,8 +156,15 @@ export default function PaymentPage() {
 
   if (!content) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100">
-        <p className="text-xl font-medium text-gray-800">No content found.</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-blue-50">
+        <div className="text-center">
+          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <p className="text-xl font-medium text-gray-600">Content not available</p>
+        </div>
       </div>
     );
   }
@@ -187,105 +181,125 @@ export default function PaymentPage() {
   const textSections = sections.filter(
     (section) => section.type === "text" && section.value
   );
+  const linkSections = sections.filter(
+    (section) => section.type === "link" && section.value
+  );
 
-  // Ensure we have at least 2 images and 3 text sections for the layout
+  // Get available sections dynamically
   const leftImage = imageSections[0];
   const rightImage = imageSections[1];
   const rightText = textSections[0];
   const bottomText1 = textSections[1];
   const bottomText2 = textSections[2];
+  const primaryLink = linkSections[0];
 
   return (
     <>
       {templateId && <DynamicPopup templateId={templateId} />}
-      <div className="bg-gradient-to-br from-blue-50 to-gray-100 py-20 px-4 sm:px-6 lg:px-8 min-h-screen">
-        <div key={content._id}>
-          <Head>
-            <title>{content.heading} | Payment Page</title>
-            <meta name="description" content={content.subheading} />
-          </Head>
-
-          {/* Heading and Subheading */}
-          <div className="max-w-5xl mx-auto text-center mb-16">
-            <h1 className="text-5xl sm:text-6xl font-extrabold text-gray-900 mb-6 leading-tight animate-fade-in">
-              {content.heading}
-            </h1>
-            <h2 className="text-2xl sm:text-3xl font-medium text-gray-600 leading-relaxed animate-fade-in-delayed">
-              {content.subheading}
-            </h2>
+      <div className="bg-gradient-to-br from-slate-50 via-white to-indigo-50 min-h-screen">
+        {/* Hero Section */}
+        <div className="relative overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0" style={{
+              backgroundImage: `radial-gradient(circle at 25px 25px, #4f46e5 2px, transparent 0), radial-gradient(circle at 75px 75px, #06b6d4 2px, transparent 0)`,
+              backgroundSize: '100px 100px'
+            }}></div>
           </div>
+          
+          <div key={content._id} className="relative">
+            <Head>
+              <title>{content.heading} | Payment Page</title>
+              <meta name="description" content={content.subheading} />
+            </Head>
 
-          <div className="max-w-5xl mx-auto space-y-20">
-            {/* Two-Column Layout: Left Image, Right Image with Text */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch animate-fade-in-delayed">
-              {/* Left Side: Image */}
-              <div className="order-1 lg:order-1 flex items-center justify-center">
-                {leftImage ? (
-                  <div className="w-full h-[500px]">
-                    {renderImage(leftImage.value)}
-                  </div>
-                ) : (
-                  <p className="text-lg text-gray-500 italic">
-                    No image available
-                  </p>
-                )}
-              </div>
-
-              {/* Right Side: Image and Text */}
-              <div className="order-2 lg:order-2 flex flex-col space-y-10">
-                {rightImage ? (
-                  <div className="w-full h-[300px]">
-                    {renderImage(rightImage.value)}
-                  </div>
-                ) : (
-                  <p className="text-lg text-gray-500 italic">
-                    No image available
-                  </p>
-                )}
-                {rightText ? (
-                  <p className="text-lg text-gray-700 leading-relaxed bg-white p-6 rounded-xl shadow-lg">
-                    {rightText.value}
-                  </p>
-                ) : (
-                  <p className="text-lg text-gray-500 leading-relaxed italic bg-white p-6 rounded-xl shadow-lg">
-                    No description available for this section.
-                  </p>
-                )}
+            {/* Header Section */}
+            <div className="max-w-7xl mx-auto text-center py-20 px-4 sm:px-6 lg:px-8">
+              <div className="space-y-8">
+                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 leading-tight">
+                  {content.heading}
+                </h1>
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-medium text-gray-600 max-w-4xl mx-auto leading-relaxed">
+                  {content.subheading}
+                </h2>
               </div>
             </div>
 
-            {/* Two Text Blocks in a Row Below */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 animate-fade-in-delayed">
-              <div className="bg-white p-8 rounded-xl shadow-lg">
-                {bottomText1 ? (
-                  <p className="text-lg text-gray-700 leading-relaxed">
-                    {bottomText1.value}
-                  </p>
-                ) : (
-                  <p className="text-lg text-gray-500 leading-relaxed italic">
-                    No description available for this section.
-                  </p>
+            {/* Main Content Section */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+              {/* Primary Layout: Left Image, Right Content */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-16 items-start mb-24">
+                {/* Left Side: Hero Image */}
+                {leftImage && (
+                  <div className="order-2 xl:order-1">
+                    <div className="rounded-2xl overflow-hidden shadow-2xl">
+                      {renderImage(leftImage.value)}
+                    </div>
+                  </div>
                 )}
+
+                {/* Right Side: Content Stack */}
+                <div className="order-1 xl:order-2 space-y-8">
+                  {/* Secondary Image */}
+                  {rightImage && (
+                    <div className="rounded-2xl overflow-hidden shadow-xl">
+                      {renderImage(rightImage.value)}
+                    </div>
+                  )}
+
+                  {/* Text Content */}
+                  {rightText && (
+                    <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-white/20">
+                      <p className="text-lg text-gray-700 leading-relaxed font-medium">
+                        {rightText.value}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="bg-white p-8 rounded-xl shadow-lg">
-                {bottomText2 ? (
-                  <p className="text-lg text-gray-700 leading-relaxed">
-                    {bottomText2.value}
-                  </p>
-                ) : (
-                  <p className="text-lg text-gray-500 leading-relaxed italic">
-                    No description available for this section.
-                  </p>
-                )}
+
+              {/* Bottom Content Grid - Only show if content exists */}
+              {(bottomText1 || bottomText2) && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+                  {bottomText1 && (
+                    <div className="group bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl hover:border-indigo-200 transition-all duration-300">
+                      <p className="text-lg text-gray-700 leading-relaxed font-medium group-hover:text-gray-800 transition-colors">
+                        {bottomText1.value}
+                      </p>
+                    </div>
+                  )}
+
+                  {bottomText2 && (
+                    <div className="group bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl hover:border-indigo-200 transition-all duration-300">
+                      <p className="text-lg text-gray-700 leading-relaxed font-medium group-hover:text-gray-800 transition-colors">
+                        {bottomText2.value}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Call to Action Section */}
+              <div className="text-center">
+                <div className="inline-flex flex-col sm:flex-row items-center gap-6">
+                  {primaryLink ? (
+                    <button
+                      onClick={() => handleCTAClick(primaryLink.value)}
+                      className="group relative px-12 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
+                    >
+                      <span className="relative z-10">Proceed to Payment</span>
+                      <div className="absolute inset-0 bg-gradient-to-r from-indigo-700 via-purple-700 to-cyan-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </button>
+                  ) : (
+                    <button className="group relative px-12 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden">
+                      <span className="relative z-10">Proceed to Payment</span>
+                      <div className="absolute inset-0 bg-gradient-to-r from-indigo-700 via-purple-700 to-cyan-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </button>
+                  )}
+                </div>
+                <p className="mt-4 text-sm text-gray-500">Secure payment processing</p>
               </div>
             </div>
-          </div>
-
-          {/* Call to Action Button */}
-          <div className="max-w-5xl mx-auto text-center mt-20 animate-fade-in-delayed">
-            <button className="px-12 py-4 bg-blue-600 text-white font-semibold rounded-xl shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
-              Proceed to Payment
-            </button>
           </div>
         </div>
       </div>
