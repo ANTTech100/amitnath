@@ -234,7 +234,7 @@ export default function ContentUploadManual() {
                           <Lightbulb className="w-5 h-5" />
                           Example:
                         </div>
-                        <p className="text-green-800 mt-2">"Discover Your Perfect Plan"</p>
+                        <p className="text-green-800 mt-2">Discover Your Perfect Plan</p>
                       </div>
                     </div>
                   )}
@@ -267,7 +267,7 @@ export default function ContentUploadManual() {
                           <Quote className="w-5 h-5" />
                           Example:
                         </div>
-                        <p className="text-green-800 mt-2">"Join thousands of users who are already achieving success."</p>
+                        <p className="text-green-800 mt-2">Join thousands of users who are already achieving success.</p>
                       </div>
                     </div>
                   )}
@@ -395,10 +395,10 @@ export default function ContentUploadManual() {
                           CTA Examples:
                         </div>
                         <div className="grid grid-cols-2 gap-2 text-green-800">
-                          <div>• "Sign Up Now"</div>
-                          <div>• "Learn More"</div>
-                          <div>• "Buy Today"</div>
-                          <div>• "Get Started"</div>
+                          <div>• Sign Up Now</div>
+                          <div>• Learn More</div>
+                          <div>• Buy Today</div>
+                          <div>• Get Started</div>
                         </div>
                       </div>
                     </div>
