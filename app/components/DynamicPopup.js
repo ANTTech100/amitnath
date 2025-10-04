@@ -19,6 +19,8 @@ export default function DynamicPopup({ templateId, onComplete }) {
   const [userId, setUserId] = useState(null);
 
   useEffect(() => {
+    console.log("DynamicPopup useEffect triggered with templateId:", templateId);
+    
     // Determine a stable key per content id if available, otherwise per template
     let contentIdFromPath = null;
     try {
@@ -33,7 +35,15 @@ export default function DynamicPopup({ templateId, onComplete }) {
       : `template_${templateId}_completed`;
     const alreadyCompleted = localStorage.getItem(completionKey);
 
+    console.log("DynamicPopup completion check:", {
+      contentIdFromPath,
+      completionKey,
+      alreadyCompleted,
+      templateId
+    });
+
     if (alreadyCompleted === "true") {
+      console.log("Popup already completed, not showing");
       setLoading(false);
       setShowPopup(false);
       if (onComplete) onComplete();
@@ -41,6 +51,7 @@ export default function DynamicPopup({ templateId, onComplete }) {
     }
 
     // For anonymous users, still show the popup
+    console.log("Showing popup for templateId:", templateId);
     setLoading(false);
     setShowPopup(true);
     loadQuestions();
@@ -162,7 +173,14 @@ export default function DynamicPopup({ templateId, onComplete }) {
     );
   }
 
+  console.log("DynamicPopup render check:", {
+    showPopup,
+    loading,
+    templateId
+  });
+
   if (!showPopup) {
+    console.log("DynamicPopup not showing - showPopup is false");
     return null;
   }
 
@@ -191,7 +209,7 @@ export default function DynamicPopup({ templateId, onComplete }) {
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 {currentStep === "userInfo" ? "Quick Setup" : "Quick Quiz"}
               </h2>
-              <p className="text-gray-600">
+              <p className="text-gray-800">
                 {currentStep === "userInfo" 
                   ? "Please provide your information to continue" 
                   : "Answer a few questions to personalize your experience"
@@ -219,42 +237,42 @@ export default function DynamicPopup({ templateId, onComplete }) {
                 className="space-y-4"
               >
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     Full Name
                   </label>
                   <input
                     type="text"
                     value={userInfo.name}
                     onChange={(e) => setUserInfo({ ...userInfo, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-black placeholder-gray-500"
                     placeholder="Enter your full name"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     Email Address
                   </label>
                   <input
                     type="email"
                     value={userInfo.email}
                     onChange={(e) => setUserInfo({ ...userInfo, email: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-black placeholder-gray-500"
                     placeholder="Enter your email"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
+                    Password
                   </label>
                   <input
                     type="password"
                     value={userInfo.password}
                     onChange={(e) => setUserInfo({ ...userInfo, password: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-black placeholder-gray-500"
                     placeholder="Create a password"
                     required
                   />
@@ -279,7 +297,7 @@ export default function DynamicPopup({ templateId, onComplete }) {
               >
                 {questions.map((question, questionIndex) => (
                   <div key={questionIndex} className="space-y-3">
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold text-black text-lg">
                       {questionIndex + 1}. {question.questionText}
                     </h3>
                     <div className="space-y-2">
@@ -294,7 +312,7 @@ export default function DynamicPopup({ templateId, onComplete }) {
                             className="text-purple-600 focus:ring-purple-500"
                             required
                           />
-                          <span className="text-gray-700">{option.text}</span>
+                          <span className="text-black font-medium">{option.text}</span>
                         </label>
                       ))}
                     </div>
@@ -305,7 +323,7 @@ export default function DynamicPopup({ templateId, onComplete }) {
                   <button
                     type="button"
                     onClick={() => setCurrentStep("userInfo")}
-                    className="flex-1 py-3 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex-1 py-3 px-4 border border-gray-300 text-black font-medium rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     Back
                   </button>

@@ -210,7 +210,7 @@ export default function ModernImageGallery() {
 
   return (
     <>
-      {templateId && <DynamicPopup templateId={templateId} />}
+        {content?.askUserDetails && templateId && <DynamicPopup templateId={templateId} />}
       <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-900 to-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="group">

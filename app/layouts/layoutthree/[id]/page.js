@@ -215,7 +215,7 @@ export default function ThankyouPage() {
 
   return (
     <>
-      {templateId && <DynamicPopup templateId={templateId} />}
+        {content?.askUserDetails && templateId && <DynamicPopup templateId={templateId} />}
       <Head>
         <title>{content.heading} | Thank You</title>
         <meta name="description" content="Thank you for your action!" />

@@ -224,7 +224,7 @@ export default function GiftPageLayout() {
 
   return (
     <>
-      {templateId && <DynamicPopup templateId={templateId} />}
+        {content?.askUserDetails && templateId && <DynamicPopup templateId={templateId} />}
       <div className="min-h-screen" style={{backgroundColor: content.backgroundColor || "#fef7f0"}}>
         <Head>
           <title>{content.heading || "Gift Collection"}</title>

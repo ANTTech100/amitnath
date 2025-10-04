@@ -75,7 +75,7 @@ export default function UserDashboard() {
     {
       icon: Settings,
       title: "No-Code Simplicity",
-      description: "Build your page with zero tech skills. If you can type, you're ready.",
+      description: "Build your page with zero tech skills. If you can type, you're ready to create wen pages.",
       color: "from-emerald-500 to-teal-600",
       bgColor: "bg-emerald-500/10",
       iconColor: "text-emerald-400",
@@ -107,7 +107,7 @@ export default function UserDashboard() {
     {
       icon: Smartphone,
       title: "Mobile & SEO Ready",
-      description: "Looks great on any screen. Google loves it too.",
+      description: "Looks great on any screen. Google loves it too and dont forget about the images",
       color: "from-amber-500 to-orange-600",
       bgColor: "bg-amber-500/10",
       iconColor: "text-amber-400",
@@ -273,7 +273,7 @@ export default function UserDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-200 to-blue-300 relative overflow-hidden pt-20">
       <UserNavbar />
       
       {/* Animated background elements */}
@@ -287,11 +287,11 @@ export default function UserDashboard() {
       <div className="container mx-auto px-6 py-12 pt-24">
         {/* Hero Section */}
         <div className="text-center mb-20">
-          <h1 className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 via-white to-violet-200 mb-8 animate-pulse">
+          <h1 className="text-6xl font-bold text-gray-900 mb-8">
             Type. Upload. Go Live.
           </h1>
 
-          <p className="text-xl text-slate-200/90 leading-relaxed max-w-3xl mx-auto mb-12">
+          <p className="text-xl text-gray-700 leading-relaxed max-w-3xl mx-auto mb-12">
             Just bring your content. No coding. No waiting. No calling your geeky friend for help. One page. All yours. In seconds.
           </p>
 
@@ -325,10 +325,10 @@ export default function UserDashboard() {
         {/* Features Section */}
         <div className="mb-20">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200 mb-4">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
               Everything You Need. Nothing You Do not.
             </h2>
-            <p className="text-lg text-slate-200/70">
+            <p className="text-lg text-gray-600">
               Let&apos;s keep it sharp, visual, and clear for fast decision-making.
             </p>
           </div>
@@ -338,18 +338,18 @@ export default function UserDashboard() {
               const IconComponent = feature.icon;
               return (
                 <div key={index} className="group cursor-pointer">
-                  <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-emerald-500/20 transition-all duration-500 transform hover:scale-105">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
+                  <div className={`relative bg-gradient-to-br ${feature.color} rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105`}>
+                    <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30 transition-all duration-500"></div>
                     
                     <div className="relative p-6">
-                      <div className={`${feature.bgColor} backdrop-blur-sm rounded-2xl p-4 w-fit mb-4`}>
-                        <IconComponent className={`h-8 w-8 ${feature.iconColor}`} />
+                      <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 w-fit mb-4">
+                        <IconComponent className="h-8 w-8 text-white" />
                       </div>
 
                       <h3 className="text-xl font-bold text-white mb-3">
                         {feature.title}
                       </h3>
-                      <p className="text-slate-200/70 text-sm leading-relaxed">
+                      <p className="text-white/90 text-sm leading-relaxed">
                         {feature.description}
                       </p>
                     </div>
@@ -360,10 +360,10 @@ export default function UserDashboard() {
           </div>
 
           <div className="text-center">
-            <p className="text-lg text-slate-200/80 font-medium">
+            <p className="text-lg text-gray-700 font-medium">
               No designers. No developers. No delays.
             </p>
-            <p className="text-lg text-slate-200/80 font-medium">
+            <p className="text-lg text-gray-700 font-medium">
               Just your message - launched.
             </p>
           </div>
@@ -372,10 +372,10 @@ export default function UserDashboard() {
         {/* Who It's For Section */}
         <div className="mb-20">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200 mb-4">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
               Built for People Who Hate Waiting on Developers.
             </h2>
-            <p className="text-lg text-slate-200/70 max-w-3xl mx-auto">
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               If you have got something to say or sell - but do not want to learn code, chase freelancers, or spend hours on &quot;digital stuff&quot; - this is made for you.
             </p>
           </div>
@@ -385,18 +385,18 @@ export default function UserDashboard() {
               const IconComponent = user.icon;
               return (
                 <div key={index} className="group cursor-pointer">
-                  <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-violet-500/20 transition-all duration-500 transform hover:scale-105">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${user.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
+                  <div className={`relative bg-gradient-to-br ${user.color} rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105`}>
+                    <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30 transition-all duration-500"></div>
                     
                     <div className="relative p-6">
-                      <div className={`bg-gradient-to-br ${user.color} rounded-2xl p-4 w-fit mb-4`}>
+                      <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 w-fit mb-4">
                         <IconComponent className="h-8 w-8 text-white" />
                       </div>
 
                       <h3 className="text-xl font-bold text-white mb-3">
                         {user.title}
                       </h3>
-                      <p className="text-slate-200/70 text-sm leading-relaxed">
+                      <p className="text-white/90 text-sm leading-relaxed">
                         {user.description}
                       </p>
                     </div>
@@ -407,7 +407,7 @@ export default function UserDashboard() {
           </div>
 
           <div className="text-center">
-            <p className="text-lg text-slate-200/80 font-medium">
+            <p className="text-lg text-gray-700 font-medium">
               If you have ever said &ldquo;I just wish someone could do it for me&rdquo;… this is that someone.
             </p>
           </div>
@@ -416,26 +416,26 @@ export default function UserDashboard() {
         {/* Testimonials Section */}
         <div className="mb-20">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200 mb-4">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
               Real People. Real Wins.
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {testimonials.map((testimonial) => (
-              <div key={testimonial.id} className="bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 p-6 shadow-xl hover:shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300 hover:scale-105">
+              <div key={testimonial.id} className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                 <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mr-4">
+                  <div className="w-12 h-12 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center mr-4">
                     <User className="h-6 w-6 text-white" />
                   </div>
                   <div>
                     <h4 className="text-white font-semibold">
                       {testimonial.name}
                     </h4>
-                    <p className="text-emerald-300 text-sm">{testimonial.role}</p>
+                    <p className="text-white/80 text-sm">{testimonial.role}</p>
                   </div>
                 </div>
-                <p className="text-slate-200/80 text-sm leading-relaxed">
+                <p className="text-white/90 text-sm leading-relaxed">
                   {testimonial.text}
                 </p>
                 <div className="flex items-center mt-4">
@@ -444,8 +444,8 @@ export default function UserDashboard() {
                       key={i}
                       className={`h-4 w-4 ${
                         i < testimonial.rating
-                          ? "text-amber-400 fill-current"
-                          : "text-gray-400"
+                          ? "text-amber-300 fill-current"
+                          : "text-white/40"
                       }`}
                     />
                   ))}
@@ -458,10 +458,10 @@ export default function UserDashboard() {
         {/* How It Works Section */}
         <div className="mb-20">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200 mb-4">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
               3 Steps. That is It.
             </h2>
-            <p className="text-lg text-slate-200/70">
+            <p className="text-lg text-gray-600">
               From blank to brilliant in under a minute.
             </p>
           </div>
@@ -479,10 +479,10 @@ export default function UserDashboard() {
                       <span className="text-slate-900 font-bold text-sm">{step.step}</span>
                     </div>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">
                     {step.title}
                   </h3>
-                  <p className="text-slate-200/70 text-sm leading-relaxed">
+                  <p className="text-gray-600 text-sm leading-relaxed">
                     {step.description}
                   </p>
                 </div>
@@ -493,10 +493,10 @@ export default function UserDashboard() {
 
         {/* Final CTA Section */}
         <div className="text-center mb-20">
-          <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200 mb-4">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
             Stop Waiting. Start Sharing.
           </h2>
-          <p className="text-lg text-slate-200/70 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
             You have got something to show. Let the world see it - without a single line of code.
           </p>
 
@@ -527,19 +527,19 @@ export default function UserDashboard() {
           </div>
 
           {/* Support Badge */}
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 p-6 max-w-2xl mx-auto">
+          <div className="bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl p-6 max-w-2xl mx-auto shadow-xl">
             <h3 className="text-lg font-semibold text-white mb-3">
               Have a question or stuck somewhere?
             </h3>
-            <p className="text-slate-200/70 text-sm mb-3">
+            <p className="text-white/90 text-sm mb-3">
               Message us on WhatsApp or email support@codelesspages.com — we are real people, and we respond fast.
             </p>
             <div className="flex justify-center space-x-4">
-              <button className="flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
+              <button className="flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors">
                 <MessageCircle className="h-4 w-4 mr-2" />
                 WhatsApp
               </button>
-              <button className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+              <button className="flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors">
                 <Mail className="h-4 w-4 mr-2" />
                 Email Support
               </button>
@@ -550,10 +550,10 @@ export default function UserDashboard() {
         {/* Coming Soon Features */}
         <div className="mb-20">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 to-violet-200 mb-4">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
               Coming Soon on CodelessPages
             </h2>
-            <p className="text-lg text-slate-200/70">
+            <p className="text-lg text-gray-600">
               We are constantly adding new features to make your experience even better.
             </p>
           </div>
@@ -563,14 +563,15 @@ export default function UserDashboard() {
               const IconComponent = feature.icon;
               return (
                 <div key={index} className="group cursor-pointer">
-                  <div className="relative bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105">
+                  <div className="relative bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105">
+                    <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30 transition-all duration-500"></div>
                     <div className="relative p-6">
-                      <div className="bg-slate-600/30 backdrop-blur-sm rounded-2xl p-4 w-fit mb-4">
-                        <IconComponent className="h-8 w-8 text-slate-300" />
+                      <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 w-fit mb-4">
+                        <IconComponent className="h-8 w-8 text-white" />
                       </div>
 
                       <div className="flex items-center mb-2">
-                        <span className="text-xs bg-amber-500/20 text-amber-300 px-2 py-1 rounded-full mr-2">
+                        <span className="text-xs bg-white/30 text-white px-2 py-1 rounded-full mr-2">
                           Coming Soon
                         </span>
                       </div>
@@ -578,7 +579,7 @@ export default function UserDashboard() {
                       <h3 className="text-lg font-bold text-white mb-2">
                         {feature.title}
                       </h3>
-                      <p className="text-slate-300/70 text-sm leading-relaxed">
+                      <p className="text-white/90 text-sm leading-relaxed">
                         {feature.description}
                       </p>
                     </div>

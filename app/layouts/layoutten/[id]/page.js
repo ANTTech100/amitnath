@@ -161,7 +161,7 @@ export default function TemplateTenLayout() {
 
   return (
     <>
-      {templateId && <DynamicPopup templateId={templateId} />}
+        {content?.askUserDetails && templateId && <DynamicPopup templateId={templateId} />}
       <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
         <Head>
           <title>{content.heading}</title>

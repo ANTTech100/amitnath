@@ -227,7 +227,7 @@ export default function ModernVideoTestimonialLayout() {
 
   return (
     <>
-      {templateId && <DynamicPopup templateId={templateId} />}
+        {content?.askUserDetails && templateId && <DynamicPopup templateId={templateId} />}
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
         <Head>
           <title>{content?.heading || "Video Testimonials"}</title>
