@@ -27,6 +27,8 @@ export default function ContentUploadPage({ params }) {
   const [visibleSectionCount, setVisibleSectionCount] = useState(5);
   const [imageInputModes, setImageInputModes] = useState({});
   const [selectedFiles, setSelectedFiles] = useState({});
+  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
+  const [askUserDetails, setAskUserDetails] = useState(false);
   const setImageMode = (sectionId, mode) => {
     setImageInputModes(prev => ({ ...prev, [sectionId]: mode }));
     console.log(`Image section [${sectionId}] mode set to:`, mode);
@@ -38,7 +40,7 @@ export default function ContentUploadPage({ params }) {
 
   // Helper to set mode for a section
   const getSectionIcon = (type) => {
-    const iconClass = "w-5 h-5 mr-2";
+    const iconClass = "w-5 h-5 mr-2 text-gray-600";
     let icon;
     let label;
 
@@ -154,11 +156,34 @@ export default function ContentUploadPage({ params }) {
     }
 
     return (
-      <div className="flex items-center">
+      <div className="flex items-center text-gray-600">
         {icon}
         <span>{label}</span>
       </div>
     );
+  };
+
+  const getSectionHelpText = (section) => {
+    // Use custom help text if provided in section config
+    if (section.config?.helpText) {
+      return section.config.helpText;
+    }
+
+    // Provide specific help text based on section type
+    switch (section.type) {
+      case "text":
+        return "Enter text content for this section. You can provide descriptions, instructions, or any textual information.";
+      case "image":
+        return "Upload an image file or provide a direct image URL. Supported formats: JPG, PNG, GIF. You can switch between file upload and URL input.";
+      case "video":
+        return "Upload a video file or provide a video URL (YouTube or direct video file). Supported formats: MP4, MOV, AVI, MKV, WEBM.";
+      case "audio":
+        return "Upload an audio file or provide a direct audio URL. Supported formats: MP3, WAV, AAC, OGG.";
+      case "link":
+        return "Enter a valid URL that will be used as a button link. Make sure the URL starts with http:// or https://";
+      default:
+        return `Provide content for the ${section.title} section.`;
+    }
   };
 
   useEffect(() => {
@@ -421,6 +446,19 @@ export default function ContentUploadPage({ params }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Show confirmation dialog first
+    setShowConfirmationDialog(true);
+  };
+
+  const handleConfirmationResponse = (response) => {
+    setAskUserDetails(response);
+    setShowConfirmationDialog(false);
+    // Proceed with actual submission
+    proceedWithSubmission(response);
+  };
+
+  const proceedWithSubmission = async (askUserDetailsValue = askUserDetails) => {
     setSubmitting(true);
     setErrors({});
     setSuccess(null);
@@ -475,6 +513,8 @@ export default function ContentUploadPage({ params }) {
       submissionData.append("subheading", formData.subheading);
       submissionData.append("backgroundColor", formData.backgroundColor);
       submissionData.append("userId", userId);
+      submissionData.append("askUserDetails", askUserDetailsValue);
+      console.log("Sending askUserDetailsValue:", askUserDetailsValue);
       template?.sections?.forEach((section) => {
         if (selectedFiles[section.id]) {
           submissionData.append(section.id, selectedFiles[section.id]);
@@ -604,12 +644,8 @@ export default function ContentUploadPage({ params }) {
   return (
     <>
       <UserNavbar />
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        {/* Animated background blobs */}
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600 opacity-30 rounded-full filter blur-3xl animate-pulse z-0" />
-        <div className="absolute top-1/2 right-0 w-96 h-96 bg-purple-600 opacity-20 rounded-full filter blur-3xl animate-pulse z-0" />
-        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-blue-400 opacity-10 rounded-full filter blur-2xl animate-pulse z-0" />
-        <div className="max-w-5xl mx-auto w-full z-10">
+      <div className="min-h-screen bg-gradient-to-br from-blue-200 to-blue-300 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 pt-32">
+        <div className="max-w-5xl mx-auto w-full">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -617,7 +653,7 @@ export default function ContentUploadPage({ params }) {
           >
             <Link
               href="/user/tem"
-              className="inline-flex items-center text-blue-300 hover:text-blue-200 font-semibold transition-colors duration-200"
+              className="inline-flex items-center text-gray-600 hover:text-gray-800 font-semibold transition-colors duration-200"
             >
               <svg
                 className="w-5 h-5 mr-2"
@@ -634,10 +670,10 @@ export default function ContentUploadPage({ params }) {
               </svg>
               Back to Templates
             </Link>
-            <h1 className="text-4xl font-extrabold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-transparent mt-2 drop-shadow-lg">
+            <h1 className="text-4xl font-extrabold text-gray-900 mt-2">
               {template?.name || "Create Content"}
             </h1>
-            <p className="text-blue-200/80 mt-2 text-lg font-medium">
+            <p className="text-gray-600 mt-2 text-lg font-medium">
               {template?.description}
             </p>
           </motion.div>
@@ -647,7 +683,7 @@ export default function ContentUploadPage({ params }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="bg-green-500/20 border border-green-500/50 text-green-300 p-4 rounded-xl mb-6 shadow-lg backdrop-blur-md"
+                className="bg-green-50 border border-green-200 text-green-800 p-4 rounded-lg mb-6 shadow-sm"
               >
                 {success}
               </motion.div>
@@ -657,7 +693,7 @@ export default function ContentUploadPage({ params }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="bg-red-500/20 border border-red-500/50 text-red-300 p-4 rounded-xl mb-6 shadow-lg backdrop-blur-md"
+                className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg mb-6 shadow-sm"
               >
                 Error: {errors.global}
               </motion.div>
@@ -670,65 +706,75 @@ export default function ContentUploadPage({ params }) {
             onSubmit={e => { e.preventDefault(); handleSubmit(e); }}
             className="space-y-8"
           >
-            <div className="mb-4 flex items-center gap-2">
-              <span className="text-red-400 text-lg font-bold">*</span>
-              <span className="text-blue-200 text-sm">Fields marked with * are required.</span>
+            <div className="mb-6 flex items-center gap-2">
+              <span className="text-red-500 text-lg font-bold">*</span>
+              <span className="text-gray-600 text-sm">Fields marked with * are required.</span>
             </div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white/10 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border-2 border-blue-500/30 hover:border-blue-400/60 transition-all duration-300 mb-8"
+              className="bg-blue-100 p-8 rounded-lg shadow-sm border border-blue-300 mb-8"
             >
-              <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-transparent mb-4 drop-shadow">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">
                 Content Details
               </h3>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {/* Heading input */}
                 <div>
-                  <label className="block text-blue-100 mb-2 font-semibold" htmlFor="heading">
-                    Heading <span className="text-red-400">*</span>
+                  <label className="block text-gray-700 mb-2 font-semibold" htmlFor="heading">
+                    Heading <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="heading"
                     type="text"
-                    className="w-full p-3 bg-white/20 border border-blue-400/30 rounded-2xl text-blue-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner placeholder-blue-300"
+                    className="w-full p-4 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm placeholder-gray-400"
                     value={formData.heading}
                     onChange={(e) => handleInputChange(e, "heading")}
                     placeholder="Enter the heading for this content"
                     required
                   />
                   {errors.heading && (
-                    <p className="mt-2 text-sm text-red-400">{errors.heading}</p>
+                    <p className="mt-2 text-sm text-red-600 flex items-center">
+                      <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      {errors.heading}
+                    </p>
                   )}
                 </div>
                 {/* Subheading input */}
                 <div>
-                  <label className="block text-blue-100 mb-2 font-semibold" htmlFor="subheading">
-                    Subheading <span className="text-red-400">*</span>
+                  <label className="block text-gray-700 mb-2 font-semibold" htmlFor="subheading">
+                    Subheading <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="subheading"
                     type="text"
-                    className="w-full p-3 bg-white/20 border border-blue-400/30 rounded-2xl text-blue-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner placeholder-blue-300"
+                    className="w-full p-4 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm placeholder-gray-400"
                     value={formData.subheading}
                     onChange={(e) => handleInputChange(e, "subheading")}
                     placeholder="Enter the subheading for this content"
                     required
                   />
                   {errors.subheading && (
-                    <p className="mt-2 text-sm text-red-400">{errors.subheading}</p>
+                    <p className="mt-2 text-sm text-red-600 flex items-center">
+                      <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      {errors.subheading}
+                    </p>
                   )}
                 </div>
                 {/* Background color input */}
                 <div>
-                  <label className="block text-blue-100 mb-2 font-semibold" htmlFor="backgroundColor">
-                    Background Color <span className="text-red-400">*</span>
+                  <label className="block text-gray-700 mb-2 font-semibold" htmlFor="backgroundColor">
+                    Background Color <span className="text-red-500">*</span>
                   </label>
                   <div className="flex items-center space-x-4">
                     <input
                       id="backgroundColor"
                       type="text"
-                      className="w-full p-3 bg-white/20 border border-blue-400/30 rounded-2xl text-blue-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner placeholder-blue-300"
+                      className="flex-1 p-4 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm placeholder-gray-400"
                       value={formData.backgroundColor}
                       onChange={(e) => handleInputChange(e, "backgroundColor")}
                       placeholder="Enter hex color code (e.g., #ffffff)"
@@ -736,13 +782,18 @@ export default function ContentUploadPage({ params }) {
                     />
                     <input
                       type="color"
-                      className="w-12 h-12 border-2 border-blue-400/30 rounded-2xl cursor-pointer shadow"
+                      className="w-16 h-12 border border-gray-300 rounded-lg cursor-pointer shadow-sm"
                       value={formData.backgroundColor}
                       onChange={(e) => handleInputChange(e, "backgroundColor")}
                     />
                   </div>
                   {errors.backgroundColor && (
-                    <p className="mt-2 text-sm text-red-400">{errors.backgroundColor}</p>
+                    <p className="mt-2 text-sm text-red-600 flex items-center">
+                      <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      {errors.backgroundColor}
+                    </p>
                   )}
                 </div>
               </div>
@@ -754,33 +805,29 @@ export default function ContentUploadPage({ params }) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: section.order * 0.1 }}
-                className="bg-white/10 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border-2 border-blue-500/30 hover:border-blue-400/60 transition-all duration-300 mb-8"
+                className="bg-blue-100 p-8 rounded-lg shadow-sm border border-blue-300 mb-8"
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
                     {getSectionIcon(section.type)}
-                    <h3 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-transparent ml-2 drop-shadow">
+                    <h3 className="text-sm  text-gray-900 ml-2">
                       {section.title}
                     </h3>
                   </div>
-                  {section.required && (
-                    <span className="text-red-400 text-sm">*</span>
-                  )}
+                  <div className="flex items-center space-x-2">
+                    <InfoTooltip text={getSectionHelpText(section)} />
+                    {section.required && (
+                      <span className="text-red-500 text-sm font-medium">*</span>
+                    )}
+                  </div>
                 </div>
                
                 {/* Text Section */}
                 {section.type === "text" && (
                   <div>
-                    <div className="flex items-center mb-1">
-                      <label className="block text-blue-100 mr-2 font-semibold" htmlFor={section.id}>
-                        {section.title}
-                        {section.required && <span className="text-red-400 ml-1">*</span>}
-                      </label>
-                      
-                    </div>
                     <textarea
                       id={section.id}
-                      className="w-full p-3 bg-white/20 border border-blue-400/30 rounded-2xl text-blue-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner placeholder-blue-300 resize-y"
+                      className="w-full p-4 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm placeholder-gray-400 resize-y"
                       rows="5"
                       value={formData[section.id] || ""}
                       onChange={(e) => handleInputChange(e, section.id)}
@@ -788,267 +835,249 @@ export default function ContentUploadPage({ params }) {
                       placeholder={section.config?.placeholder || `E.g., \"Describe your experience...\"`}
                     />
                     {errors[section.id] && (
-                      <p className="mt-2 text-sm text-red-400">{errors[section.id]}</p>
+                      <p className="mt-2 text-sm text-red-600 flex items-center">
+                        <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        {errors[section.id]}
+                      </p>
                     )}
                   </div>
                 )}
-                {/* Modernized image section (tabbed upload/url, preview) */}
+                {/* Image Section */}
                 {section.type === "image" && (
-  <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 rounded-2xl p-6 shadow-xl border border-blue-700/40"> 
-    <div className="flex items-center mb-3">
-      <label className="block text-blue-100 mr-2 font-semibold text-lg" htmlFor={section.id} >
-        {section.title} 
-        {section.required && <span className="text-red-400 ml-1">*</span>}
-        
-      </label>
-     
-    </div>
-    {/* Tabbed interface for upload vs URL */}
-    <div className="flex space-x-2 mb-4">
-      <button
-        type="button"
-        className={`px-4 py-2 rounded-tl-2xl rounded-bl-2xl font-semibold transition-all duration-200 shadow-md border-2 border-blue-700 focus:outline-none ${imageInputModes[section.id] !== 'url' ? 'bg-blue-600 text-white' : 'bg-blue-900 text-blue-200'}`}
-        onClick={() => setImageMode(section.id, "file")}
-      >
-        <svg className="w-5 h-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        Upload
-      </button>
-      <button
-        type="button"
-        className={`px-4 py-2 rounded-tr-2xl rounded-br-2xl font-semibold transition-all duration-200 shadow-md border-2 border-blue-700 focus:outline-none ${imageInputModes[section.id] === 'url' ? 'bg-blue-600 text-white' : 'bg-blue-900 text-blue-200'}`}
-        onClick={() => setImageMode(section.id, "url")}
-      >
-        <svg className="w-5 h-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-        Image URL
-      </button>
-    </div>
-    {/* Upload from device */}
-    {imageInputModes[section.id] !== 'url' && (
-      <div className="flex flex-col items-center mb-4 w-full bg-blue-950/60 rounded-xl p-4 border border-blue-700/30">
-        <input
-          id={`${section.id}-file-upload`}
-          name={`${section.id}-file-upload`}
-          type="file"
-          accept="image/*"
-          autoComplete="off"
-          className="block w-full text-sm text-blue-100 bg-blue-900 border border-blue-700 rounded-xl cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner mb-2"
-          onKeyDown={e => e.stopPropagation()}
-          onClick={e => { e.stopPropagation(); }}
-          onChange={e => {
-            console.log('File input changed');
-            e.preventDefault();
-            e.stopPropagation();
-            const file = e.target.files[0];
-            if (file) {
-              if (!file.type.startsWith('image/')) {
-                setErrors(prev => ({ ...prev, [section.id]: 'Please select a valid image file.' }));
-                return;
-              }
-              setErrors(prev => ({ ...prev, [section.id]: null }));
-              setSelectedFiles(prev => ({ ...prev, [section.id]: file }));
-              setFilePreviews(prev => ({ ...prev, [section.id]: URL.createObjectURL(file) }));
-            }
-          }}
-        />
-        <p className="text-xs text-blue-300">PNG, JPG, GIF up to {section.config?.maxSize || 10}MB</p>
-      </div>
-    )}
-    {/* Enter image URL */}
-    {imageInputModes[section.id] === 'url' && (
-      <div className="flex flex-col items-center mb-4 w-full bg-blue-950/60 rounded-xl p-4 border border-blue-700/30">
-        <input
-          type="url"
-          className="w-full p-3 bg-blue-900 border border-blue-700 rounded-xl text-blue-100 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner placeholder-blue-400"
-          value={formData[section.id] || ""}
-          onChange={e => handleInputChange(e, section.id)}
-          placeholder="Paste image URL (https://...)"
-        />
-        <p className="text-xs text-blue-300 mt-1">Paste a direct image link (JPG, PNG, GIF, etc.)</p>
-      </div>
-    )}
-    {/* Uploading state */}
-    {formData[section.id] === "Uploading..." && (
-      <div className="flex items-center mt-2 text-blue-400 animate-pulse">
-        <svg className="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /></svg>
-        Uploading to Cloudinary...
-      </div>
-    )}
-    {/* Error state */}
-    {errors[section.id] && (
-      <div className="mt-2 text-sm text-red-400 flex items-center">
-        <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        {errors[section.id]}
-      </div>
-    )}
-    {/* Preview for uploaded or URL image */}
-    {filePreviews[section.id] && (
-      <div className="mt-6 flex flex-col items-center">
-        <span className="text-blue-200 text-sm mb-2">Image Preview:</span>
-        <div className="w-full flex justify-center">
-          <img
-            src={filePreviews[section.id]}
-            alt="Preview"
-            className="w-full max-w-xs h-48 object-cover rounded-2xl border-4 border-blue-700 shadow-lg bg-blue-950"
-            onError={e => { e.target.onerror = null; e.target.src = fallbackImage; }}
-          />
-        </div>
-      </div>
-    )}
-  </div>
-)}
-                {/* Video Section - Add tabbed upload/url and preview */}
+                  <div className="bg-blue-200 rounded-lg p-6 border border-blue-400">
+                    {/* Tabbed interface for upload vs URL */}
+                    <div className="flex space-x-1 mb-4 bg-gray-200 rounded-lg p-1">
+                      <button
+                        type="button"
+                        className={`px-4 py-2 rounded-md font-medium transition-all duration-200 focus:outline-none ${imageInputModes[section.id] !== 'url' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+                        onClick={() => setImageMode(section.id, "file")}
+                      >
+                        <svg className="w-4 h-4 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        Upload
+                      </button>
+                      <button
+                        type="button"
+                        className={`px-4 py-2 rounded-md font-medium transition-all duration-200 focus:outline-none ${imageInputModes[section.id] === 'url' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+                        onClick={() => setImageMode(section.id, "url")}
+                      >
+                        <svg className="w-4 h-4 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                        </svg>
+                        Image URL
+                      </button>
+                    </div>
+                    
+                    {/* Upload from device */}
+                    {imageInputModes[section.id] !== 'url' && (
+                      <div className="mb-4">
+                        <input
+                          id={`${section.id}-file-upload`}
+                          name={`${section.id}-file-upload`}
+                          type="file"
+                          accept="image/*"
+                          autoComplete="off"
+                          className="block w-full text-sm text-gray-900 bg-white border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-2"
+                          onChange={e => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              if (!file.type.startsWith('image/')) {
+                                setErrors(prev => ({ ...prev, [section.id]: 'Please select a valid image file.' }));
+                                return;
+                              }
+                              setErrors(prev => ({ ...prev, [section.id]: null }));
+                              setSelectedFiles(prev => ({ ...prev, [section.id]: file }));
+                              setFilePreviews(prev => ({ ...prev, [section.id]: URL.createObjectURL(file) }));
+                            }
+                          }}
+                        />
+                        <p className="text-xs text-gray-500">PNG, JPG, GIF up to {section.config?.maxSize || 10}MB</p>
+                      </div>
+                    )}
+                    
+                    {/* Enter image URL */}
+                    {imageInputModes[section.id] === 'url' && (
+                      <div className="mb-4">
+                        <input
+                          type="url"
+                          className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"
+                          value={formData[section.id] || ""}
+                          onChange={e => handleInputChange(e, section.id)}
+                          placeholder="Paste image URL (https://...)"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Paste a direct image link (JPG, PNG, GIF, etc.)</p>
+                      </div>
+                    )}
+                    
+                    {/* Error state */}
+                    {errors[section.id] && (
+                      <div className="mt-2 text-sm text-red-600 flex items-center">
+                        <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        {errors[section.id]}
+                      </div>
+                    )}
+                    
+                    {/* Preview for uploaded or URL image */}
+                    {filePreviews[section.id] && (
+                      <div className="mt-4">
+                        <span className="text-gray-600 text-sm mb-2 block">Image Preview:</span>
+                        <div className="flex justify-center">
+                          <img
+                            src={filePreviews[section.id]}
+                            alt="Preview"
+                            className="w-full max-w-sm h-48 object-cover rounded-lg border border-gray-200 shadow-sm"
+                            onError={e => { e.target.onerror = null; e.target.src = fallbackImage; }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {/* Video Section */}
                 {section.type === "video" && (
-  <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 rounded-2xl p-6 shadow-xl border border-blue-700/40">
-    <div className="flex items-center mb-3">
-     <label className="block text-blue-100 mr-2 font-semibold text-lg" htmlFor={section.id}>{section.title}{section.required && <span className="text-red-400 ml-1">*</span>}</label>
-      
-    </div>
-    {/* Tabbed interface for upload vs URL */}
-    <div className="flex space-x-2 mb-4">
-      <button
-        type="button"
-        className={`px-4 py-2 rounded-tl-2xl rounded-bl-2xl font-semibold transition-all duration-200 shadow-md border-2 border-blue-700 focus:outline-none ${inputTypes[section.id] !== 'url' ? 'bg-blue-600 text-white' : 'bg-blue-900 text-blue-200'}`}
-        onClick={() => handleInputTypeChange(section.id, "file")}
-      >
-        <svg className="w-5 h-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-        Upload
-      </button>
-      <button
-        type="button"
-        className={`px-4 py-2 rounded-tr-2xl rounded-br-2xl font-semibold transition-all duration-200 shadow-md border-2 border-blue-700 focus:outline-none ${inputTypes[section.id] === 'url' ? 'bg-blue-600 text-white' : 'bg-blue-900 text-blue-200'}`}
-        onClick={() => handleInputTypeChange(section.id, "url")}
-      >
-        <svg className="w-5 h-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-        Video URL
-      </button>
-    </div>
-    {/* Upload from device */}
-    {inputTypes[section.id] !== 'url' && (
-      <div className="flex flex-col items-center mb-4 w-full bg-blue-950/60 rounded-xl p-4 border border-blue-700/30">
-        <input
-          id={`${section.id}-file-upload`}
-          name={`${section.id}-file-upload`}
-          type="file"
-          accept="video/*"
-          autoComplete="off"
-          className="block w-full text-sm text-blue-100 bg-blue-900 border border-blue-700 rounded-xl cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner mb-2"
-          onKeyDown={e => e.stopPropagation()}
-          onClick={e => { e.stopPropagation(); }}
-          onChange={e => {
-            console.log('File input changed');
-            e.preventDefault();
-            e.stopPropagation();
-            const file = e.target.files[0];
-            if (file) {
-              if (!file.type.startsWith('video/')) {
-                setErrors(prev => ({ ...prev, [section.id]: 'Please select a valid video file.' }));
-                return;
-              }
-              setErrors(prev => ({ ...prev, [section.id]: null }));
-              setSelectedFiles(prev => ({ ...prev, [section.id]: file }));
-              setFilePreviews(prev => ({ ...prev, [section.id]: URL.createObjectURL(file) }));
-            }
-          }}
-        />
-        <p className="text-xs text-blue-300">MP4, MOV, AVI, MKV, WEBM up to {section.config?.maxSize || 50}MB</p>
-      </div>
-    )}
-    {/* Enter video URL */}
-    {inputTypes[section.id] === 'url' && (
-      <div className="flex flex-col items-center mb-4 w-full bg-blue-950/60 rounded-xl p-4 border border-blue-700/30">
-        <input
-          type="url"
-          className="w-full p-3 bg-blue-900 border border-blue-700 rounded-xl text-blue-100 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner placeholder-blue-400"
-          value={formData[section.id] || ""}
-          onChange={e => handleInputChange(e, section.id)}
-          placeholder="Paste video URL (YouTube or direct .mp4, .mov, etc.)"
-        />
-        <p className="text-xs text-blue-300 mt-1">Paste a YouTube link or direct video file link</p>
-      </div>
-    )}
-    {/* Uploading state */}
-    {formData[section.id] === "Uploading..." && (
-      <div className="flex items-center mt-2 text-blue-400 animate-pulse">
-        <svg className="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /></svg>
-        Uploading video...
-      </div>
-    )}
-    {/* Error state */}
-    {errors[section.id] && (
-      <div className="mt-2 text-sm text-red-400 flex items-center">
-        <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        {errors[section.id]}
-      </div>
-    )}
-    {/* Preview for uploaded or URL video */}
-    {(formData[section.id] && typeof formData[section.id] === "string" && formData[section.id].startsWith("http")) && (
-      <div className="mt-6 flex flex-col items-center w-full">
-        <span className="text-blue-200 text-sm mb-2">Video Preview:</span>
-        <div className="w-full flex justify-center">
-          {/* YouTube embed */}
-          {(() => {
-            const value = formData[section.id];
-            let youtubeEmbedUrl = null;
-            try {
-              const parsedUrl = new URL(value);
-              if (
-                parsedUrl.hostname.includes("youtube.com") ||
-                parsedUrl.hostname.includes("youtu.be")
-              ) {
-                let videoId = null;
-                if (parsedUrl.hostname.includes("youtube.com")) {
-                  const params = new URLSearchParams(parsedUrl.search);
-                  videoId = params.get("v");
-                } else if (parsedUrl.hostname.includes("youtu.be")) {
-                  videoId = parsedUrl.pathname.split("/")[1];
-                }
-                if (videoId) {
-                  youtubeEmbedUrl = `https://www.youtube.com/embed/${videoId}`;
-                }
-              }
-            } catch {}
-            if (youtubeEmbedUrl) {
-              return (
-                <iframe
-                  width="400"
-                  height="225"
-                  src={youtubeEmbedUrl}
-                  title="YouTube video preview"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="rounded-xl border-2 border-blue-700 shadow-lg"
-                ></iframe>
-              );
-            } else {
-              // Direct video file
-              return (
-                <video
-                  src={formData[section.id]}
-                  controls
-                  className="w-full max-w-xs h-48 object-cover rounded-2xl border-4 border-blue-700 shadow-lg bg-blue-950"
-                />
-              );
-            }
-          })()}
-        </div>
-      </div>
-    )}
-  </div>
-)}
+                  <div className="bg-blue-200 rounded-lg p-6 border border-blue-400">
+                    {/* Tabbed interface for upload vs URL */}
+                    <div className="flex space-x-1 mb-4 bg-gray-200 rounded-lg p-1">
+                      <button
+                        type="button"
+                        className={`px-4 py-2 rounded-md font-medium transition-all duration-200 focus:outline-none ${inputTypes[section.id] !== 'url' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+                        onClick={() => handleInputTypeChange(section.id, "file")}
+                      >
+                        <svg className="w-4 h-4 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                        Upload
+                      </button>
+                      <button
+                        type="button"
+                        className={`px-4 py-2 rounded-md font-medium transition-all duration-200 focus:outline-none ${inputTypes[section.id] === 'url' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+                        onClick={() => handleInputTypeChange(section.id, "url")}
+                      >
+                        <svg className="w-4 h-4 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                        </svg>
+                        Video URL
+                      </button>
+                    </div>
+                    
+                    {/* Upload from device */}
+                    {inputTypes[section.id] !== 'url' && (
+                      <div className="mb-4">
+                        <input
+                          id={`${section.id}-file-upload`}
+                          name={`${section.id}-file-upload`}
+                          type="file"
+                          accept="video/*"
+                          autoComplete="off"
+                          className="block w-full text-sm text-gray-900 bg-white border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-2"
+                          onChange={e => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              if (!file.type.startsWith('video/')) {
+                                setErrors(prev => ({ ...prev, [section.id]: 'Please select a valid video file.' }));
+                                return;
+                              }
+                              setErrors(prev => ({ ...prev, [section.id]: null }));
+                              setSelectedFiles(prev => ({ ...prev, [section.id]: file }));
+                              setFilePreviews(prev => ({ ...prev, [section.id]: URL.createObjectURL(file) }));
+                            }
+                          }}
+                        />
+                        <p className="text-xs text-gray-500">MP4, MOV, AVI, MKV, WEBM up to {section.config?.maxSize || 50}MB</p>
+                      </div>
+                    )}
+                    
+                    {/* Enter video URL */}
+                    {inputTypes[section.id] === 'url' && (
+                      <div className="mb-4">
+                        <input
+                          type="url"
+                          className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"
+                          value={formData[section.id] || ""}
+                          onChange={e => handleInputChange(e, section.id)}
+                          placeholder="Paste video URL (YouTube or direct .mp4, .mov, etc.)"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Paste a YouTube link or direct video file link</p>
+                      </div>
+                    )}
+                    
+                    {/* Error state */}
+                    {errors[section.id] && (
+                      <div className="mt-2 text-sm text-red-600 flex items-center">
+                        <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        {errors[section.id]}
+                      </div>
+                    )}
+                    
+                    {/* Preview for uploaded or URL video */}
+                    {(formData[section.id] && typeof formData[section.id] === "string" && formData[section.id].startsWith("http")) && (
+                      <div className="mt-4">
+                        <span className="text-gray-600 text-sm mb-2 block">Video Preview:</span>
+                        <div className="flex justify-center">
+                          {/* YouTube embed */}
+                          {(() => {
+                            const value = formData[section.id];
+                            let youtubeEmbedUrl = null;
+                            try {
+                              const parsedUrl = new URL(value);
+                              if (
+                                parsedUrl.hostname.includes("youtube.com") ||
+                                parsedUrl.hostname.includes("youtu.be")
+                              ) {
+                                let videoId = null;
+                                if (parsedUrl.hostname.includes("youtube.com")) {
+                                  const params = new URLSearchParams(parsedUrl.search);
+                                  videoId = params.get("v");
+                                } else if (parsedUrl.hostname.includes("youtu.be")) {
+                                  videoId = parsedUrl.pathname.split("/")[1];
+                                }
+                                if (videoId) {
+                                  youtubeEmbedUrl = `https://www.youtube.com/embed/${videoId}`;
+                                }
+                              }
+                            } catch {}
+                            if (youtubeEmbedUrl) {
+                              return (
+                                <iframe
+                                  width="400"
+                                  height="225"
+                                  src={youtubeEmbedUrl}
+                                  title="YouTube video preview"
+                                  frameBorder="0"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                  className="rounded-lg border border-gray-200 shadow-sm"
+                                ></iframe>
+                              );
+                            } else {
+                              // Direct video file
+                              return (
+                                <video
+                                  src={formData[section.id]}
+                                  controls
+                                  className="w-full max-w-sm h-48 object-cover rounded-lg border border-gray-200 shadow-sm"
+                                />
+                              );
+                            }
+                          })()}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
                 {/* Link Section */}
                 {section.type === "link" && (
                   <div>
-                    <div className="flex items-center mb-1">
-                      <label className="block text-blue-100 mr-2 font-semibold" htmlFor={section.id}>
-                        {section.title}
-                        {section.required && <span className="text-red-400 ml-1">*</span>}
-                      </label>
-                      <InfoTooltip text={section.config?.helpText || `Paste a valid URL. Example: https://example.com`} />
-                    </div>
                     <input
                       type="url"
-                      className="w-full p-3 bg-white/20 border border-blue-400/30 rounded-2xl text-blue-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 shadow-inner placeholder-blue-300"
+                      className="w-full p-4 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm placeholder-gray-400"
                       value={formData[section.id] || ""}
                       onChange={(e) => handleInputChange(e, section.id)}
                       required={section.required}
@@ -1058,7 +1087,10 @@ export default function ContentUploadPage({ params }) {
                       }
                     />
                     {errors[section.id] && (
-                      <p className="mt-2 text-sm text-red-400">
+                      <p className="mt-2 text-sm text-red-600 flex items-center">
+                        <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
                         {errors[section.id]}
                       </p>
                     )}
@@ -1078,7 +1110,7 @@ export default function ContentUploadPage({ params }) {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setVisibleSectionCount((prev) => prev + 5)}
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold py-2 px-6 rounded-2xl shadow-lg transition-all duration-300 flex items-center"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-sm transition-all duration-300 flex items-center"
                 >
                   <svg
                     className="w-5 h-5 mr-2"
@@ -1104,7 +1136,7 @@ export default function ContentUploadPage({ params }) {
                 disabled={submitting}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-3 px-8 rounded-2xl shadow-lg disabled:opacity-50 transition-all duration-300 text-lg tracking-wide"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-sm disabled:opacity-50 transition-all duration-300 text-lg"
               >
                 {submitting ? "Submitting..." : "Create Content"}
               </motion.button>
@@ -1112,6 +1144,58 @@ export default function ContentUploadPage({ params }) {
           </motion.form>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <AnimatePresence>
+        {showConfirmationDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
+            >
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  User Details Collection
+                </h2>
+                <p className="text-gray-600">
+                  Do you want to collect user details and show a quiz popup when users view this content?
+                </p>
+              </div>
+
+              <div className="flex gap-4">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleConfirmationResponse(false)}
+                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-all duration-300"
+                >
+                  No
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleConfirmationResponse(true)}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300"
+                >
+                  Yes
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

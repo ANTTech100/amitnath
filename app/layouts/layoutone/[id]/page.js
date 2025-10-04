@@ -4,12 +4,14 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import Head from "next/head";
 import { Plus } from "lucide-react";
+import DynamicPopup from "../../../components/DynamicPopup";
 
 export default function LayoutOne() {
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showMoreSections, setShowMoreSections] = useState(false);
+  const [popupComplete, setPopupComplete] = useState(false);
   const { id } = useParams();
 
   useEffect(() => {
@@ -40,6 +42,8 @@ export default function LayoutOne() {
         }
 
         console.log("Filtered Content:", filteredContent);
+        console.log("askUserDetails:", filteredContent.askUserDetails);
+        console.log("templateId:", filteredContent.templateId);
         setContent(filteredContent);
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -311,6 +315,19 @@ export default function LayoutOne() {
           </div>
         )}
       </div>
+
+      {/* Dynamic Popup - Show if askUserDetails is true */}
+      {console.log("Popup condition check:", {
+        askUserDetails: content?.askUserDetails,
+        templateId: content?.templateId,
+        shouldShow: content?.askUserDetails && content?.templateId
+      })}
+      {content?.askUserDetails && content?.templateId && (
+        <DynamicPopup 
+          templateId={content.templateId._id || content.templateId} 
+          onComplete={() => setPopupComplete(true)}
+        />
+      )}
     </div>
   );
 }

@@ -263,7 +263,7 @@ export default function LayoutFive() {
 
   return (
     <>
-      {templateId && <DynamicPopup templateId={templateId} />}
+        {content?.askUserDetails && templateId && <DynamicPopup templateId={templateId} />}
       <div className="min-h-screen bg-gradient-to-br from-white via-yellow-50 to-amber-50">
         <Head>
           <title>{content.heading} | Professional Testimonials</title>

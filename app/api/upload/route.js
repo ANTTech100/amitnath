@@ -31,6 +31,9 @@ export async function POST(request) {
     const heading = fields.heading;
     const subheading = fields.subheading;
     const userId = fields.userId;
+    const askUserDetails = fields.askUserDetails === "true"; // Convert string to boolean
+    console.log("askUserDetails value:", fields.askUserDetails);
+    console.log("askUserDetails converted:", askUserDetails);
 
     // Validate templateId
     if (!mongoose.Types.ObjectId.isValid(templateId)) {
@@ -74,6 +77,7 @@ export async function POST(request) {
       sections: {},
       createdBy: userId, // Use userId from form data
       updatedBy: userId, // Use userId from form data
+      askUserDetails, // Add the askUserDetails field
     };
 
     // Process each section
@@ -117,7 +121,9 @@ export async function POST(request) {
     }
 
     // Create content in database
+    console.log("Creating content with data:", contentData);
     const content = await Content.create(contentData);
+    console.log("Created content:", content);
 
     return NextResponse.json({
       success: true,
@@ -205,6 +211,7 @@ export async function PUT(request) {
     const heading = fields.heading;
     const subheading = fields.subheading;
     const userId = fields.userId;
+    const askUserDetails = fields.askUserDetails === "true"; // Convert string to boolean
 
     // Validate contentId
     if (!contentId || !mongoose.Types.ObjectId.isValid(contentId)) {
@@ -278,6 +285,7 @@ export async function PUT(request) {
       sections: {},
       updatedBy: userId,
       updatedAt: Date.now(),
+      askUserDetails, // Add the askUserDetails field
     };
 
     // Process each section and enforce required fields

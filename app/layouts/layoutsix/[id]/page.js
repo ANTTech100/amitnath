@@ -487,7 +487,7 @@ export default function LayoutSix() {
       </Head>
 
               <PopupForm />
-        {templateId && <DynamicPopup templateId={templateId} />}
+        {content?.askUserDetails && templateId && <DynamicPopup templateId={templateId} />}
 
       <div className="relative">
         <div

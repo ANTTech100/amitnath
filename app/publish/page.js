@@ -1,4 +1,4 @@
-// pages/ContentViewPage.jsx
+// Your Published Content Page
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import UserNavbar from "../user/Header";
@@ -16,130 +16,155 @@ import {
   CheckCircle,
   FileText,
   BookPlus,
+  Eye,
+  Share2,
+  Edit,
 } from "lucide-react";
 
-// Template data with names, descriptions, redirects, and styling
+// Your Published Content Templates
 const templates = [
   {
     name: "Landing Page",
     description: "A sleek page to capture leads and drive conversions.",
     redirect: "/layouts/layoutone",
-    color: "from-purple-400 to-blue-400",
-    bgColor: "bg-purple-500/20",
-    iconColor: "text-purple-300",
+    color: "from-emerald-500 to-teal-600",
+    bgColor: "bg-emerald-500/10",
+    iconColor: "text-emerald-400",
     icon: Layout,
     type: "marketing",
     usageCount: 1250,
+    views: 5420,
+    publishedDate: "2024-01-15",
   },
   {
     name: "Payment Page",
     description: "Showcase your pricing tiers with stunning visuals.",
     redirect: "/layouts/layouttwo",
-    color: "from-blue-400 to-indigo-400",
-    bgColor: "bg-blue-500/20",
-    iconColor: "text-blue-300",
+    color: "from-rose-500 to-pink-600",
+    bgColor: "bg-rose-500/10",
+    iconColor: "text-rose-400",
     icon: CreditCard,
     type: "commerce",
     usageCount: 890,
+    views: 3840,
+    publishedDate: "2024-01-20",
   },
   {
     name: "Thank You Page",
     description: "Thank you greeting message for completed actions.",
     redirect: "/layouts/layoutthree",
-    color: "from-indigo-400 to-purple-400",
-    bgColor: "bg-indigo-500/20",
-    iconColor: "text-indigo-300",
+    color: "from-amber-500 to-orange-600",
+    bgColor: "bg-amber-500/10",
+    iconColor: "text-amber-400",
     icon: Heart,
     type: "conversion",
     usageCount: 670,
+    views: 2890,
+    publishedDate: "2024-01-25",
   },
   {
     name: "Testimonial Image",
     description: "Display customer testimonials to build trust.",
     redirect: "/layouts/layoutfour",
-    color: "from-purple-500 to-blue-500",
-    bgColor: "bg-purple-600/20",
-    iconColor: "text-purple-400",
+    color: "from-violet-500 to-purple-600",
+    bgColor: "bg-violet-500/10",
+    iconColor: "text-violet-400",
     icon: Image,
     type: "social proof",
     usageCount: 540,
+    views: 2150,
+    publishedDate: "2024-02-01",
   },
   {
     name: "Testimonial",
     description: "Encourage users to subscribe to your newsletter.",
     redirect: "/layouts/layoutfive",
-    color: "from-blue-500 to-indigo-500",
-    bgColor: "bg-blue-600/20",
-    iconColor: "text-blue-400",
+    color: "from-cyan-500 to-blue-600",
+    bgColor: "bg-cyan-500/10",
+    iconColor: "text-cyan-400",
     icon: MessageSquare,
     type: "social proof",
     usageCount: 430,
+    views: 1780,
+    publishedDate: "2024-02-05",
   },
   {
     name: "All Products",
     description: "Advertise your upcoming event with style.",
     redirect: "/layouts/layoutsix",
-    color: "from-indigo-500 to-purple-500",
-    bgColor: "bg-indigo-600/20",
+    color: "from-indigo-500 to-blue-600",
+    bgColor: "bg-indigo-500/10",
     iconColor: "text-indigo-400",
     icon: Package,
     type: "catalog",
     usageCount: 720,
+    views: 3120,
+    publishedDate: "2024-02-10",
   },
   {
     name: "Gift Page",
     description: "Showcase your best gifts in a professional layout.",
     redirect: "/layouts/layoutseven",
-    color: "from-purple-600 to-indigo-600",
-    bgColor: "bg-purple-700/20",
-    iconColor: "text-purple-500",
+    color: "from-pink-500 to-rose-600",
+    bgColor: "bg-pink-500/10",
+    iconColor: "text-pink-400",
     icon: Gift,
     type: "promotion",
     usageCount: 380,
+    views: 1650,
+    publishedDate: "2024-02-15",
   },
   {
     name: "Video Testimonial",
     description: "Present detailed case studies to build credibility.",
     redirect: "/layouts/layouteight",
-    color: "from-blue-600 to-purple-600",
-    bgColor: "bg-blue-700/20",
-    iconColor: "text-blue-500",
+    color: "from-sky-500 to-cyan-600",
+    bgColor: "bg-sky-500/10",
+    iconColor: "text-sky-400",
     icon: Video,
     type: "social proof",
     usageCount: 290,
+    views: 1280,
+    publishedDate: "2024-02-20",
   },
   {
     name: "Main Thank You",
     description: "Display customer testimonials to boost trust.",
     redirect: "/layouts/layoutnine",
-    color: "from-indigo-600 to-blue-600",
-    bgColor: "bg-indigo-700/20",
-    iconColor: "text-indigo-500",
+    color: "from-green-500 to-emerald-600",
+    bgColor: "bg-green-500/10",
+    iconColor: "text-green-400",
     icon: CheckCircle,
     type: "conversion",
     usageCount: 510,
+    views: 2210,
+    publishedDate: "2024-02-25",
   },
   {
     name: "Basic",
     description: "Showcase your pricing tiers with clarity.",
     redirect: "/layouts/layoutten",
-    color: "from-purple-700 to-indigo-700",
-    bgColor: "bg-purple-800/20",
-    iconColor: "text-purple-600",
+    color: "from-orange-500 to-amber-600",
+    bgColor: "bg-orange-500/10",
+    iconColor: "text-orange-400",
     icon: FileText,
     type: "basic",
     usageCount: 820,
+    views: 3560,
+    publishedDate: "2024-03-01",
   },
   {
     name: "Form",
     description: "Highlight your latest blog posts to engage readers.",
     redirect: "/layouts/layouteleven",
-    color: "from-indigo-700 to-blue-700",
-    bgColor: "bg-indigo-800/20",
-    iconColor: "text-indigo-600",
+    color: "from-blue-500 to-indigo-600",
+    bgColor: "bg-blue-500/10",
+    iconColor: "text-blue-400",
     icon: BookPlus,
     type: "lead capture",
     usageCount: 640,
+    views: 2780,
+    publishedDate: "2024-03-05",
   },
 ];
 
@@ -154,12 +179,12 @@ const cardVariants = {
   exit: { opacity: 0, y: -30, transition: { duration: 0.4 } },
 };
 
-export default function ContentViewPage() {
+export default function YourPublishedContent() {
   return (
     <>
       <UserNavbar />
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           {/* Back Link */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -168,7 +193,7 @@ export default function ContentViewPage() {
           >
             <Link
               href="/"
-              className="inline-flex items-center text-purple-400 hover:text-purple-300 font-semibold transition-colors duration-200"
+              className="inline-flex items-center text-emerald-400 hover:text-emerald-300 font-semibold transition-colors duration-200"
             >
               <svg
                 className="w-5 h-5 mr-2"
@@ -183,7 +208,7 @@ export default function ContentViewPage() {
                   d="M15 19l-7-7 7-7"
                 />
               </svg>
-              Back to Content List
+              Back to Dashboard
             </Link>
           </motion.div>
 
@@ -194,11 +219,11 @@ export default function ContentViewPage() {
             transition={{ duration: 0.8 }}
             className="text-center mb-12"
           >
-            <h1 className="text-4xl font-bold text-purple-200">
-              Explore Our Templates
+            <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 via-white to-cyan-200 mb-4">
+              Your Published Content
             </h1>
-            <p className="mt-3 text-lg text-gray-400">
-              Choose a template to create your next lead magnet or content page.
+            <p className="mt-3 text-xl text-slate-200/80 max-w-3xl mx-auto">
+              Manage and view all your published templates. Track performance and engagement metrics.
             </p>
           </motion.div>
 
@@ -215,63 +240,87 @@ export default function ContentViewPage() {
                     animate="visible"
                     exit="exit"
                     whileHover={{
-                      scale: 1.05,
-                      rotateY: 5,
+                      scale: 1.03,
+                      y: -8,
                     }}
                     className="group cursor-pointer"
                     onClick={() => (window.location.href = template.redirect)}
                   >
-                    <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500">
-                      {/* Gradient overlay */}
+                    <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden shadow-2xl hover:shadow-3xl hover:shadow-emerald-500/10 transition-all duration-500 group-hover:border-white/20">
+                      {/* Animated gradient overlay */}
                       <div
-                        className={`absolute inset-0 bg-gradient-to-br ${template.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
+                        className={`absolute inset-0 bg-gradient-to-br ${template.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}
                       ></div>
 
                       {/* Content */}
-                      <div className="relative p-8">
-                        <div className="flex items-start justify-between mb-6">
+                      <div className="relative p-6">
+                        {/* Header with icon and actions */}
+                        <div className="flex items-start justify-between mb-4">
                           <div
-                            className={`${template.bgColor} backdrop-blur-sm rounded-2xl p-4 group-hover:scale-110 transition-transform duration-300`}
+                            className={`${template.bgColor} backdrop-blur-sm rounded-xl p-3 group-hover:scale-110 transition-transform duration-300 border border-white/10`}
                           >
                             <IconComponent
-                              className={`h-8 w-8 ${template.iconColor}`}
+                              className={`h-6 w-6 ${template.iconColor}`}
                             />
                           </div>
-                          <ArrowRight className="h-5 w-5 text-white/40 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
+                          <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <button className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors">
+                              <Eye className="h-4 w-4 text-white/70" />
+                            </button>
+                            <button className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors">
+                              <Share2 className="h-4 w-4 text-white/70" />
+                            </button>
+                          </div>
                         </div>
 
-                        <h3 className="text-xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-200 group-hover:to-blue-200 transition-all duration-300">
+                        {/* Title and description */}
+                        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-emerald-200 group-hover:to-cyan-200 transition-all duration-300">
                           {template.name}
                         </h3>
 
-                        <p className="text-purple-200/70 text-sm leading-relaxed line-clamp-3">
+                        <p className="text-slate-300/70 text-sm leading-relaxed mb-4 line-clamp-2">
                           {template.description}
                         </p>
 
-                        {/* Template metadata */}
-                        <div className="mt-4 flex items-center justify-between text-xs text-purple-300/60">
-                          <span className="capitalize">
-                            {template.type} template
-                          </span>
-                          {template.usageCount > 0 && (
-                            <span>{template.usageCount} uses</span>
-                          )}
+                        {/* Stats and metadata */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="px-2 py-1 bg-white/10 rounded-full text-slate-300 capitalize">
+                              {template.type}
+                            </span>
+                            <span className="text-emerald-400 font-medium">
+                              Published {new Date(template.publishedDate).toLocaleDateString()}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4 text-xs text-slate-400">
+                              <div className="flex items-center">
+                                <Eye className="h-3 w-3 mr-1" />
+                                {template.views.toLocaleString()} views
+                              </div>
+                              <div className="flex items-center">
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                {template.usageCount} uses
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Progress bar for engagement */}
+                          <div className="w-full bg-white/10 rounded-full h-1.5">
+                            <div 
+                              className={`h-1.5 rounded-full bg-gradient-to-r ${template.color} transition-all duration-1000`}
+                              style={{ width: `${Math.min((template.views / 5000) * 100, 100)}%` }}
+                            ></div>
+                          </div>
                         </div>
 
-                        {/* Hover effect indicators */}
-                        <div className="mt-6 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <span className="text-xs text-purple-300 font-medium">
-                            Click to explore
+                        {/* Hover action indicator */}
+                        <div className="mt-4 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <span className="text-xs text-emerald-300 font-medium">
+                            Click to manage
                           </span>
-                          <div className="flex space-x-1">
-                            {[...Array(3)].map((_, i) => (
-                              <div
-                                key={i}
-                                className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"
-                                style={{ animationDelay: `${i * 0.2}s` }}
-                              ></div>
-                            ))}
-                          </div>
+                          <ArrowRight className="h-4 w-4 text-emerald-400 group-hover:translate-x-1 transition-transform duration-300" />
                         </div>
                       </div>
                     </div>

@@ -7,6 +7,7 @@ const UserNavbar = () => {
   const [abc, setAbc] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
 
   // Check for userid in localStorage on mount
@@ -15,6 +16,17 @@ const UserNavbar = () => {
     console.log("UserID from localStorage:", userid);
     setIsLoggedIn(!!userid);
     setAbc(userid || "");
+  }, []);
+
+  // Handle scroll detection
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Handle logout
@@ -44,97 +56,114 @@ const UserNavbar = () => {
   };
 
   return (
-    <nav className="relative bg-gradient-to-r from-indigo-950 via-purple-950 to-indigo-950 border-b border-purple-400/20 backdrop-blur-xl shadow-lg">
-      {/* Animated background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/8 to-pink-600/5 animate-pulse"></div>
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          isScrolled 
+            ? 'bg-gradient-to-r from-blue-800 to-blue-900 border-b border-blue-600/50 backdrop-blur-xl shadow-xl' 
+            : 'bg-gradient-to-r from-blue-600 to-blue-700 border-b border-blue-500/50 backdrop-blur-xl shadow-lg'
+        }`}>
+          {/* Enhanced animated background gradient */}
+          <div className={`absolute inset-0 transition-all duration-500 ${
+            isScrolled 
+              ? 'bg-gradient-to-r from-blue-900/20 via-blue-800/30 to-blue-700/20' 
+              : 'bg-gradient-to-r from-blue-700/10 via-blue-600/20 to-blue-500/10'
+          }`}></div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo and Navigation */}
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <Link
-                href="/"
-                className="font-black text-3xl bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent hover:from-purple-300 hover:via-pink-300 hover:to-blue-300 transition-all duration-500 transform hover:scale-110"
-              >
-                Codeless
-              </Link>
-            </div>
+      <div className="relative w-full px-2 sm:px-4 lg:px-6">
+        <div className="flex items-center justify-between h-20">
+          {/* Logo - Far Left Side */}
+          <div className="flex-shrink-0 ml-20">
+            <Link
+              href="/"
+              className="font-black text-3xl text-white hover:text-blue-100 transition-all duration-500 transform hover:scale-110 drop-shadow-lg"
+            >
+              Codeless
+            </Link>
+          </div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:block ml-12">
-              <div className="flex items-center space-x-2">
-                {[
-                  { href: "/", label: "Home", icon: "🏠" },
-                  { href: "/user/tem", label: "Templates", icon: "📋" },
-                  { href: "/publish", label: "Uploads", icon: "📤" },
-                ].map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="group relative px-4 py-2 rounded-xl text-sm font-semibold text-gray-100 hover:text-white transition-all duration-300 overflow-hidden"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/0 to-blue-600/0 group-hover:from-purple-600/20 group-hover:to-blue-600/20 rounded-xl transition-all duration-300"></div>
-                    <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 rounded-xl transition-all duration-300"></div>
-                    <span className="relative flex items-center gap-2">
-                      <span className="text-xs">{item.icon}</span>
-                      {item.label}
-                    </span>
-                    <div className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-blue-400 group-hover:w-full group-hover:left-0 transition-all duration-300"></div>
-                  </Link>
-                ))}
-              </div>
+          {/* Navigation - Center */}
+          <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
+            <div className="flex items-center space-x-2">
+              {[
+                { href: "/", label: "Home", icon: "🏠" },
+                { href: "/user/tem", label: "Templates", icon: "📋" },
+                { href: "/publish", label: "Publish", icon: "📤" },
+                { href: "/manual", label: "Guide", icon: "📖" },
+              ].map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="group relative px-5 py-3 rounded-xl text-sm font-semibold text-white hover:text-blue-100 transition-all duration-300 overflow-hidden"
+                    >
+                      <div className={`absolute inset-0 rounded-xl transition-all duration-300 ${
+                        isScrolled 
+                          ? 'bg-gradient-to-r from-blue-500/0 to-blue-600/0 group-hover:from-blue-500/20 group-hover:to-blue-600/20'
+                          : 'bg-white/0 group-hover:bg-white/10'
+                      }`}></div>
+                      <span className="relative flex items-center gap-2.5">
+                        <span className="text-sm">{item.icon}</span>
+                        {item.label}
+                      </span>
+                      <div className={`absolute bottom-0 left-1/2 w-0 h-0.5 rounded-full transition-all duration-300 group-hover:w-full group-hover:left-0 ${
+                        isScrolled 
+                          ? 'bg-gradient-to-r from-blue-500 to-blue-600' 
+                          : 'bg-white'
+                      }`}></div>
+                    </Link>
+              ))}
             </div>
           </div>
 
-          {/* Desktop Auth Section */}
-          <div className="hidden md:block">
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={handleProfileClick}
-                className="group relative px-4 py-2 rounded-xl text-sm font-semibold text-gray-100 hover:text-white transition-all duration-300 overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/0 to-teal-600/0 group-hover:from-emerald-600/20 group-hover:to-teal-600/20 rounded-xl transition-all duration-300"></div>
-                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 rounded-xl transition-all duration-300"></div>
-                <span className="relative flex items-center gap-2">
-                  <span className="text-xs">👤</span>
-                  Profile
-                </span>
-              </button>
+          {/* Auth Section - Far Right Side */}
+          <div className="hidden md:block mr-4">
+            <div className="flex items-center space-x-4">
+                  <button
+                    onClick={handleProfileClick}
+                    className="group relative px-5 py-3 rounded-xl text-sm font-semibold text-white hover:text-blue-100 transition-all duration-300 overflow-hidden border border-white/30 hover:border-white/50"
+                  >
+                    <div className={`absolute inset-0 rounded-xl transition-all duration-300 ${
+                      isScrolled 
+                        ? 'bg-gradient-to-r from-blue-500/0 to-blue-600/0 group-hover:from-blue-500/20 group-hover:to-blue-600/20'
+                        : 'bg-white/0 group-hover:bg-white/10'
+                    }`}></div>
+                    <span className="relative flex items-center gap-2.5">
+                      <span className="text-sm">👤</span>
+                      Profile
+                    </span>
+                  </button>
 
               {isLoggedIn ? (
                 <button
                   onClick={handleLogout}
-                  className="group relative px-6 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-red-600 to-pink-600 text-white hover:from-red-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-red-500/25"
+                  className="group relative px-6 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-red-500 to-pink-500 text-white hover:from-red-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-red-500/30 border border-red-400/30"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/0 group-hover:from-white/10 group-hover:to-white/10 rounded-xl transition-all duration-300"></div>
-                  <span className="relative flex items-center gap-2">
-                    <span className="text-xs">🚪</span>
+                  <span className="relative flex items-center gap-2.5">
+                    <span className="text-sm">🚪</span>
                     Logout
                   </span>
                 </button>
               ) : (
-                <Link
-                  href="/user/register"
-                  className="group relative px-6 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-purple-500/25"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/0 group-hover:from-white/10 group-hover:to-white/10 rounded-xl transition-all duration-300"></div>
-                  <span className="relative flex items-center gap-2">
-                    <span className="text-xs">✨</span>
-                    Register
-                  </span>
-                </Link>
+                    <Link
+                      href="/user/register"
+                      className="group relative px-6 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/30 border border-blue-500/30"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/0 group-hover:from-white/10 group-hover:to-white/10 rounded-xl transition-all duration-300"></div>
+                      <span className="relative flex items-center gap-2.5">
+                        <span className="text-sm">✨</span>
+                        Register
+                      </span>
+                    </Link>
               )}
             </div>
           </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="group relative inline-flex items-center justify-center p-2 rounded-xl text-purple-300 hover:text-white hover:bg-white/10 transition-all duration-300"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600/0 to-blue-600/0 group-hover:from-purple-600/20 group-hover:to-blue-600/20 rounded-xl transition-all duration-300"></div>
+                <button
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="group relative inline-flex items-center justify-center p-3 rounded-xl text-white hover:text-blue-100 transition-all duration-300 border border-white/30 hover:border-white/50 hover:bg-white/10"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-blue-600/0 group-hover:from-blue-500/20 group-hover:to-blue-600/20 rounded-xl transition-all duration-300"></div>
               <svg
                 className="relative h-6 w-6 transition-transform duration-300"
                 style={{
@@ -167,17 +196,22 @@ const UserNavbar = () => {
       </div>
 
       {/* Mobile menu */}
-      <div
-        className={`md:hidden bg-indigo-900/90 backdrop-blur-xl border-t border-purple-400/20 shadow-lg transition-all duration-300 ease-in-out ${isMenuOpen
-          ? "max-h-96 opacity-100 visible"
-          : "max-h-0 opacity-0 invisible"
-          }`}
-      >
-        <div className="px-4 pt-3 pb-4 space-y-2">
+          <div
+            className={`md:hidden backdrop-blur-xl border-t shadow-lg transition-all duration-300 ease-in-out ${
+              isScrolled 
+                ? 'bg-blue-900/95 border-blue-600/50' 
+                : 'bg-blue-700/95 border-blue-500/50'
+            } ${isMenuOpen
+              ? "max-h-screen opacity-100 visible"
+              : "max-h-0 opacity-0 invisible"
+              }`}
+          >
+        <div className="px-6 pt-4 pb-5 space-y-3">
           {[
             { href: "/", label: "Home", icon: "🏠" },
             { href: "/user/tem", label: "Templates", icon: "📋" },
             { href: "/publish", label: "Uploads", icon: "📤" },
+            { href: "/manual", label: "Guide", icon: "📖" },
             {
               href: "#",
               label: "Profile",
@@ -204,26 +238,28 @@ const UserNavbar = () => {
               }}
             >
               {item.onClick ? (
-                <button
-                  onClick={item.onClick}
-                  className={`w-full text-left px-4 py-3 rounded-xl text-base font-semibold transition-all duration-300 flex items-center gap-3 ${item.label === "Logout"
-                    ? "bg-gradient-to-r from-red-600/80 to-pink-600/80 text-white hover:from-red-700 hover:to-pink-700 shadow-lg"
-                    : "text-gray-100 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20"
-                    }`}
-                >
-                  <span className="text-sm">{item.icon}</span>
+                    <button
+                      onClick={item.onClick}
+                      className={`w-full text-left px-5 py-4 rounded-xl text-base font-semibold transition-all duration-300 flex items-center gap-4 ${item.label === "Logout"
+                        ? "bg-gradient-to-r from-red-500/80 to-pink-500/80 text-white hover:from-red-600 hover:to-pink-600 shadow-lg border border-red-400/30"
+                        : item.label === "Profile"
+                          ? "bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-white hover:text-blue-100 hover:from-blue-500/30 hover:to-blue-600/30 border border-white/30 hover:border-white/50"
+                          : "bg-gradient-to-r from-blue-500/10 to-blue-600/10 text-white hover:text-blue-100 hover:from-blue-500/20 hover:to-blue-600/20 border border-white/20 hover:border-white/50"
+                        }`}
+                    >
+                  <span className="text-base">{item.icon}</span>
                   {item.label}
                 </button>
               ) : (
-                <Link
-                  href={item.href}
-                  className={`block px-4 py-3 rounded-xl text-base font-semibold transition-all duration-300 flex items-center gap-3 ${item.label === "Register"
-                    ? "bg-gradient-to-r from-purple-600/80 to-blue-600/80 text-white hover:from-purple-700 hover:to-blue-700 shadow-lg"
-                    : "text-gray-100 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20"
-                    }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <span className="text-sm">{item.icon}</span>
+                    <Link
+                      href={item.href}
+                      className={`block px-5 py-4 rounded-xl text-base font-semibold transition-all duration-300 flex items-center gap-4 ${item.label === "Register"
+                        ? "bg-gradient-to-r from-blue-600/80 to-blue-700/80 text-white hover:from-blue-700 hover:to-blue-800 shadow-lg border border-blue-500/30"
+                        : "bg-gradient-to-r from-blue-500/10 to-blue-600/10 text-white hover:text-blue-100 hover:from-blue-500/20 hover:to-blue-600/20 border border-white/20 hover:border-white/50"
+                        }`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                  <span className="text-base">{item.icon}</span>
                   {item.label}
                 </Link>
               )}

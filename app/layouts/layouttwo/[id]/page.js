@@ -195,7 +195,7 @@ export default function PaymentPage() {
 
   return (
     <>
-      {templateId && <DynamicPopup templateId={templateId} />}
+      {content?.askUserDetails && templateId && <DynamicPopup templateId={templateId} />}
       <div className="bg-gradient-to-br from-slate-50 via-white to-indigo-50 min-h-screen">
         {/* Hero Section */}
         <div className="relative overflow-hidden">
@@ -226,43 +226,41 @@ export default function PaymentPage() {
             </div>
 
             {/* Main Content Section */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-              {/* Primary Layout: Left Image, Right Content */}
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-16 items-start mb-24">
-                {/* Left Side: Hero Image */}
-                {leftImage && (
-                  <div className="order-2 xl:order-1">
+            <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pb-20">
+              {/* Two Column Layout */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 -mx-2">
+                
+                {/* Left Column */}
+                <div className="space-y-6 px-2">
+                  {/* First Image */}
+                  {leftImage && (
                     <div className="rounded-2xl overflow-hidden shadow-2xl">
                       {renderImage(leftImage.value)}
                     </div>
-                  </div>
-                )}
-
-                {/* Right Side: Content Stack */}
-                <div className="order-1 xl:order-2 space-y-8">
-                  {/* Secondary Image */}
-                  {rightImage && (
-                    <div className="rounded-2xl overflow-hidden shadow-xl">
-                      {renderImage(rightImage.value)}
-                    </div>
                   )}
-
-                  {/* Text Content */}
+                  
+                  {/* Text Section Below First Image */}
                   {rightText && (
-                    <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-white/20">
+                    <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20">
                       <p className="text-lg text-gray-700 leading-relaxed font-medium">
                         {rightText.value}
                       </p>
                     </div>
                   )}
                 </div>
-              </div>
 
-              {/* Bottom Content Grid - Only show if content exists */}
-              {(bottomText1 || bottomText2) && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+                {/* Right Column */}
+                <div className="space-y-6 px-2">
+                  {/* Second Image */}
+                  {rightImage && (
+                    <div className="rounded-2xl overflow-hidden shadow-xl">
+                      {renderImage(rightImage.value)}
+                    </div>
+                  )}
+                  
+                  {/* Two Text Sections Below Second Image */}
                   {bottomText1 && (
-                    <div className="group bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl hover:border-indigo-200 transition-all duration-300">
+                    <div className="group bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl hover:border-indigo-200 transition-all duration-300">
                       <p className="text-lg text-gray-700 leading-relaxed font-medium group-hover:text-gray-800 transition-colors">
                         {bottomText1.value}
                       </p>
@@ -270,17 +268,17 @@ export default function PaymentPage() {
                   )}
 
                   {bottomText2 && (
-                    <div className="group bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl hover:border-indigo-200 transition-all duration-300">
+                    <div className="group bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl hover:border-indigo-200 transition-all duration-300">
                       <p className="text-lg text-gray-700 leading-relaxed font-medium group-hover:text-gray-800 transition-colors">
                         {bottomText2.value}
                       </p>
                     </div>
                   )}
                 </div>
-              )}
+              </div>
 
               {/* Call to Action Section */}
-              <div className="text-center">
+              <div className="text-center mt-12">
                 <div className="inline-flex flex-col sm:flex-row items-center gap-6">
                   {primaryLink ? (
                     <button

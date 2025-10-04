@@ -54,12 +54,6 @@ export default function RootLayout({ children }) {
                   >
                     Contact us
                   </a>
-                    <a
-                    href="/manual"
-                    className="text-gray-300 hover:text-white transition-colors duration-200"
-                  >
-                    Manual
-                  </a>
                 </div>
                 <p className="text-gray-400 text-xs">
                   © {currentYear} All rights reserved
