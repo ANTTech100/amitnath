@@ -45,7 +45,7 @@ export default function AdminQuestionsPage() {
 
   const fetchTemplateQuestions = async () => {
     try {
-      const response = await axios.get("/api/admin/questions");
+      const response = await axios.get("/api/admin/createques");
       if (response.data.success) {
         setTemplateQuestions(response.data.data);
       }

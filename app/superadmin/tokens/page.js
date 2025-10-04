@@ -179,8 +179,9 @@ export default function SuperAdminTokensPage() {
   }
 
   return (
+    <> <SuperadminNavbar />
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 py-12 px-4 sm:px-6 lg:px-8">
-      <SuperadminNavbar />
+     
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -410,5 +411,6 @@ export default function SuperAdminTokensPage() {
         </motion.div>
       </div>
     </div>
+    </>
   );
 } 
