@@ -195,7 +195,7 @@ export default function UserResponsesDashboard() {
 
                       <div className="flex items-center gap-3 shrink-0">
                         <div className="text-center bg-purple-500/20 rounded px-2 py-1 border border-purple-500/30">
-                          <p className="text-purple-200 text-xs">{totalCount} Q's</p>
+                          <p className="text-purple-200 text-xs">{totalCount} Ques</p>
                         </div>
                         <div className="text-right">
                           <p className="text-purple-200 text-xs">
