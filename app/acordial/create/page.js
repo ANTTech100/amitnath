@@ -249,7 +249,7 @@ export default function CreateAccordionContent() {
       <div className="min-h-screen bg-gradient-to-br from-blue-200 to-blue-300 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-lg font-medium text-gray-600">Loading...</p>
+          <p className="mt-4 text-lg font-medium text-black-600">Loading...</p>
         </div>
       </div>
     );
@@ -263,10 +263,10 @@ export default function CreateAccordionContent() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-black-900 mb-4">
             Create Accordion Content
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-black-600">
             Create interactive guides with multiple content types
           </p>
         </motion.div>
@@ -303,16 +303,16 @@ export default function CreateAccordionContent() {
         >
           {/* Basic Information */}
           <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Basic Information</h2>
+            <h2 className="text-2xl font-bold text-black-900 mb-6">Basic Information</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-black-700 mb-2">
                   Title <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 border border-black-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Enter your title"
@@ -321,12 +321,12 @@ export default function CreateAccordionContent() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-black-700 mb-2">
                   Subtitle <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 border border-black-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   value={formData.subtitle}
                   onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
                   placeholder="Enter your subtitle"
@@ -335,20 +335,20 @@ export default function CreateAccordionContent() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-black-700 mb-2">
                   Background Color
                 </label>
                 <div className="flex items-center space-x-4">
                   <input
                     type="text"
-                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="flex-1 p-3 border border-black-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     value={formData.backgroundColor}
                     onChange={(e) => setFormData({ ...formData, backgroundColor: e.target.value })}
                     placeholder="#ffffff"
                   />
                   <input
                     type="color"
-                    className="w-16 h-12 border border-gray-300 rounded-lg cursor-pointer"
+                    className="w-16 h-12 border border-black-300 rounded-lg cursor-pointer"
                     value={formData.backgroundColor}
                     onChange={(e) => setFormData({ ...formData, backgroundColor: e.target.value })}
                   />
@@ -367,7 +367,7 @@ export default function CreateAccordionContent() {
                 className="bg-white rounded-xl shadow-lg p-6"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-900">
+                  <h3 className="text-xl font-bold text-black-900">
                     Guide {guideIndex + 1}
                   </h3>
                   {guides.length > 1 && (
@@ -382,12 +382,12 @@ export default function CreateAccordionContent() {
                 </div>
 
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-black-700 mb-2">
                     Guide Title <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-3 border border-black-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     value={guide.title}
                     onChange={(e) => updateGuideTitle(guideIndex, e.target.value)}
                     placeholder={`Enter guide ${guideIndex + 1} title`}
@@ -397,7 +397,7 @@ export default function CreateAccordionContent() {
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-lg font-semibold text-gray-800">Items</h4>
+                    <h4 className="text-lg font-semibold text-black-800">Items</h4>
                     <button
                       type="button"
                       onClick={() => addItemToGuide(guideIndex)}
@@ -411,11 +411,11 @@ export default function CreateAccordionContent() {
                   {guide.items.map((item, itemIndex) => {
                     const IconComponent = itemTypeIcons[item.type];
                     return (
-                      <div key={itemIndex} className="border border-gray-200 rounded-lg p-4">
+                      <div key={itemIndex} className="border border-black-200 rounded-lg p-4">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center space-x-3">
-                            <IconComponent className="h-5 w-5 text-gray-600" />
-                            <span className="font-medium text-gray-800">
+                            <IconComponent className="h-5 w-5 text-black-600" />
+                            <span className="font-medium text-black-800">
                               {itemTypeLabels[item.type]} Item {itemIndex + 1}
                             </span>
                           </div>
@@ -432,11 +432,11 @@ export default function CreateAccordionContent() {
 
                         <div className="space-y-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-black-700 mb-2">
                               Item Type
                             </label>
                             <select
-                              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full p-3 border border-black-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               value={item.type}
                               onChange={(e) => updateItem(guideIndex, itemIndex, "type", e.target.value)}
                             >
@@ -449,11 +449,11 @@ export default function CreateAccordionContent() {
 
                           {item.type === "text" && (
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                              <label className="block text-sm font-medium text-black-700 mb-2">
                                 Text Content <span className="text-red-500">*</span>
                               </label>
                               <textarea
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full p-3 border border-black-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 rows="4"
                                 value={item.content}
                                 onChange={(e) => updateItem(guideIndex, itemIndex, "content", e.target.value)}
@@ -465,7 +465,7 @@ export default function CreateAccordionContent() {
 
                           {item.type === "image" && (
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                              <label className="block text-sm font-medium text-black-700 mb-2">
                                 Image <span className="text-red-500">*</span>
                               </label>
                               <div className="space-y-4">
@@ -474,7 +474,7 @@ export default function CreateAccordionContent() {
                                     <input
                                       type="file"
                                       accept="image/*"
-                                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                      className="w-full p-3 border border-black-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                       onChange={(e) => {
                                         const file = e.target.files[0];
                                         if (file) {
@@ -486,7 +486,7 @@ export default function CreateAccordionContent() {
                                   <div className="flex-1">
                                     <input
                                       type="url"
-                                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                      className="w-full p-3 border border-black-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                       value={item.content}
                                       onChange={(e) => updateItem(guideIndex, itemIndex, "content", e.target.value)}
                                       placeholder="Or paste image URL"
@@ -498,7 +498,7 @@ export default function CreateAccordionContent() {
                                     <img
                                       src={item.content}
                                       alt="Preview"
-                                      className="max-w-xs h-32 object-cover rounded-lg border border-gray-200"
+                                      className="max-w-xs h-32 object-cover rounded-lg border border-black-200"
                                       onError={(e) => {
                                         e.target.style.display = "none";
                                       }}
@@ -511,12 +511,12 @@ export default function CreateAccordionContent() {
 
                           {item.type === "video" && (
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                              <label className="block text-sm font-medium text-black-700 mb-2">
                                 Video URL <span className="text-red-500">*</span>
                               </label>
                               <input
                                 type="url"
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full p-3 border border-black-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 value={item.content}
                                 onChange={(e) => updateItem(guideIndex, itemIndex, "content", e.target.value)}
                                 placeholder="Enter YouTube or video URL"
@@ -528,12 +528,12 @@ export default function CreateAccordionContent() {
                           {item.type === "button" && (
                             <div className="space-y-4">
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-black-700 mb-2">
                                   Button Text <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                   type="text"
-                                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  className="w-full p-3 border border-black-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                   value={item.buttonText || ""}
                                   onChange={(e) => updateItem(guideIndex, itemIndex, "buttonText", e.target.value)}
                                   placeholder="Click Here"
@@ -541,12 +541,12 @@ export default function CreateAccordionContent() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-black-700 mb-2">
                                   Button Link <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                   type="url"
-                                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  className="w-full p-3 border border-black-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                   value={item.buttonLink || ""}
                                   onChange={(e) => updateItem(guideIndex, itemIndex, "buttonLink", e.target.value)}
                                   placeholder="https://example.com"
