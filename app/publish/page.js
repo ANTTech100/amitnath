@@ -78,7 +78,7 @@ const templates = [
   {
     name: "Testimonial",
     description: "Encourage users to subscribe to your newsletter.",
-    redirect: "/layouts/layoutfive",
+    redirect: "/acordial/publish",
     color: "from-cyan-500 to-blue-600",
     bgColor: "bg-cyan-500/10",
     iconColor: "text-cyan-400",

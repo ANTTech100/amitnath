@@ -40,8 +40,23 @@ export default function TemplatesGallery() {
     fetchTemplates(nextPage);
   };
 
-  const handleTemplateSelect = (templateId) => {
-    router.push(`/user/tem/${templateId}`);
+  const handleTemplateSelect = (templateId, template) => {
+    // Check if this is the specific testimonial template (you can change this condition)
+    // Option 1: Check by specific template ID
+    if (templateId === 'SPECIFIC_TESTIMONIAL_TEMPLATE_ID') {
+      router.push('/acordial/create');
+    } 
+    // Option 2: Check by specific template name (exact match)
+    else if (template && template.name === 'Testimonial Section') {
+      router.push('/acordial/create');
+    } 
+    // Option 3: Check by template type
+    else if (template && template.type === 'testimonial') {
+      router.push('/acordial/create');
+    }
+    else {
+      router.push(`/user/tem/${templateId}`);
+    }
   };
 
   // Animation variants
@@ -132,7 +147,7 @@ export default function TemplatesGallery() {
                 key={template._id}
                 template={template}
                 index={index}
-                onSelect={() => handleTemplateSelect(template._id)}
+                onSelect={() => handleTemplateSelect(template._id, template)}
                 variants={cardVariants}
               />
             ))}

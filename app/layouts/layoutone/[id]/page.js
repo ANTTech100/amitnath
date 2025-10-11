@@ -3,14 +3,12 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Head from "next/head";
-import { Plus } from "lucide-react";
 import DynamicPopup from "../../../components/DynamicPopup";
 
 export default function LayoutOne() {
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [showMoreSections, setShowMoreSections] = useState(false);
   const [popupComplete, setPopupComplete] = useState(false);
   const { id } = useParams();
 
@@ -189,7 +187,7 @@ export default function LayoutOne() {
     value: content.sections[sectionId].value,
   }));
 
-  const videoSection = sections.find((section) => section.type === "video");
+  const videoSections = sections.filter((section) => section.type === "video" && section.value);
   const imageSections = sections.filter(
     (section) => section.type === "image" && section.value
   );
@@ -204,8 +202,21 @@ export default function LayoutOne() {
     imageTextPairs.push({ image, text });
   });
 
-  const initialPairs = imageTextPairs.slice(0, 2);
-  const additionalPairs = imageTextPairs.slice(2);
+  // Create a combined array of all sections in order
+  const allSections = [];
+  
+  // Add videos in order
+  videoSections.forEach((video, index) => {
+    allSections.push({ type: 'video', data: video, order: index * 2 });
+  });
+  
+  // Add image-text pairs in order
+  imageTextPairs.forEach((pair, index) => {
+    allSections.push({ type: 'imageText', data: pair, order: index * 2 + 1 });
+  });
+
+  // Sort by order to maintain sequence
+  allSections.sort((a, b) => a.order - b.order);
 
   // Determine text color based on background color
   const isWhiteBackground =
@@ -244,64 +255,40 @@ export default function LayoutOne() {
         >
           {content.subheading}
         </h2>
-        {videoSection && (
-          <div className="mb-20 animate-fade-in-delayed">
-            {renderVideo(videoSection.value)}
-          </div>
-        )}
-        <div className="space-y-20">
-          {initialPairs.map((pair, index) => (
-            <div
-              key={pair.image.id}
-              className={`flex flex-col ${
-                index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
-              } items-center gap-10 animate-fade-in-delayed`}
-            >
-              <div className="w-full md:w-1/2">
-                {renderImage(pair.image.value)}
-              </div>
-              <div className="w-full md:w-1/2">
-                <p className={`text-lg leading-relaxed ${textColorClass.text}`}>
-                  {pair.text.value}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-        {additionalPairs.length > 0 && (
-          <div className="mt-20">
-            <button
-              onClick={() => setShowMoreSections(!showMoreSections)}
-              className="flex items-center mx-auto px-6 py-3 bg-indigo-700 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-800 transition"
-            >
-              <Plus className="mr-2" />
-              {showMoreSections ? "Show Less" : "Show More"}
-            </button>
-            {showMoreSections && (
-              <div className="space-y-20 mt-20">
-                {additionalPairs.map((pair, index) => (
-                  <div
-                    key={pair.image.id}
-                    className={`flex flex-col ${
-                      index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
-                    } items-center gap-10 animate-fade-in-delayed`}
-                  >
+        <div className="space-y-16">
+          {allSections.map((section, index) => {
+            // Calculate image-text pair index for zigzag
+            let imageTextIndex = 0;
+            for (let i = 0; i < index; i++) {
+              if (allSections[i].type === 'imageText') {
+                imageTextIndex++;
+              }
+            }
+            
+            return (
+              <div key={`${section.type}-${index}`} className="animate-fade-in-delayed">
+                {section.type === 'video' ? (
+                  <div>
+                    {renderVideo(section.data.value)}
+                  </div>
+                ) : (
+                  <div className={`flex flex-col ${
+                    imageTextIndex % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+                  } items-center gap-10`}>
                     <div className="w-full md:w-1/2">
-                      {renderImage(pair.image.value)}
+                      {renderImage(section.data.image.value)}
                     </div>
                     <div className="w-full md:w-1/2">
-                      <p
-                        className={`text-lg leading-relaxed ${textColorClass.text}`}
-                      >
-                        {pair.text.value}
+                      <p className={`text-lg leading-relaxed ${textColorClass.text}`}>
+                        {section.data.text.value}
                       </p>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
-            )}
-          </div>
-        )}
+            );
+          })}
+        </div>
         {linkSection && linkSection.value && (
           <div className="mt-20">
             <a
