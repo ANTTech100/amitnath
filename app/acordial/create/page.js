@@ -1,71 +1,247 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { Eye, Calendar, User, ChevronRight, Edit } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, Trash2, Upload, Link, Type, Video, MousePointer } from "lucide-react";
 
-export default function AccordionPublishPage() {
+export default function CreateAccordionContent() {
   const router = useRouter();
-  const [contents, setContents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [userId, setUserId] = useState(null);
+
+  // Form state
+  const [formData, setFormData] = useState({
+    title: "",
+    subtitle: "",
+    backgroundColor: "#ffffff",
+  });
+
+  const [guides, setGuides] = useState([
+    {
+      title: "",
+      items: [
+        {
+          type: "text",
+          content: "",
+          order: 0,
+        },
+      ],
+      order: 0,
+    },
+  ]);
 
   useEffect(() => {
     const storedUserId = localStorage.getItem("userid");
     if (storedUserId) {
       setUserId(storedUserId);
-      fetchContents(storedUserId);
     } else {
       router.push("/user/register");
       return;
     }
   }, [router]);
 
-  const fetchContents = async (userId) => {
+  const addGuide = () => {
+    const newGuide = {
+      title: "",
+      items: [
+        {
+          type: "text",
+          content: "",
+          order: 0,
+        },
+      ],
+      order: guides.length,
+    };
+    setGuides([...guides, newGuide]);
+  };
+
+  const removeGuide = (guideIndex) => {
+    if (guides.length > 1) {
+      const updatedGuides = guides.filter((_, index) => index !== guideIndex);
+      // Reorder guides
+      const reorderedGuides = updatedGuides.map((guide, index) => ({
+        ...guide,
+        order: index,
+      }));
+      setGuides(reorderedGuides);
+    }
+  };
+
+  const updateGuideTitle = (guideIndex, title) => {
+    const updatedGuides = [...guides];
+    updatedGuides[guideIndex].title = title;
+    setGuides(updatedGuides);
+  };
+
+  const addItemToGuide = (guideIndex) => {
+    const updatedGuides = [...guides];
+    const newItem = {
+      type: "text",
+      content: "",
+      order: updatedGuides[guideIndex].items.length,
+    };
+    updatedGuides[guideIndex].items.push(newItem);
+    setGuides(updatedGuides);
+  };
+
+  const removeItemFromGuide = (guideIndex, itemIndex) => {
+    const updatedGuides = [...guides];
+    if (updatedGuides[guideIndex].items.length > 1) {
+      updatedGuides[guideIndex].items.splice(itemIndex, 1);
+      // Reorder items
+      updatedGuides[guideIndex].items = updatedGuides[guideIndex].items.map((item, index) => ({
+        ...item,
+        order: index,
+      }));
+      setGuides(updatedGuides);
+    }
+  };
+
+  const updateItem = (guideIndex, itemIndex, field, value) => {
+    const updatedGuides = [...guides];
+    updatedGuides[guideIndex].items[itemIndex][field] = value;
+    setGuides(updatedGuides);
+  };
+
+  const handleFileUpload = async (guideIndex, itemIndex, file) => {
+    if (!file) return;
+
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await fetch(`/api/acordial/create?userId=${userId}`);
+      const uploadForm = new FormData();
+      uploadForm.append("file", file);
+      uploadForm.append("upload_preset", "tempelate");
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/ddyhobnzf/image/upload`,
+        { method: "POST", body: uploadForm }
+      );
+
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to fetch contents");
+      if (data.secure_url) {
+        updateItem(guideIndex, itemIndex, "content", data.secure_url);
+      } else {
+        setError("Failed to upload image");
       }
-
-      setContents(data.data || []);
     } catch (err) {
-      setError(err.message || "Failed to load contents");
+      setError("Failed to upload image");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleViewContent = (contentId) => {
-    router.push(`/acordial/view/${contentId}`);
+  const validateForm = () => {
+    if (!formData.title.trim()) {
+      setError("Title is required");
+      return false;
+    }
+    if (!formData.subtitle.trim()) {
+      setError("Subtitle is required");
+      return false;
+    }
+
+    for (let i = 0; i < guides.length; i++) {
+      const guide = guides[i];
+      if (!guide.title.trim()) {
+        setError(`Guide ${i + 1} title is required`);
+        return false;
+      }
+
+      for (let j = 0; j < guide.items.length; j++) {
+        const item = guide.items[j];
+        
+        // Only check content for non-button items
+        if (item.type !== "button" && !item.content.trim()) {
+          setError(`Guide ${i + 1}, Item ${j + 1} content is required`);
+          return false;
+        }
+        
+        // Check button-specific fields
+        if (item.type === "button") {
+          if (!item.buttonText?.trim()) {
+            setError(`Guide ${i + 1}, Button ${j + 1} text is required`);
+            return false;
+          }
+          if (!item.buttonLink?.trim()) {
+            setError(`Guide ${i + 1}, Button ${j + 1} link is required`);
+            return false;
+          }
+        }
+      }
+    }
+
+    return true;
   };
 
-  const handleEditContent = (e, contentId) => {
-    e.stopPropagation(); // Prevent card click
-    router.push(`/acordial/edit/${contentId}`);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const submissionData = new FormData();
+      submissionData.append("title", formData.title);
+      submissionData.append("subtitle", formData.subtitle);
+      submissionData.append("backgroundColor", formData.backgroundColor);
+      submissionData.append("userId", userId);
+
+      // Add guides data
+      guides.forEach((guide, guideIndex) => {
+        submissionData.append(`guide_${guideIndex}_title`, guide.title);
+        
+        guide.items.forEach((item, itemIndex) => {
+          submissionData.append(`guide_${guideIndex}_item_${itemIndex}_type`, item.type);
+          submissionData.append(`guide_${guideIndex}_item_${itemIndex}_content`, item.content);
+          
+          if (item.type === "button") {
+            submissionData.append(`guide_${guideIndex}_item_${itemIndex}_buttonText`, item.buttonText || "Click Here");
+            submissionData.append(`guide_${guideIndex}_item_${itemIndex}_buttonLink`, item.buttonLink || "#");
+          }
+        });
+      });
+
+      const response = await fetch("/api/acordial/create", {
+        method: "POST",
+        body: submissionData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create content");
+      }
+
+      setSuccess("Accordion content created successfully!");
+      setTimeout(() => {
+        router.push(`/acordial/view/${data.data._id}`);
+      }, 1500);
+    } catch (err) {
+      setError(err.message || "Failed to create content. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const itemTypeIcons = {
+    text: Type,
+    image: Upload,
+    video: Video,
+    button: MousePointer,
   };
 
-  const getGuideCount = (guides) => {
-    return guides ? guides.length : 0;
-  };
-
-  const getItemCount = (guides) => {
-    if (!guides) return 0;
-    return guides.reduce((total, guide) => total + (guide.items ? guide.items.length : 0), 0);
+  const itemTypeLabels = {
+    text: "Text",
+    image: "Image",
+    video: "Video",
+    button: "Button",
   };
 
   if (!userId) {
@@ -79,190 +255,338 @@ export default function AccordionPublishPage() {
     );
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-200 to-blue-300 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-lg font-medium text-black">Loading your accordion contents...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-200 to-blue-300 flex items-center justify-center">
-        <div className="text-center">
-          <div className="bg-red-50 border border-red-200 text-red-800 p-6 rounded-lg max-w-md">
-            <h2 className="text-xl font-bold mb-2">Error</h2>
-            <p>{error}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-200 to-blue-300 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
+      <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-8"
         >
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            My Accordion Contents
+          <h1 className="text-4xl font-bold text-black mb-4">
+            Create Accordion Content
           </h1>
           <p className="text-lg text-black">
-            Manage and view all your created accordion content
+            Create interactive guides with multiple content types
           </p>
         </motion.div>
 
-        {/* Create New Button */}
-        <motion.div
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="bg-red-50 border border-red-200 text-black p-4 rounded-lg mb-6"
+            >
+              {error}
+            </motion.div>
+          )}
+
+          {success && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="bg-green-50 border border-green-200 text-black p-4 rounded-lg mb-6"
+            >
+              {success}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <motion.form
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8 flex justify-center"
+          onSubmit={handleSubmit}
+          className="space-y-8"
         >
-          <button
-            onClick={() => router.push("/acordial/create")}
-            className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 transform"
-          >
-            Create New Accordion Content
-          </button>
-        </motion.div>
-
-        {/* Contents Grid */}
-        {contents.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-center py-16"
-          >
-            <div className="bg-white rounded-xl shadow-lg p-8 max-w-md mx-auto">
-              <div className="text-gray-400 mb-4">
-                <Eye className="h-16 w-16 mx-auto" />
+          {/* Basic Information */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-2xl font-bold text-black mb-6">Basic Information</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-black mb-2">
+                  Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="w-full p-3 border border-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="Enter your title"
+                  required
+                />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">No Content Yet</h3>
-              <p className="text-black mb-6">
-                You haven't created any accordion content yet. Start by creating your first one!
-              </p>
-              <button
-                onClick={() => router.push("/acordial/create")}
-                className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-semibold py-2 px-6 rounded-lg transition-all duration-300"
-              >
-                Create Your First Content
-              </button>
+
+              <div>
+                <label className="block text-sm font-medium text-black mb-2">
+                  Subtitle <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="w-full p-3 border border-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                  value={formData.subtitle}
+                  onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                  placeholder="Enter your subtitle"
+                  required
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-black mb-2">
+                  Background Color
+                </label>
+                <div className="flex items-center space-x-4">
+                  <input
+                    type="text"
+                    className="flex-1 p-3 border border-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                    value={formData.backgroundColor}
+                    onChange={(e) => setFormData({ ...formData, backgroundColor: e.target.value })}
+                    placeholder="#ffffff"
+                  />
+                  <input
+                    type="color"
+                    className="w-16 h-12 border border-black rounded-lg cursor-pointer"
+                    value={formData.backgroundColor}
+                    onChange={(e) => setFormData({ ...formData, backgroundColor: e.target.value })}
+                  />
+                </div>
+              </div>
             </div>
-          </motion.div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {contents.map((content, index) => (
+          </div>
+
+          {/* Guides */}
+          <div className="space-y-6">
+            {guides.map((guide, guideIndex) => (
               <motion.div
-                key={content._id}
+                key={guideIndex}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transform cursor-pointer overflow-hidden"
-                onClick={() => handleViewContent(content._id)}
+                className="bg-white rounded-xl shadow-lg p-6"
               >
-                {/* Card Header */}
-                <div 
-                  className="h-32 p-6 flex items-center justify-center"
-                  style={{ backgroundColor: content.backgroundColor }}
-                >
-                  <div className="text-center">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
-                      {content.title}
-                    </h3>
-                    <p className="text-sm text-black line-clamp-2">
-                      {content.subtitle}
-                    </p>
-                  </div>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-black">
+                    Guide {guideIndex + 1}
+                  </h3>
+                  {guides.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeGuide(guideIndex)}
+                      className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  )}
                 </div>
 
-                {/* Card Content */}
-                <div className="p-6">
-                  {/* Stats */}
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-yellow-600">
-                        {getGuideCount(content.guides)}
-                      </div>
-                      <div className="text-sm text-black">Guides</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-yellow-600">
-                        {getItemCount(content.guides)}
-                      </div>
-                      <div className="text-sm text-black">Items</div>
-                    </div>
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-black mb-2">
+                    Guide Title <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full p-3 border border-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                    value={guide.title}
+                    onChange={(e) => updateGuideTitle(guideIndex, e.target.value)}
+                    placeholder={`Enter guide ${guideIndex + 1} title`}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-lg font-semibold text-black">Items</h4>
+                    <button
+                      type="button"
+                      onClick={() => addItemToGuide(guideIndex)}
+                      className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span>Add Item</span>
+                    </button>
                   </div>
 
-                  {/* Guide Preview */}
-                  {content.guides && content.guides.length > 0 && (
-                    <div className="mb-4">
-                      <h4 className="text-sm font-semibold text-black mb-2">Guides:</h4>
-                      <div className="space-y-1">
-                        {content.guides.slice(0, 3).map((guide, guideIndex) => (
-                          <div key={guideIndex} className="text-sm text-black flex items-center">
-                            <span className="w-2 h-2 bg-yellow-400 rounded-full mr-2"></span>
-                            {guide.title}
+                  {guide.items.map((item, itemIndex) => {
+                    const IconComponent = itemTypeIcons[item.type];
+                    return (
+                      <div key={itemIndex} className="border border-black rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center space-x-3">
+                            <IconComponent className="h-5 w-5 text-black" />
+                            <span className="font-medium text-black">
+                              {itemTypeLabels[item.type]} Item {itemIndex + 1}
+                            </span>
                           </div>
-                        ))}
-                        {content.guides.length > 3 && (
-                          <div className="text-sm text-black">
-                            +{content.guides.length - 3} more guides
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
+                          {guide.items.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeItemFromGuide(guideIndex, itemIndex)}
+                              className="text-red-500 hover:text-red-700 p-1 rounded"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
 
-                  {/* Footer */}
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                    <div className="flex items-center text-sm text-black">
-                      <Calendar className="h-4 w-4 mr-1" />
-                      {formatDate(content.createdAt)}
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <button
-                        onClick={(e) => handleEditContent(e, content._id)}
-                        className="flex items-center text-blue-600 hover:text-blue-700 font-semibold transition-colors"
-                      >
-                        <Edit className="h-4 w-4 mr-1" />
-                        <span className="text-sm">Edit</span>
-                      </button>
-                      <div className="flex items-center text-yellow-600 font-semibold">
-                        <span className="text-sm">View</span>
-                        <ChevronRight className="h-4 w-4 ml-1" />
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-black mb-2">
+                              Item Type
+                            </label>
+                            <select
+                              className="w-full p-3 border border-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                              value={item.type}
+                              onChange={(e) => updateItem(guideIndex, itemIndex, "type", e.target.value)}
+                            >
+                              <option value="text">Text</option>
+                              <option value="image">Image</option>
+                              <option value="video">Video Link</option>
+                              <option value="button">Button</option>
+                            </select>
+                          </div>
+
+                          {item.type === "text" && (
+                            <div>
+                              <label className="block text-sm font-medium text-black mb-2">
+                                Text Content <span className="text-red-500">*</span>
+                              </label>
+                              <textarea
+                                className="w-full p-3 border border-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                                rows="4"
+                                value={item.content}
+                                onChange={(e) => updateItem(guideIndex, itemIndex, "content", e.target.value)}
+                                placeholder="Enter your text content"
+                                required
+                              />
+                            </div>
+                          )}
+
+                          {item.type === "image" && (
+                            <div>
+                              <label className="block text-sm font-medium text-black mb-2">
+                                Image <span className="text-red-500">*</span>
+                              </label>
+                              <div className="space-y-4">
+                                <div className="flex space-x-4">
+                                  <div className="flex-1">
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      className="w-full p-3 border border-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                                      onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) {
+                                          handleFileUpload(guideIndex, itemIndex, file);
+                                        }
+                                      }}
+                                    />
+                                  </div>
+                                  <div className="flex-1">
+                                    <input
+                                      type="url"
+                                      className="w-full p-3 border border-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                                      value={item.content}
+                                      onChange={(e) => updateItem(guideIndex, itemIndex, "content", e.target.value)}
+                                      placeholder="Or paste image URL"
+                                    />
+                                  </div>
+                                </div>
+                                {item.content && (
+                                  <div className="mt-4">
+                                    <img
+                                      src={item.content}
+                                      alt="Preview"
+                                      className="max-w-xs h-32 object-cover rounded-lg border border-black"
+                                      onError={(e) => {
+                                        e.target.style.display = "none";
+                                      }}
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {item.type === "video" && (
+                            <div>
+                              <label className="block text-sm font-medium text-black mb-2">
+                                Video URL <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="url"
+                                className="w-full p-3 border border-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                                value={item.content}
+                                onChange={(e) => updateItem(guideIndex, itemIndex, "content", e.target.value)}
+                                placeholder="Enter YouTube or video URL"
+                                required
+                              />
+                            </div>
+                          )}
+
+                          {item.type === "button" && (
+                            <div className="space-y-4">
+                              <div>
+                                <label className="block text-sm font-medium text-black mb-2">
+                                  Button Text <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                  type="text"
+                                  className="w-full p-3 border border-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                                  value={item.buttonText || ""}
+                                  onChange={(e) => updateItem(guideIndex, itemIndex, "buttonText", e.target.value)}
+                                  placeholder="Click Here"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-black mb-2">
+                                  Button Link <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                  type="url"
+                                  className="w-full p-3 border border-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                                  value={item.buttonLink || ""}
+                                  onChange={(e) => updateItem(guideIndex, itemIndex, "buttonLink", e.target.value)}
+                                  placeholder="https://example.com"
+                                  required
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    );
+                  })}
                 </div>
               </motion.div>
             ))}
           </div>
-        )}
 
-        {/* Back Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-12 flex justify-center"
-        >
-          <button
-            onClick={() => router.push("/user/home")}
-            className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl"
-          >
-            Back to Home
-          </button>
-        </motion.div>
+          {/* Add Guide Button */}
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={addGuide}
+              className="flex items-center space-x-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Plus className="h-5 w-5" />
+              <span>Add Another Guide</span>
+            </button>
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-sm disabled:opacity-50 transition-all duration-300 text-lg"
+            >
+              {submitting ? "Creating..." : "Create Accordion Content"}
+            </button>
+          </div>
+        </motion.form>
       </div>
     </div>
   );
