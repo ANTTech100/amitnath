@@ -149,7 +149,7 @@ export default function AccordionPublishPage() {
               </div>
               <h3 className="text-xl font-semibold text-gray-800 mb-2">No Content Yet</h3>
               <p className="text-gray-600 mb-6">
-                You haven't created any accordion content yet. Start by creating your first one!
+                You have not created any accordion content yet. Start by creating your first one!
               </p>
               <button
                 onClick={() => router.push("/acordial/create")}
