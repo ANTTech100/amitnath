@@ -13,18 +13,24 @@ export default function UserResponsesDashboard() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const responsesRes = await fetch("/api/admin/questions");
+        // Fetch all responses across tenants (superadmin)
+        const responsesRes = await fetch("/api/responses?all=true", {
+          headers: { "x-superadmin": "true" },
+        });
         const responsesData = await responsesRes.json();
         if (responsesData.success) {
-          setUserResponses(responsesData.data || []);
+          setUserResponses(responsesData.responses || []);
         } else {
           setError(responsesData.message || "Failed to fetch user responses");
         }
 
-        const templatesRes = await fetch("/api/admin/templatecreate");
+        // Fetch all templates across tenants (superadmin)
+        const templatesRes = await fetch("/api/templates?all=true", {
+          headers: { "x-superadmin": "true" },
+        });
         const templatesData = await templatesRes.json();
-        if (templatesData.success) {
-          setTemplates(templatesData.data || []);
+        if (templatesData.templates) {
+          setTemplates(templatesData.templates || []);
         }
         setError("");
       } catch (err) {

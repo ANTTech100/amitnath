@@ -8,9 +8,18 @@ export async function GET(req) {
   try {
     await connectDB();
     
+    const tenantToken = req.headers.get("x-admin-token");
+    if (!tenantToken) {
+      return NextResponse.json({ success: false, message: "Missing admin token" }, { status: 401 });
+    }
+
+    // Find template IDs for this tenant
+    const templates = await Template.find({ tenantToken }).select("_id");
+    const templateIds = templates.map(t => t._id);
+
     console.log("=== Starting GET request for template questions ===");
     
-    const userResponses = await UserResponse.find()
+    const userResponses = await UserResponse.find({ templateId: { $in: templateIds } })
       .populate({
         path: 'templateId',
         select: 'name description',

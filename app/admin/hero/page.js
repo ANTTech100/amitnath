@@ -75,29 +75,15 @@ export default function AdminHome() {
           pendingUploads: statsResponse.data.pendingUploads || 0,
           totalResponses,
           totalQuestions,
-          monthlyGrowth: Math.floor(Math.random() * 25) + 5, // Mock data
+          monthlyGrowth: null,
           avgResponseRate: totalUsers > 0 ? Math.round((totalResponses / totalUsers) * 100) : 0,
         });
 
         setRecentActivities(activitiesResponse.data || []);
 
-        // Mock data for charts
-        setUserGrowth([
-          { month: 'Jan', users: 120 },
-          { month: 'Feb', users: 180 },
-          { month: 'Mar', users: 220 },
-          { month: 'Apr', users: 280 },
-          { month: 'May', users: 320 },
-          { month: 'Jun', users: 380 },
-        ]);
-
-        setTemplateUsage([
-          { template: 'Landing Page', usage: 45 },
-          { template: 'Payment Page', usage: 32 },
-          { template: 'Thank You Page', usage: 28 },
-          { template: 'Testimonial', usage: 18 },
-          { template: 'Video Gallery', usage: 15 },
-        ]);
+        // No hardcoded analytics; leave charts empty unless backed by API
+        setUserGrowth([]);
+        setTemplateUsage([]);
       } catch (error) {
         setError(
           "Error loading dashboard data. Please check API endpoints or try again later."
@@ -221,10 +207,12 @@ export default function AdminHome() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-blue-200">+{stats.monthlyGrowth}%</div>
-                <div className="text-sm text-blue-200/60">This month</div>
-              </div>
+              {typeof stats.monthlyGrowth === 'number' && (
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-blue-200">+{stats.monthlyGrowth}%</div>
+                  <div className="text-sm text-blue-200/60">This month</div>
+                </div>
+              )}
             </div>
             <div className="text-3xl font-bold text-white mb-2">{stats.totalUsers}</div>
             <div className="text-blue-200/80 mb-4">Total Users</div>
@@ -309,22 +297,26 @@ export default function AdminHome() {
               </svg>
               User Growth
             </h3>
-            <div className="space-y-3">
-              {userGrowth.map((item, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="text-blue-200 font-medium">{item.month}</span>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-32 bg-blue-900/50 rounded-full h-2">
-                      <div 
-                        className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all duration-1000"
-                        style={{ width: `${(item.users / 400) * 100}%` }}
-                      ></div>
+            {userGrowth.length > 0 ? (
+              <div className="space-y-3">
+                {userGrowth.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <span className="text-blue-200 font-medium">{item.month}</span>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-32 bg-blue-900/50 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all duration-1000"
+                          style={{ width: `${(item.users / 400) * 100}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-white font-bold min-w-[3rem]">{item.users}</span>
                     </div>
-                    <span className="text-white font-bold min-w-[3rem]">{item.users}</span>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-blue-200/60">No analytics available yet</div>
+            )}
           </div>
 
           {/* Template Usage Chart */}
@@ -335,22 +327,26 @@ export default function AdminHome() {
               </svg>
               Template Usage
             </h3>
-            <div className="space-y-4">
-              {templateUsage.map((item, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="text-blue-200 font-medium truncate mr-4">{item.template}</span>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-24 bg-green-900/50 rounded-full h-2">
-                      <div 
-                        className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-1000"
-                        style={{ width: `${item.usage}%` }}
-                      ></div>
+            {templateUsage.length > 0 ? (
+              <div className="space-y-4">
+                {templateUsage.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <span className="text-blue-200 font-medium truncate mr-4">{item.template}</span>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-24 bg-green-900/50 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-1000"
+                          style={{ width: `${item.usage}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-white font-bold min-w-[3rem]">{item.usage}%</span>
                     </div>
-                    <span className="text-white font-bold min-w-[3rem]">{item.usage}%</span>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-blue-200/60">No usage data available yet</div>
+            )}
           </div>
         </motion.div>
 

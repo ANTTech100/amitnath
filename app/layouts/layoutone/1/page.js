@@ -257,7 +257,7 @@ export default function LayoutOne() {
                 {renderImage(pair.image.value)}
               </div>
               <div className="w-full md:w-1/2">
-                <p className={`text-lg leading-relaxed ${textColorClass.text}`}>
+                <p className={`text-lg leading-relaxed whitespace-pre-wrap ${textColorClass.text}`}>
                   {pair.text.value}
                 </p>
               </div>
@@ -286,9 +286,7 @@ export default function LayoutOne() {
                       {renderImage(pair.image.value)}
                     </div>
                     <div className="w-full md:w-1/2">
-                      <p
-                        className={`text-lg leading-relaxed ${textColorClass.text}`}
-                      >
+                      <p className={`text-lg leading-relaxed whitespace-pre-wrap ${textColorClass.text}`}>
                         {pair.text.value}
                       </p>
                     </div>

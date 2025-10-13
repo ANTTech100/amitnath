@@ -279,7 +279,7 @@ export default function LayoutOne() {
                       {renderImage(section.data.image.value)}
                     </div>
                     <div className="w-full md:w-1/2">
-                      <p className={`text-lg leading-relaxed ${textColorClass.text}`}>
+                      <p className={`text-lg leading-relaxed whitespace-pre-wrap ${textColorClass.text}`}>
                         {section.data.text.value}
                       </p>
                     </div>

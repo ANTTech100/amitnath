@@ -20,8 +20,12 @@ export async function GET(request) {
     if (status) filter.status = status;
     if (createdBy) filter.createdBy = createdBy;
 
-    // Fetch templates with optional filtering, sorted by creation date (newest first)
-    const templates = await Template.find(filter);
+    // Scope by tenant
+    const tenantToken = request.headers.get("x-admin-token");
+    if (!tenantToken) {
+      return NextResponse.json({ success: false, message: "Missing admin token" }, { status: 401 });
+    }
+    const templates = await Template.find({ ...filter, tenantToken });
 
     return NextResponse.json({
       success: true,
@@ -48,6 +52,11 @@ export async function POST(request) {
     const templateData = await request.json();
     console.log("Template Data:", templateData);
 
+    const tenantToken = request.headers.get("x-admin-token");
+    if (!tenantToken) {
+      return NextResponse.json({ success: false, message: "Missing admin token" }, { status: 401 });
+    }
+
     // Validate required fields
     if (!templateData.name || !templateData.description) {
       return NextResponse.json(
@@ -70,6 +79,7 @@ export async function POST(request) {
       sections: templateData.sections || [],
       createdAt: new Date(),
       updatedAt: new Date(),
+      tenantToken,
     });
 
     await template.save();

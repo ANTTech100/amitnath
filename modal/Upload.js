@@ -6,6 +6,11 @@ const contentSchema = new mongoose.Schema({
     ref: "Template",
     required: true,
   },
+  tenantToken: {
+    type: String,
+    required: false,
+    index: true,
+  },
   heading: {
     type: String,
     required: true,

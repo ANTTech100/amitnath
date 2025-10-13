@@ -9,6 +9,10 @@ export async function GET(request) {
     const all = searchParams.get("all");
     let templates;
     if (all === "true") {
+      const superadmin = request.headers.get("x-superadmin") === "true";
+      if (!superadmin) {
+        return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+      }
       templates = await Template.find({});
     } else {
       const tenantToken = request.headers.get("x-admin-token");

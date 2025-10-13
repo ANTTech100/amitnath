@@ -53,6 +53,11 @@ const templateQuestionsSchema = new mongoose.Schema(
       ref: "User",
       required: false, // Make it optional for admin
     },
+    tenantToken: {
+      type: String,
+      required: false,
+      index: true,
+    },
   },
   {
     timestamps: true,

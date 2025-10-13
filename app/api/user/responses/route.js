@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/config/Database";
 import { UserResponse, TemplateQuestions } from "@/modal/DynamicPopop";
 import User from "@/modal/UserUser";
+import Template from "@/modal/Template";
 
 // GET - Handle both checking user completion and fetching admin responses
 export async function GET(request) {
@@ -13,10 +14,20 @@ export async function GET(request) {
 
     await connectDB();
 
-    // If admin request, return all responses
+    // If admin request, return responses scoped by tenant
     if (isAdmin) {
-      let query = {};
-      if (templateId) query.templateId = templateId;
+      const tenantToken = request.headers.get("x-admin-token");
+      if (!tenantToken) {
+        return NextResponse.json({ success: false, message: "Missing admin token" }, { status: 401 });
+      }
+
+      // Find template IDs belonging to this tenant
+      const templateFilter = { tenantToken };
+      if (templateId) templateFilter._id = templateId;
+      const templates = await Template.find(templateFilter).select("_id");
+      const templateIds = templates.map(t => t._id);
+
+      let query = { templateId: { $in: templateIds } };
       if (userId) query.userId = userId;
 
       const userResponses = await UserResponse.find(query)
@@ -58,10 +69,16 @@ export async function GET(request) {
       }
     }
 
-    // Get questions for the template
+    // Get questions for the template with safety: ensure tenant match
+    const template = await Template.findById(templateId).select("tenantToken");
+    if (!template) {
+      return NextResponse.json({ success: false, message: "Template not found" }, { status: 404 });
+    }
+
     const templateQuestions = await TemplateQuestions.findOne({
       templateId,
       isActive: true,
+      tenantToken: template.tenantToken || null,
     });
 
     if (

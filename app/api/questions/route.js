@@ -11,7 +11,11 @@ export async function GET(request) {
     const all = searchParams.get("all");
     let templateQuestions;
     if (all === "true") {
-      // Superadmin: return all questions
+      // Only superadmin should use all=true; otherwise block
+      const superadmin = request.headers.get("x-superadmin") === "true";
+      if (!superadmin) {
+        return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+      }
       templateQuestions = await TemplateQuestions.find()
         .populate('templateId', 'name description')
         .populate('createdBy', 'fullName email')

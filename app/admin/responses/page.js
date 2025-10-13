@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import AdminNavbar from "../Navbar";
-import axios from "axios";
+import apiClient from "@/utils/apiClient";
 
 export default function AdminResponsesPage() {
   const [responses, setResponses] = useState([]);
@@ -17,7 +17,7 @@ export default function AdminResponsesPage() {
 
   const fetchTemplates = async () => {
     try {
-      const response = await axios.get("/api/admin/templatecreate");
+      const response = await apiClient.get("/api/admin/templatecreate");
       if (response.data.success) {
         setTemplates(response.data.data);
       }
@@ -33,7 +33,7 @@ export default function AdminResponsesPage() {
         ? `/api/user/responses?admin=true&templateId=${selectedTemplate}`
         : "/api/user/responses?admin=true";
       
-      const response = await axios.get(url);
+      const response = await apiClient.get(url);
       if (response.data.success) {
         setResponses(response.data.data);
       }

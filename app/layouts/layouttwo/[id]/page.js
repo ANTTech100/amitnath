@@ -242,7 +242,7 @@ export default function PaymentPage() {
                   {/* Text Section Below First Image */}
                   {rightText && (
                     <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20">
-                      <p className="text-lg text-gray-700 leading-relaxed font-medium">
+                      <p className="text-lg text-gray-700 leading-relaxed font-medium whitespace-pre-wrap">
                         {rightText.value}
                       </p>
                     </div>
@@ -261,7 +261,7 @@ export default function PaymentPage() {
                   {/* Two Text Sections Below Second Image */}
                   {bottomText1 && (
                     <div className="group bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl hover:border-indigo-200 transition-all duration-300">
-                      <p className="text-lg text-gray-700 leading-relaxed font-medium group-hover:text-gray-800 transition-colors">
+                      <p className="text-lg text-gray-700 leading-relaxed font-medium whitespace-pre-wrap group-hover:text-gray-800 transition-colors">
                         {bottomText1.value}
                       </p>
                     </div>
@@ -269,7 +269,7 @@ export default function PaymentPage() {
 
                   {bottomText2 && (
                     <div className="group bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl hover:border-indigo-200 transition-all duration-300">
-                      <p className="text-lg text-gray-700 leading-relaxed font-medium group-hover:text-gray-800 transition-colors">
+                      <p className="text-lg text-gray-700 leading-relaxed font-medium whitespace-pre-wrap group-hover:text-gray-800 transition-colors">
                         {bottomText2.value}
                       </p>
                     </div>

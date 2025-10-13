@@ -19,8 +19,13 @@ export async function GET(request, context) {
     // Connect to database
     await connectDB();
 
-    // Find template by ID
-    const template = await Template.findById(id);
+    // Find template by ID and tenant
+    const tenantToken = request.headers.get("x-admin-token");
+    if (!tenantToken) {
+      return NextResponse.json({ success: false, message: "Missing admin token" }, { status: 401 });
+    }
+
+    const template = await Template.findOne({ _id: id, tenantToken });
 
     if (!template) {
       return NextResponse.json(
@@ -69,8 +74,12 @@ export async function PUT(request, context) {
     // Connect to database
     await connectDB();
 
-    // First fetch the existing template
-    const existingTemplate = await Template.findById(id);
+    // First fetch the existing template scoped by tenant
+    const tenantToken = request.headers.get("x-admin-token");
+    if (!tenantToken) {
+      return NextResponse.json({ success: false, message: "Missing admin token" }, { status: 401 });
+    }
+    const existingTemplate = await Template.findOne({ _id: id, tenantToken });
 
     if (!existingTemplate) {
       return NextResponse.json(
@@ -90,8 +99,8 @@ export async function PUT(request, context) {
     }
 
     // Update the template with new data and return the updated document
-    const updatedTemplate = await Template.findByIdAndUpdate(
-      id,
+    const updatedTemplate = await Template.findOneAndUpdate(
+      { _id: id, tenantToken },
       { $set: updateData },
       { new: true, runValidators: true }
     ).populate("createdBy updatedBy", "name email");
@@ -133,8 +142,12 @@ export async function DELETE(request, context) {
     // Connect to database
     await connectDB();
 
-    // Delete the template
-    const deletedTemplate = await Template.findByIdAndDelete(id);
+    // Delete the template scoped by tenant
+    const tenantToken = request.headers.get("x-admin-token");
+    if (!tenantToken) {
+      return NextResponse.json({ success: false, message: "Missing admin token" }, { status: 401 });
+    }
+    const deletedTemplate = await Template.findOneAndDelete({ _id: id, tenantToken });
 
     if (!deletedTemplate) {
       return NextResponse.json(

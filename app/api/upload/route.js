@@ -59,8 +59,11 @@ export async function POST(request) {
       );
     }
 
-    // Verify template exists
-    const template = await Template.findById(templateId);
+    // Verify template exists and belongs to tenant (if admin token provided)
+    const tenantToken = request.headers.get("x-admin-token");
+    const template = tenantToken
+      ? await Template.findOne({ _id: templateId, tenantToken })
+      : await Template.findById(templateId);
     if (!template) {
       return NextResponse.json(
         { success: false, message: "Template not found" },
@@ -71,6 +74,7 @@ export async function POST(request) {
     // Prepare content data
     const contentData = {
       templateId,
+      tenantToken: template.tenantToken || null,
       heading,
       backgroundColor,
       subheading,
@@ -143,13 +147,22 @@ export async function POST(request) {
   }
 }
 
-export async function GET() {
+export async function GET(request) {
   try {
     // Connect to database
     await connectDB();
 
-    // Fetch all content and populate templateId
-    const contents = await Content.find()
+    // Tenant scoping for admin views
+    const tenantToken = request.headers?.get?.("x-admin-token");
+    let contentQuery = {};
+    if (tenantToken) {
+      const templates = await Template.find({ tenantToken }).select("_id");
+      const templateIds = templates.map(t => t._id);
+      contentQuery.templateId = { $in: templateIds };
+    }
+
+    // Fetch content and populate templateId
+    const contents = await Content.find(contentQuery)
       .populate({
         path: "templateId",
         match: { _id: { $exists: true } }, // Ensure only valid templates are populated
@@ -280,6 +293,7 @@ export async function PUT(request) {
     // Prepare updated content data
     const contentData = {
       templateId,
+      tenantToken: template.tenantToken || null,
       heading,
       subheading,
       sections: {},

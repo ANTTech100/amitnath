@@ -4,11 +4,16 @@ import { TemplateQuestions } from "@/modal/DynamicPopop";
 import Template from "@/modal/Template";
 
 // GET - Fetch all template questions
-export async function GET() {
+export async function GET(request) {
   try {
     await connectDB();
-    
-    const templateQuestions = await TemplateQuestions.find()
+
+    const tenantToken = request.headers.get("x-admin-token");
+    if (!tenantToken) {
+      return NextResponse.json({ message: "Missing admin token" }, { status: 401 });
+    }
+
+    const templateQuestions = await TemplateQuestions.find({ tenantToken })
       .populate('templateId', 'name description')
       .populate('createdBy', 'fullName email')
       .sort({ createdAt: -1 });
@@ -35,6 +40,11 @@ export async function POST(request) {
   try {
     const { templateId, questions, createdBy } = await request.json();
 
+    const tenantToken = request.headers.get("x-admin-token");
+    if (!tenantToken) {
+      return NextResponse.json({ success: false, message: "Missing admin token" }, { status: 401 });
+    }
+
     if (!templateId || !questions || !createdBy) {
       return NextResponse.json(
         {
@@ -48,7 +58,7 @@ export async function POST(request) {
     await connectDB();
 
     // Verify template exists
-    const template = await Template.findById(templateId);
+    const template = await Template.findOne({ _id: templateId, tenantToken });
     if (!template) {
       return NextResponse.json(
         {
@@ -60,7 +70,7 @@ export async function POST(request) {
     }
 
     // Check if questions already exist for this template
-    const existingQuestions = await TemplateQuestions.findOne({ templateId });
+    const existingQuestions = await TemplateQuestions.findOne({ templateId, tenantToken });
     if (existingQuestions) {
       return NextResponse.json(
         {
@@ -116,6 +126,7 @@ export async function POST(request) {
         order: index + 1,
       })),
       createdBy: createdBy === "admin" ? null : createdBy, // Handle admin case
+      tenantToken,
     });
 
     await templateQuestions.save();
@@ -143,6 +154,11 @@ export async function PUT(request) {
   try {
     const { templateId, questions, updatedBy } = await request.json();
 
+    const tenantToken = request.headers.get("x-admin-token");
+    if (!tenantToken) {
+      return NextResponse.json({ success: false, message: "Missing admin token" }, { status: 401 });
+    }
+
     if (!templateId || !questions) {
       return NextResponse.json(
         {
@@ -156,7 +172,7 @@ export async function PUT(request) {
     await connectDB();
 
     // Find existing questions
-    const existingQuestions = await TemplateQuestions.findOne({ templateId });
+    const existingQuestions = await TemplateQuestions.findOne({ templateId, tenantToken });
     if (!existingQuestions) {
       return NextResponse.json(
         {
@@ -239,6 +255,11 @@ export async function DELETE(request) {
   try {
     const { templateId } = await request.json();
 
+    const tenantToken = request.headers.get("x-admin-token");
+    if (!tenantToken) {
+      return NextResponse.json({ success: false, message: "Missing admin token" }, { status: 401 });
+    }
+
     if (!templateId) {
       return NextResponse.json(
         {
@@ -251,7 +272,7 @@ export async function DELETE(request) {
 
     await connectDB();
 
-    const result = await TemplateQuestions.findOneAndDelete({ templateId });
+    const result = await TemplateQuestions.findOneAndDelete({ templateId, tenantToken });
 
     if (!result) {
       return NextResponse.json(
