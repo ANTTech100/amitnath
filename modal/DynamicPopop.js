@@ -6,10 +6,12 @@ const optionSchema = new mongoose.Schema(
     text: {
       type: String,
       required: true,
+      trim: true,
     },
     isCorrect: {
       type: Boolean,
       default: false,
+      required: true,
     },
   },
   { _id: false }
@@ -21,8 +23,23 @@ const questionSchema = new mongoose.Schema(
     questionText: {
       type: String,
       required: true,
+      trim: true,
     },
-    options: [optionSchema],
+    options: {
+      type: [optionSchema],
+      required: true,
+      validate: {
+        validator: function(options) {
+          // At least 2 options required
+          if (options.length < 2) return false;
+          
+          // Exactly one correct option required
+          const correctCount = options.filter(opt => opt.isCorrect).length;
+          return correctCount === 1;
+        },
+        message: 'Each question must have at least 2 options with exactly one correct answer'
+      }
+    },
     required: {
       type: Boolean,
       default: true,
@@ -35,27 +52,37 @@ const questionSchema = new mongoose.Schema(
   { _id: false }
 );
 
-// Schema for template questions
+// Schema for template questions with proper tenant isolation
 const templateQuestionsSchema = new mongoose.Schema(
   {
     templateId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Template",
       required: true,
+      index: true,
     },
-    questions: [questionSchema],
+    questions: {
+      type: [questionSchema],
+      required: true,
+      validate: {
+        validator: function(questions) {
+          return questions.length > 0;
+        },
+        message: 'At least one question is required'
+      }
+    },
     isActive: {
       type: Boolean,
       default: true,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: false, // Make it optional for admin
+      // ref: "User",
+      required: false, // Optional for admin-created questions
     },
     tenantToken: {
       type: String,
-      required: false,
+      required: true, // REQUIRED for tenant isolation
       index: true,
     },
   },
@@ -64,7 +91,10 @@ const templateQuestionsSchema = new mongoose.Schema(
   }
 );
 
-// Schema for user responses
+// Compound index for unique template questions per tenant
+templateQuestionsSchema.index({ templateId: 1, tenantToken: 1 }, { unique: true });
+
+// Schema for user responses (separate concern)
 const userResponseSchema = new mongoose.Schema(
   {
     templateId: {
@@ -73,7 +103,7 @@ const userResponseSchema = new mongoose.Schema(
       required: true,
     },
     userId: {
-      type: mongoose.Schema.Types.Mixed,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
     userInfo: {
@@ -97,9 +127,22 @@ const userResponseSchema = new mongoose.Schema(
         isCorrect: Boolean,
       },
     ],
+    score: {
+      type: Number,
+      default: 0,
+    },
+    totalQuestions: {
+      type: Number,
+      required: true,
+    },
     completed: {
       type: Boolean,
       default: false,
+    },
+    tenantToken: {
+      type: String,
+      required: true,
+      index: true,
     },
   },
   {
@@ -107,10 +150,14 @@ const userResponseSchema = new mongoose.Schema(
   }
 );
 
+// Index for user responses
+userResponseSchema.index({ templateId: 1, userId: 1, tenantToken: 1 });
+
 // Create models
 const TemplateQuestions =
   mongoose.models.TemplateQuestions ||
   mongoose.model("TemplateQuestions", templateQuestionsSchema);
+
 const UserResponse =
   mongoose.models.UserResponse ||
   mongoose.model("UserResponse", userResponseSchema);

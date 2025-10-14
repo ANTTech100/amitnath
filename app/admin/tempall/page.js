@@ -2,7 +2,6 @@
 // pages/admin/templates/index.js
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import Head from "next/head";
 import {
   PlusCircle,
@@ -17,6 +16,7 @@ import {
   Phone,
 } from "lucide-react";
 import AdminNavbar from "../Navbar";
+import apiClient from "@/utils/apiClient";
 
 export default function TemplateList() {
   const router = useRouter();
@@ -41,7 +41,7 @@ export default function TemplateList() {
   const fetchTemplates = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/api/admin/templatecreate");
+      const response = await apiClient.get("/api/admin/templatecreate");
 
       if (response.data.success) {
         console.log("Templates fetched successfully:", response.data.data);

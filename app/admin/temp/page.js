@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import apiClient from "@/utils/apiClient";
 import Head from "next/head";
 import { CheckCircle, Trash, Plus, Save, Upload, Edit3, X } from "lucide-react";
 
@@ -191,7 +192,7 @@ export default function CreateTemplate() {
       };
 
       // Send to API
-      const response = await axios.post(
+      const response =  await apiClient.post(
         "/api/admin/templatecreate",
         templateToSave
       );

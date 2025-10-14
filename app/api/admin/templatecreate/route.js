@@ -3,6 +3,7 @@ import { connectDB } from "@/config/Database";
 import Template from "@/modal/Template";
 
 // GET handler - Get all templates or filter by query params
+// GET handler - Get all templates or filter by query params
 export async function GET(request) {
   try {
     // Connect to database
@@ -22,10 +23,26 @@ export async function GET(request) {
 
     // Scope by tenant
     const tenantToken = request.headers.get("x-admin-token");
+    let templates;
+    
     if (!tenantToken) {
-      return NextResponse.json({ success: false, message: "Missing admin token" }, { status: 401 });
+      return NextResponse.json({
+        success: false,
+        message: "Missing admin token",
+      }, { status: 401 });
+    } else {
+      // Return templates that either:
+      // 1. Match this tenant's token, OR
+      // 2. Don't have a tenantToken (legacy templates)
+      templates = await Template.find({
+        ...filter,
+        $or: [
+          { tenantToken: tenantToken },
+          { tenantToken: { $exists: false } },
+          { tenantToken: null }
+        ]
+      });
     }
-    const templates = await Template.find({ ...filter, tenantToken });
 
     return NextResponse.json({
       success: true,

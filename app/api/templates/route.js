@@ -16,14 +16,18 @@ export async function GET(request) {
       templates = await Template.find({});
     } else {
       const tenantToken = request.headers.get("x-admin-token");
+      
       if (!tenantToken) {
-        return NextResponse.json({ message: "Missing admin token" }, { status: 401 });
+        // If no tenant token, return templates without tenant filter
+        templates = await Template.find({});
+      } else {
+        // If tenant token exists, filter by it
+        templates = await Template.find({ tenantToken });
       }
-      templates = await Template.find({ tenantToken });
     }
     return NextResponse.json({ templates }, { status: 200 });
   } catch (error) {
     console.error("Error fetching templates:", error);
     return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
-} 
+}

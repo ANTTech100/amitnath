@@ -3,10 +3,10 @@ import { useState, useEffect } from "react";
 import Head from "next/head";
 import AdminNavbar from "../Navbar";
 import Link from "next/link";
-import axios from "axios";
+import apiClient from "@/utils/apiClient";
 import { motion } from "framer-motion";
 import useAdminAuth from "@/utils/useAdminAuth";
-import apiClient from "@/utils/apiClient";
+// import apiClient from "@/utils/apiClient";
 
 export default function AdminHome() {
   const { loading: authLoading, admin, error: authError } = useAdminAuth();
