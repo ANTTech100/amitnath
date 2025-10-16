@@ -45,7 +45,8 @@ export default function UserAuth() {
       });
 
       setSuccess("Login successful!");
-      const userid = localStorage.setItem("userid", response.data.userid);
+      const userid = localStorage.setItem("userid", response.data.usertoken);
+      const usertoken = localStorage.setItem("usertoken", response.data.userid);
       console.log("User ID:", userid);
       router.push("/");
     } catch (err) {

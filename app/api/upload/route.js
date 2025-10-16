@@ -25,12 +25,18 @@ export async function POST(request) {
     // Log parsed data for debugging
     console.log("Parsed FormData fields:", fields);
 
+    // Check for user token in headers
+    const userToken = request.headers.get('x-user-token');
+    
     // Extract required fields
     const templateId = fields.templateId;
     const backgroundColor = fields.backgroundColor || "#ffffff"; // Default to white if not provided
     const heading = fields.heading;
     const subheading = fields.subheading;
-    const userId = fields.userId;
+    // Use token from header if available, otherwise use from form data
+    const userId = userToken || fields.userId;
+    // const tenantToken = fields.tenantToken;
+
     const askUserDetails = fields.askUserDetails === "true"; // Convert string to boolean
     console.log("askUserDetails value:", fields.askUserDetails);
     console.log("askUserDetails converted:", askUserDetails);
@@ -44,7 +50,7 @@ export async function POST(request) {
     }
 
     // Validate userId
-    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+    if (!userId) {
       return NextResponse.json(
         { success: false, message: "Invalid or missing user ID" },
         { status: 400 }
@@ -60,7 +66,7 @@ export async function POST(request) {
     }
 
     // Verify template exists and belongs to tenant (if admin token provided)
-    const tenantToken = request.headers.get("x-admin-token");
+    const tenantToken = request.headers.get("x-admin-token") ; 
     const template = tenantToken
       ? await Template.findOne({ _id: templateId, tenantToken })
       : await Template.findById(templateId);
@@ -74,13 +80,13 @@ export async function POST(request) {
     // Prepare content data
     const contentData = {
       templateId,
-      tenantToken: template.tenantToken || null,
+      tenantToken : fields.tenantToken || null,
       heading,
       backgroundColor,
       subheading,
       sections: {},
-      createdBy: userId, // Use userId from form data
-      updatedBy: userId, // Use userId from form data
+      createdBy: String(userId), // Ensure createdBy is treated as a string
+      updatedBy: String(userId), // Ensure updatedBy is treated as a string
       askUserDetails, // Add the askUserDetails field
     };
 
@@ -135,6 +141,7 @@ export async function POST(request) {
       data: content,
     });
   } catch (error) {
+    console.log("Error details:", error);
     console.error("Error creating content:", error);
     return NextResponse.json(
       {

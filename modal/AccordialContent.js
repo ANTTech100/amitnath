@@ -60,8 +60,8 @@ const accordialContentSchema = new mongoose.Schema({
   },
   guides: [guideSchema],
   createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    type: String,
+    // ref: "User",
     required: true,
   },
   backgroundColor: {

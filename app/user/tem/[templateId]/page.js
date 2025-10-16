@@ -23,6 +23,7 @@ export default function ContentUploadPage({ params }) {
   const [filePreviews, setFilePreviews] = useState({});
   const [inputTypes, setInputTypes] = useState({});
   const [userId, setUserId] = useState(null);
+  const [usertoken, setUsertoken] = useState(null);
   const [videoUrlErrors, setVideoUrlErrors] = useState({});
   const [visibleSectionCount, setVisibleSectionCount] = useState(5);
   const [imageInputModes, setImageInputModes] = useState({});
@@ -188,7 +189,9 @@ export default function ContentUploadPage({ params }) {
 
   useEffect(() => {
     const storedUserId = localStorage.getItem("userid");
-    if (storedUserId) {
+    const storedUsertoken = localStorage.getItem("usertoken");
+    if (storedUserId && storedUsertoken) {
+      setUsertoken(storedUsertoken);
       setUserId(storedUserId);
     } else {
       router.push("/user/register");
@@ -209,7 +212,14 @@ export default function ContentUploadPage({ params }) {
   const fetchTemplateDetails = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/admin/templatecreate/${templateId}`);
+      // Get user token from localStorage
+      const userToken = localStorage.getItem("userid");
+      
+      const response = await fetch(`/api/templatecreate/${templateId}`, {
+        headers: {
+          'x-user-token': userToken || ''
+        }
+      });
       if (!response.ok) {
         throw new Error(`Failed to fetch template: ${response.statusText}`);
       }
@@ -513,6 +523,7 @@ export default function ContentUploadPage({ params }) {
       submissionData.append("subheading", formData.subheading);
       submissionData.append("backgroundColor", formData.backgroundColor);
       submissionData.append("userId", userId);
+      submissionData.append("tenantToken", usertoken );
       submissionData.append("askUserDetails", askUserDetailsValue);
       console.log("Sending askUserDetailsValue:", askUserDetailsValue);
       template?.sections?.forEach((section) => {
@@ -523,8 +534,14 @@ export default function ContentUploadPage({ params }) {
         }
       });
 
+      // Get user token from localStorage
+      const userToken = localStorage.getItem("userid");
+      
       const response = await fetch("/api/upload", {
         method: "POST",
+        headers: {
+          'x-user-token': userToken || ''
+        },
         body: submissionData,
       });
 

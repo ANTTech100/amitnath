@@ -16,7 +16,12 @@ export default function TemplatesGallery() {
   const fetchTemplates = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/admin/templatecreate");
+      const userId = localStorage.getItem("userid");
+      const response = await fetch("/api/templatecreate", {
+        headers: {
+          "x-user-token": userId || ""
+        }
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch templates");
       }

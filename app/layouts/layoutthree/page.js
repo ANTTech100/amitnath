@@ -30,8 +30,13 @@ export default function PaymentPageCards() {
         setCurrentUserId(userIdFromStorage);
 
         // Step 1: Fetch templates (existing code)
-        console.log("Fetching templates from /api/admin/templatecreate...");
-        const templateResponse = await fetch("/api/admin/templatecreate");
+        console.log("Fetching templates from /api/templatecreate...");
+      const userId = localStorage.getItem("userid");
+      const templateResponse = await fetch("/api/templatecreate", {
+        headers: {
+          "x-user-token": userId || ""
+        }
+      });
         const templateData = await templateResponse.json();
 
         if (!templateData.success) {
