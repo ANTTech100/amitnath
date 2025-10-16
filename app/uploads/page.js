@@ -12,6 +12,7 @@ export default function UploadList() {
     const fetchUploads = async () => {
       try {
         const response = await axios.get("/api/upload");
+        console.log("API Response:", response.data);
         setUploads(response.data.contents || []);
       } catch (error) {
         console.error("Error fetching uploads:", error);

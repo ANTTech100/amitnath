@@ -33,13 +33,27 @@ export default function AdminResponsesPage() {
         ? `/api/user/responses?admin=true&templateId=${selectedTemplate}`
         : "/api/user/responses?admin=true";
       
-      const response = await apiClient.get(url);
+      // Get admin token from localStorage
+      const adminToken = localStorage.getItem('adminToken');
+      
+      // Set headers with admin token for tenant filtering
+      const headers = adminToken ? { 'x-admin-token': adminToken } : {};
+      
+      const response = await apiClient.get(url, { headers });
       if (response.data.success) {
-        setResponses(response.data.data);
+        // Initialize responses as an empty array if data is undefined
+        setResponses(response.data.data || []);
+        console.log("Responses loaded:", response.data.data ? response.data.data.length : 0);
+      } else {
+        // Set empty array if request was not successful
+        setResponses([]);
+        console.log("No responses returned from API");
       }
     } catch (error) {
       console.error("Error fetching responses:", error);
       setError("Failed to fetch responses");
+      // Set empty array on error
+      setResponses([]);
     } finally {
       setLoading(false);
     }
@@ -192,4 +206,4 @@ export default function AdminResponsesPage() {
       </div>
     </div>
   );
-} 
+}

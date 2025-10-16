@@ -15,7 +15,12 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const contentId = searchParams.get("contentId");
     const templateId = searchParams.get("templateId");
-    console.log("Query params:", { contentId, templateId });
+    const isAdmin = searchParams.get("admin") === "true";
+    console.log("Query params:", { contentId, templateId, isAdmin });
+    
+    // Get tenant token from header for admin filtering
+    const tenantToken = request.headers.get("x-admin-token");
+    console.log("Tenant token from header:", tenantToken);
     
     // If contentId is provided, check if content exists and matches templateId
     if (contentId) {
@@ -91,6 +96,36 @@ export async function GET(request) {
         questions: matchingQuestions,
         count: matchingQuestions.length
       });
+    } else if (isAdmin) {
+      // Admin is requesting user responses
+      console.log("Admin request for user responses");
+      
+      // Build query based on available filters
+      let query = {};
+      
+      if (templateId) {
+        query.templateId = templateId;
+      }
+      
+      // Filter by tenant token if provided in header
+      if (tenantToken) {
+        query.tenantToken = tenantToken;
+        console.log("Filtering responses by tenant token:", tenantToken);
+      }
+      
+      // Fetch user responses with filters
+      const userResponses = await UserResponse.find(query)
+        .populate('templateId')
+        .sort({ createdAt: -1 });
+      
+      console.log("User responses found:", userResponses ? userResponses.length : 0);
+      
+      return NextResponse.json({
+        success: true,
+        message: "User responses fetched successfully",
+        data: userResponses,
+        count: userResponses.length
+      });
     } else {
       // If no contentId provided, fetch all questions (original behavior)
       console.log("No contentId provided, fetching all questions");
@@ -131,25 +166,20 @@ export async function POST(request) {
     const body = await request.json();
     console.log("Request body:", body);
     
-    const {  templateId, userInfo, responses } = body;
+    const { templateId, userInfo, responses, tenantToken } = body;
     
-   
+    console.log("Tenant token received:", tenantToken);
     
     // Check if content exists and matches templateId
     console.log("Fetching content...");
     // const content = await Content.findById(contentId);
     
-  
-    
-   
-    
     // Create a new user response
     const userResponse = new UserResponse({
-    
       templateId,
       userInfo,
       responses,
-      // tenantToken: content.tenantToken,
+      tenantToken, // Adding tenant token to the user response
     });
     
     // Save the user response

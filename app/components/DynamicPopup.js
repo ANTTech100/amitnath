@@ -168,10 +168,54 @@ export default function DynamicPopup({ templateId, onComplete }) {
     setError("");
 
     try {
+      // Get content ID from URL path
+      let contentId = null;
+      try {
+        const segments = window.location.pathname.split("/").filter(Boolean);
+        contentId = segments[segments.length - 1] || null;
+        console.log("Extracted contentId from URL:", contentId);
+      } catch (err) {
+        console.error("Error extracting contentId:", err);
+      }
+      
+      // Get tenant token from content data
+      let tenantToken = null;
+      try {
+        // Fetch all content and filter for our content ID
+        const contentResponse = await axios.get("/api/upload");
+        if (contentResponse.data && contentResponse.data.success) {
+          const allContent = contentResponse.data.content;
+          console.log("All content:", allContent.length, "items");
+          console.log("Looking for content with ID:", contentId);
+          
+          const filteredContent = allContent.find(item => item._id === contentId);
+          console.log("Filtered Content:", filteredContent);
+          
+          if (filteredContent && filteredContent.tenantToken) {
+            tenantToken = filteredContent.tenantToken;
+            console.log("Retrieved tenant token from content:", tenantToken);
+          } else {
+            console.error("Content found but no tenant token available:", filteredContent);
+          }
+        } else {
+          console.error("Failed to get content data:", contentResponse.data);
+        }
+      } catch (err) {
+        console.error("Error fetching content for tenant token:", err);
+      }
+      
+      console.log("Sending response with tenant token:", tenantToken);
+      
+      // Make sure we have a valid tenant token
+      if (!tenantToken) {
+        console.error("No tenant token found for content ID:", contentId);
+      }
+      
       const response = await axios.post("/api/user/responses", {
         templateId,
         userInfo,
         responses,
+        tenantToken: tenantToken, // Ensure correct property name for tenant token
       });
 
       if (response.data.success) {

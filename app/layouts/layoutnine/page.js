@@ -31,7 +31,7 @@ export default function PaymentPageCards() {
 
         // Step 1: Fetch templates (existing code)
         console.log("Fetching templates from /api/admin/templatecreate...");
-        const templateResponse = await fetch("/api/admin/templatecreate");
+       const templateResponse = await fetch("/api/templatecreate");
         const templateData = await templateResponse.json();
 
         if (!templateData.success) {
