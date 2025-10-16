@@ -59,21 +59,55 @@ export default function DynamicPopup({ templateId, onComplete }) {
 
   const loadQuestions = async () => {
     try {
-      const response = await axios.get(`/api/user/responses?templateId=${templateId}`);
+      console.log("Loading questions for templateId:", templateId);
+      
+      // Determine content ID from URL path
+      let contentId = null;
+      try {
+        const segments = window.location.pathname.split("/").filter(Boolean);
+        contentId = segments[segments.length - 1] || null;
+        console.log("Extracted contentId from URL:", contentId);
+      } catch (err) {
+        console.error("Error extracting contentId:", err);
+      }
+      
+      // Build API URL with contentId if available
+      const apiUrl = contentId 
+        ? `/api/user/responses?templateId=${templateId}&contentId=${contentId}`
+        : `/api/user/responses?templateId=${templateId}`;
+      
+      console.log("Calling API:", apiUrl);
+      const response = await axios.get(apiUrl);
+      console.log("API Response:", response.data);
       
       if (response.data.success) {
-        if (response.data.hasQuestions) {
+        console.log("Questions fetched successfully:", {
+          questions: response.data.questions,
+          count: response.data.questions?.length || 0
+        });
+        
+        if (response.data.questions && response.data.questions.length > 0) {
           // Questions exist for this template
-          setQuestions(response.data.questions);
-          setResponses(response.data.questions.map(() => ({ selectedOption: "" })));
+          // Extract the actual questions array from the response structure
+          const questionData = response.data.questions[0]?.questions || [];
+          console.log("Extracted question data:", questionData);
+          
+          setQuestions(questionData);
+          setResponses(questionData.map(() => ({ selectedOption: "" })));
+          console.log("Questions set in state just now");
         } else {
           // No questions for this template
+          console.log("No questions found, hiding popup");
           setShowPopup(false);
           if (onComplete) onComplete();
         }
+      } else {
+        console.log("API returned success: false", response.data.message);
+        setShowPopup(false);
+        if (onComplete) onComplete();
       }
     } catch (error) {
-      console.error("Error loading questions:", error);
+      console.error("Error loading questions:", error.response?.data || error.message);
       setShowPopup(false);
       if (onComplete) onComplete();
     }
@@ -295,13 +329,13 @@ export default function DynamicPopup({ templateId, onComplete }) {
                 onSubmit={handleQuestionsSubmit}
                 className="space-y-6"
               >
-                {questions.map((question, questionIndex) => (
+                {Array.isArray(questions) && questions.length > 0 ? questions.map((question, questionIndex) => (
                   <div key={questionIndex} className="space-y-3">
                     <h3 className="font-semibold text-black text-lg">
-                      {questionIndex + 1}. {question.questionText}
+                      {questionIndex + 1}. {question?.questionText || "Question"}
                     </h3>
                     <div className="space-y-2">
-                      {question.options.map((option, optionIndex) => (
+                      {Array.isArray(question?.options) ? question.options.map((option, optionIndex) => (
                         <label key={optionIndex} className="flex items-center space-x-3 cursor-pointer">
                           <input
                             type="radio"
@@ -314,10 +348,10 @@ export default function DynamicPopup({ templateId, onComplete }) {
                           />
                           <span className="text-black font-medium">{option.text}</span>
                         </label>
-                      ))}
+                      )) : <p>No options available</p>}
                     </div>
                   </div>
-                ))}
+                )) : <p>No questions available</p>}
 
                 <div className="flex space-x-3">
                   <button
@@ -342,4 +376,4 @@ export default function DynamicPopup({ templateId, onComplete }) {
       </motion.div>
     </AnimatePresence>
   );
-} 
+}

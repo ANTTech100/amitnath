@@ -21,17 +21,13 @@ export async function POST(request) {
       fields[key] = value;
     }
 
-    // Check for user token in headers
-    const userToken = request.headers.get('x-user-token');
-    
     console.log("Parsed FormData fields:", fields);
 
     // Extract required fields
     const title = fields.title;
     const subtitle = fields.subtitle;
     const backgroundColor = fields.backgroundColor || "#ffffff";
-    // Use token from header if available, otherwise use from form data
-    const userId = userToken || fields.userId;
+    const userId = fields.userId;
 
     // Validate required fields
     if (!title || !subtitle || !userId) {
@@ -42,7 +38,7 @@ export async function POST(request) {
     }
 
     // Validate userId
-    if (!userId) {
+    if (!userId ) {
       return NextResponse.json(
         { success: false, message: "Invalid userId" },
         { status: 400 }
@@ -121,7 +117,7 @@ export async function POST(request) {
       subtitle,
       backgroundColor,
       guides: guidesData,
-      createdBy: String(userId), // Ensure createdBy is treated as a string
+      createdBy: userId,
       isPublished: true,
     };
 
