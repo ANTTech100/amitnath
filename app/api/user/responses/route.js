@@ -240,6 +240,56 @@ export async function POST(request) {
       // Do not fail the response submission due to email errors
     }
 
+    // Also send a confirmation email to the responding user (popup email)
+    try {
+      const userEmail = userInfo?.email;
+      if (userEmail) {
+        const adminTokenDoc = tenantToken
+          ? await AdminToken.findOne({ token: tenantToken }).lean()
+          : null;
+        const tenantName = adminTokenDoc?.tenantName || "CodelessPages";
+
+        const emailEndpoint = new URL('/api/email', request.url).toString();
+        const subject = `Thanks for your submission - ${tenantName}`;
+        const responderName = userInfo?.name || userInfo?.fullName || "there";
+        const responseCount = Array.isArray(responses) ? responses.length : 0;
+        const previewLines = Array.isArray(responses)
+          ? responses.slice(0, 5).map((r, i) => `<li>Q${i + 1}: ${r.selectedOption || r.answer || ''}</li>`).join('')
+          : '';
+
+        const message = `
+          <div style="font-family: Arial, sans-serif; max-width: 640px; margin:0 auto;">
+            <h2 style="color:#111">Thank you, ${responderName}!</h2>
+            <p>We received your submission for <strong>${tenantName}</strong>.</p>
+            <p><strong>Template ID:</strong> ${templateId}</p>
+            <p><strong>Total Responses:</strong> ${responseCount}</p>
+            ${responseCount > 0 ? `<p>Preview of your answers:</p><ul>${previewLines}</ul>` : ''}
+            <p style="color:#555">If this wasn't you, you can ignore this email.</p>
+          </div>
+        `;
+
+        const emailRes = await fetch(emailEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: userEmail,
+            subject,
+            message,
+            fromName: `${tenantName} Team`
+          })
+        });
+
+        if (!emailRes.ok) {
+          console.warn('Failed to send confirmation email to user');
+        }
+      } else {
+        console.warn('User email missing in popup submission, skipping user email');
+      }
+    } catch (userEmailErr) {
+      console.error('Error while sending confirmation email to user:', userEmailErr);
+      // Do not fail the response submission due to email errors
+    }
+
     return NextResponse.json({
       success: true,
       message: "Response submitted successfully",

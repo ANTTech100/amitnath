@@ -1,10 +1,31 @@
 "use client";
 // components/admin/Navbar.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const AdminNavbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("adminToken") : null;
+      setIsLoggedIn(!!token);
+    } catch (e) {
+      setIsLoggedIn(false);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminTokenData");
+    } catch (e) {}
+    setIsLoggedIn(false);
+    router.push("/admin/register");
+  };
 
   return (
     <nav className="bg-gray-900 text-white">
@@ -86,12 +107,21 @@ const AdminNavbar = () => {
                   />
                 </svg>
               </Link> */}
-              <Link
-                href="/admin/register"
-                className="ml-4 px-3 py-2 rounded-md text-sm font-medium bg-red-600 hover:bg-red-700"
-              >
-                Register
-              </Link>
+              {isLoggedIn ? (
+                <button
+                  onClick={handleLogout}
+                  className="ml-4 px-3 py-2 rounded-md text-sm font-medium bg-red-600 hover:bg-red-700"
+                >
+                  Logout
+                </button>
+              ) : (
+                <Link
+                  href="/admin/register"
+                  className="ml-4 px-3 py-2 rounded-md text-sm font-medium bg-red-600 hover:bg-red-700"
+                >
+                  Register
+                </Link>
+              )}
             </div>
           </div>
           <div className="md:hidden">
@@ -180,12 +210,21 @@ const AdminNavbar = () => {
             >
               Settings
             </Link>
-            <Link
-              href="/auth/logout"
-              className="block px-3 py-2 rounded-md text-base font-medium bg-red-600 hover:bg-red-700"
-            >
-              Logout
-            </Link>
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium bg-red-600 hover:bg-red-700"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link
+                href="/admin/register"
+                className="block px-3 py-2 rounded-md text-base font-medium bg-red-600 hover:bg-red-700"
+              >
+                Register
+              </Link>
+            )}
           </div>
         </div>
       )}

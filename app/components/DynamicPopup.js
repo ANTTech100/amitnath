@@ -344,14 +344,14 @@ export default function DynamicPopup({ templateId, onComplete }) {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-900 mb-1">
-                    Password
+                     Number
                   </label>
                   <input
                     type="password"
                     value={userInfo.password}
                     onChange={(e) => setUserInfo({ ...userInfo, password: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-black placeholder-gray-500"
-                    placeholder="Create a password"
+                    placeholder="Enter Your Number"
                     required
                   />
                 </div>
