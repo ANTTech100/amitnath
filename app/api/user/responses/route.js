@@ -3,6 +3,7 @@ import { connectDB } from "@/config/Database";
 import Content from "@/modal/Upload";
 import { TemplateQuestions } from "@/modal/DynamicPopop";
 import { UserResponse } from "@/modal/DynamicPopop";
+import AdminToken from "@/modal/AdminToken";
 
 export async function GET(request) {
   try {
@@ -181,12 +182,64 @@ export async function POST(request) {
       responses,
       tenantToken, // Adding tenant token to the user response
     });
-    
+
     // Save the user response
     console.log("Saving user response...");
     await userResponse.save();
     console.log("User response saved successfully");
-    
+
+    // Attempt to send an email notification to the tenant admin
+    try {
+      if (tenantToken) {
+        const adminTokenDoc = await AdminToken.findOne({ token: tenantToken }).lean();
+        const adminEmail = adminTokenDoc?.adminEmail;
+        const tenantName = adminTokenDoc?.tenantName || "Tenant";
+
+        if (adminEmail) {
+          const emailEndpoint = new URL('/api/email', request.url).toString();
+          const subject = `New response submitted - ${tenantName}`;
+          const responderName = userInfo?.name || userInfo?.fullName || "Unknown";
+          const responderEmail = userInfo?.email || "unknown@local";
+          const responseCount = Array.isArray(responses) ? responses.length : 0;
+          const previewLines = Array.isArray(responses)
+            ? responses.slice(0, 5).map((r, i) => `<li>Q${i + 1}: ${r.selectedOption || r.answer || ''}</li>`).join('')
+            : '';
+
+          const message = `
+            <div style="font-family: Arial, sans-serif; max-width: 640px; margin:0 auto;">
+              <h2 style="color:#111">New Response Submitted</h2>
+              <p><strong>Tenant:</strong> ${tenantName}</p>
+              <p><strong>Responder:</strong> ${responderName} (${responderEmail})</p>
+              <p><strong>Template ID:</strong> ${templateId}</p>
+              <p><strong>Total Responses:</strong> ${responseCount}</p>
+              ${responseCount > 0 ? `<p>Preview:</p><ul>${previewLines}</ul>` : ''}
+              <p style="color:#555">You are receiving this because you are the admin contact for this tenant.</p>
+            </div>
+          `;
+
+          const emailRes = await fetch(emailEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: adminEmail,
+              subject,
+              message,
+              fromName: `${tenantName} Notifications`
+            })
+          });
+
+          if (!emailRes.ok) {
+            console.warn('Failed to send response notification email');
+          }
+        } else {
+          console.warn('Admin email not found for tenant token, skipping notification');
+        }
+      }
+    } catch (notifyErr) {
+      console.error('Error while sending response notification:', notifyErr);
+      // Do not fail the response submission due to email errors
+    }
+
     return NextResponse.json({
       success: true,
       message: "Response submitted successfully",

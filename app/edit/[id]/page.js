@@ -34,9 +34,11 @@ export default function EditContent() {
             return;
           }
 
-          // Check permission
+          // Check permission (allow superadmin override)
+          const isSuperadmin = localStorage.getItem("superadminAuth") === "true";
           const userId = localStorage.getItem("userid");
-          if (!userId || contentData.createdBy !== userId) {
+          const createdById = (contentData.createdBy || "").toString();
+          if (!isSuperadmin && (!userId || createdById !== userId)) {
             setHasPermission(false);
             setLoading(false);
             return;
@@ -94,10 +96,14 @@ export default function EditContent() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const userId = localStorage.getItem("userid");
-    if (!userId || userId === "null") {
+    const isSuperadmin = localStorage.getItem("superadminAuth") === "true";
+    const userIdLocal = localStorage.getItem("userid");
+    const effectiveUserId = isSuperadmin
+      ? (content?.createdBy ? content.createdBy.toString() : userIdLocal)
+      : userIdLocal;
+    if (!effectiveUserId || effectiveUserId === "null") {
       toast.error("Please log in to update content");
-      router.push("/user/register"); // Redirect to login page
+      router.push("/user/register");
       return;
     }
 
@@ -106,7 +112,7 @@ export default function EditContent() {
     data.append("templateId", content.templateId._id);
     data.append("heading", formData.heading);
     data.append("subheading", formData.subheading);
-    data.append("userId", userId);
+    data.append("userId", effectiveUserId);
     Object.entries(formData.sections).forEach(([sectionId, section]) => {
       if (section.value instanceof File) {
         data.append(sectionId, section.value);
@@ -119,6 +125,7 @@ export default function EditContent() {
       const response = await fetch("/api/upload", {
         method: "PUT",
         body: data,
+        headers: isSuperadmin ? { "x-superadmin": "true" } : undefined,
       });
       const result = await response.json();
       if (result.success) {

@@ -5,13 +5,13 @@ import { Users, Shield, FileText, BarChart3, Key, MessageSquare, ClipboardList, 
 import { useState } from "react";
 
 const navLinks = [
-  { name: "Users", href: "/superadmin/users", icon: Users },
-  { name: "Admins", href: "/superadmin/admins", icon: Shield },
-  { name: "Templates", href: "/superadmin/templates", icon: FileText },
-
   { name: "Tokens", href: "/superadmin/tokens", icon: Key },
+  { name: "Organizations", href: "/superadmin/organization", icon: BarChart3 },
+  { name: "Admins", href: "/superadmin/admins", icon: Shield },
+  { name: "Users", href: "/superadmin/users", icon: Users },
+  { name: "Templates", href: "/superadmin/templates", icon: FileText },
   // { name: "Questions", href: "/superadmin/questions", icon: MessageSquare },
-  { name: "Responses", href: "/superadmin/responses", icon: ClipboardList },
+  { name: "Viewers", href: "/superadmin/responses", icon: ClipboardList },
 ];
 
 export default function SuperadminNavbar() {

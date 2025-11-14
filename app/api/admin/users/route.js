@@ -16,8 +16,28 @@ export async function GET(request) {
       return NextResponse.json({ message: "Admin not found" }, { status: 401 });
     }
     // Find all users for this organization
-    const users = await User.find({ tenantToken });
-    return NextResponse.json({ users: users || [] }, { status: 200 });
+    const users = await User.find({ tenantToken }).lean();
+
+    // Count pages created by users in this organization
+    const userIds = users.map(u => u._id);
+    // Import Content lazily to avoid circular deps at top
+    const { default: Content } = await import("@/modal/Upload");
+    const contents = await Content.find({ createdBy: { $in: userIds } }).lean();
+
+    const pageCountMap = {};
+    contents.forEach(content => {
+      const uid = content.createdBy?.toString();
+      if (uid) {
+        pageCountMap[uid] = (pageCountMap[uid] || 0) + 1;
+      }
+    });
+
+    const enhancedUsers = users.map(user => ({
+      ...user,
+      pagesCreated: pageCountMap[user._id.toString()] || 0,
+    }));
+
+    return NextResponse.json({ users: enhancedUsers || [] }, { status: 200 });
   } catch (error) {
     console.error("Error fetching users for admin org:", error);
     return NextResponse.json({ message: "Server error" }, { status: 500 });
@@ -62,4 +82,4 @@ export async function PUT(request) {
     console.error("Error updating user validation:", error);
     return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
-} 
+}

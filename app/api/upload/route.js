@@ -159,9 +159,32 @@ export async function GET(request) {
     // Connect to database
     await connectDB();
 
+    // Read optional filters
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("userId");
+    
     // Tenant scoping for admin views
     const tenantToken = request.headers?.get?.("x-admin-token");
     let contentQuery = {};
+    
+    if (userId) {
+      // When requesting pages for a specific user, filter by creator
+      contentQuery.createdBy = userId;
+      if (tenantToken) {
+        // Also scope to tenant token if provided
+        contentQuery.tenantToken = tenantToken;
+      }
+      const contents = await Content.find(contentQuery)
+        .sort({ updatedAt: -1 })
+        .lean();
+      return NextResponse.json({
+        success: true,
+        message: "Content fetched successfully",
+        content: contents,
+      });
+    }
+
+    // Default behavior: for tenant views, restrict to contents with valid templates
     if (tenantToken) {
       const templates = await Template.find({ tenantToken }).select("_id");
       const templateIds = templates.map(t => t._id);
@@ -182,13 +205,12 @@ export async function GET(request) {
     );
 
     if (validContents.length === 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "No valid content found with associated templates",
-        },
-        { status: 404 }
-      );
+      // Return empty array instead of 404 to avoid breaking UIs that expect lists
+      return NextResponse.json({
+        success: true,
+        message: "No content found",
+        content: [],
+      });
     }
 
     return NextResponse.json({
