@@ -176,6 +176,40 @@ export default function AdminResponsesDashboard() {
 
   const maxChartValue = Math.max(...chartData.map(d => d.count), 1);
 
+  const exportCSV = () => {
+    const headers = [
+      'Tenant', 'Template', 'Content Heading', 'User Name', 'User Email', 'Score %', 'Total Questions', 'Submitted At'
+    ];
+    const rows = filteredResponses.map((r) => {
+      const tenant = r.tenantName || '';
+      const template = getTemplateName(r.templateId);
+      const contentHeading = r.contentInfo?.heading || r.contentInfo?.subheading || '';
+      const name = getUserName(r);
+      const email = getUserEmail(r);
+      const score = r.stats?.scorePercentage || 0;
+      const totalQ = r.responses?.length || 0;
+      const submitted = (r.submittedAt || r.createdAt) ? new Date(r.submittedAt || r.createdAt).toISOString() : '';
+      return [tenant, template, contentHeading, name, email, score, totalQ, submitted]
+        .map((val) => {
+          const s = String(val ?? '');
+          // Escape quotes and wrap field
+          const escaped = s.replace(/"/g, '""');
+          return `"${escaped}"`;
+        }).join(',');
+    });
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const fname = `responses_${new Date().toISOString().slice(0,10)}.csv`;
+    link.setAttribute('download', fname);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
      
@@ -347,6 +381,15 @@ export default function AdminResponsesDashboard() {
                 className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded px-4 py-2 transition-all"
               >
                 {loading ? "Loading..." : "Apply Filters"}
+              </button>
+            </div>
+            <div className="flex items-end">
+              <button
+                onClick={exportCSV}
+                disabled={filteredResponses.length === 0}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded px-4 py-2 transition-all"
+              >
+                Export CSV
               </button>
             </div>
           </div>

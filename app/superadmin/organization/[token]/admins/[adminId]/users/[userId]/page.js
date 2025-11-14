@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 
 export default function UserPagesPage() {
   const { token, adminId, userId } = useParams();
@@ -38,9 +39,9 @@ export default function UserPagesPage() {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-semibold text-white">User Pages</h2>
         <div className="flex gap-4">
-          <a href={`/superadmin/organization/${encodeURIComponent(token)}/admins/${adminId}`} className="text-blue-200">← Users</a>
-          <a href={`/superadmin/organization/${encodeURIComponent(token)}`} className="text-blue-200">Admins</a>
-          <a href="/superadmin/organization" className="text-blue-200">All organizations</a>
+          <Link href={`/superadmin/organization/${encodeURIComponent(token)}/admins/${adminId}`} className="text-blue-200">← Users</Link>
+          <Link href={`/superadmin/organization/${encodeURIComponent(token)}`} className="text-blue-200">Admins</Link>
+          <Link href="/superadmin/organization" className="text-blue-200">All organizations</Link>
         </div>
       </div>
 
@@ -58,12 +59,12 @@ export default function UserPagesPage() {
               <div className="text-blue-200 text-sm mt-1">Template: {content.templateId?.name || content.templateId || "—"}</div>
               <div className="text-blue-300 text-xs mt-2">Updated: {content.updatedAt ? new Date(content.updatedAt).toLocaleString() : "—"}</div>
               <div className="mt-3">
-                <a
+                <Link
                   href={`/edit/${content._id}`}
                   className="inline-block px-3 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-500"
                 >
                   Edit
-                </a>
+                </Link>
               </div>
             </div>
           ))}

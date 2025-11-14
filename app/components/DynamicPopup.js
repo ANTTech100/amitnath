@@ -213,6 +213,7 @@ export default function DynamicPopup({ templateId, onComplete }) {
       
       const response = await axios.post("/api/user/responses", {
         templateId,
+        contentId,
         userInfo,
         responses,
         tenantToken: tenantToken, // Ensure correct property name for tenant token

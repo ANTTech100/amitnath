@@ -33,7 +33,26 @@ export async function GET(request) {
       
       // Build query filters
       if (templateId) query.templateId = templateId;
-      if (tenantFilter) query.tenantToken = tenantFilter;
+      // Accept tenant filter as token or tenant name
+      if (tenantFilter) {
+        try {
+          const tokenDoc = await AdminToken.findOne({
+            $or: [
+              { token: tenantFilter },
+              { tenantName: { $regex: `^${tenantFilter}$`, $options: 'i' } }
+            ]
+          }).lean();
+          if (tokenDoc?.token) {
+            query.tenantToken = tokenDoc.token;
+          } else {
+            query.tenantToken = tenantFilter;
+          }
+        } catch (e) {
+          query.tenantToken = tenantFilter;
+        }
+      }
+      // Filter by contentId directly when provided
+      if (contentId) query.contentId = contentId;
       if (startDate || endDate) {
         query.createdAt = {};
         if (startDate) query.createdAt.$gte = new Date(startDate);
@@ -96,14 +115,9 @@ export async function GET(request) {
       }
     }
     
-    // Fetch all contents to map templateId to content
+    // Fetch all contents to provide full headings list and lookup by id
     const allContents = await Content.find({}).lean();
-    const templateToContentMap = {};
-    allContents.forEach(content => {
-      if (content.templateId) {
-        templateToContentMap[content.templateId.toString()] = content;
-      }
-    });
+    const contentMapById = new Map(allContents.map(c => [c._id.toString(), c]));
     
     // Fetch all admin tokens for tenant names
     const adminTokens = await AdminToken.find({}).lean();
@@ -121,8 +135,10 @@ export async function GET(request) {
             templateId: response.templateId._id || response.templateId 
           }).lean();
           
-          // Get content info
-          const contentInfo = templateToContentMap[(response.templateId._id || response.templateId).toString()];
+          // Get content info by stored contentId, fallback to first content by template
+          const contentInfo = response.contentId
+            ? contentMapById.get(response.contentId.toString())
+            : allContents.find(c => c.templateId && (c.templateId.toString() === ((response.templateId._id || response.templateId).toString())));
           
           // Get tenant name
           const tenantName = tokenMap[response.tenantToken] || response.tenantToken || "Unknown";
@@ -204,15 +220,12 @@ export async function GET(request) {
     // Get unique tenants for filter
     const uniqueTenants = [...new Set(filteredResponses.map(r => r.tenantName))].filter(Boolean).sort();
     
-    // Get unique contents for filter
-    const uniqueContents = [];
-    const contentIds = new Set();
-    filteredResponses.forEach(r => {
-      if (r.contentInfo && !contentIds.has(r.contentInfo._id.toString())) {
-        contentIds.add(r.contentInfo._id.toString());
-        uniqueContents.push(r.contentInfo);
-      }
-    });
+    // Build contents list for filters using ALL contents
+    const contentsForFilter = allContents.map(c => ({
+      _id: c._id,
+      heading: c.heading,
+      subheading: c.subheading
+    }));
     
     // Calculate statistics
     const stats = {
@@ -258,7 +271,7 @@ export async function GET(request) {
       count: filteredResponses?.length || 0,
       filters: {
         tenants: uniqueTenants,
-        contents: uniqueContents
+        contents: contentsForFilter
       },
       stats,
       chartData

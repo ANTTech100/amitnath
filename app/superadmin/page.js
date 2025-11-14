@@ -33,7 +33,6 @@ export default function AdminDashboard() {
       setShowPasswordPrompt(false);
       fetchData(activeTab);
     }
-    // eslint-disable-next-line
   }, [authLoading, isAuthenticated, activeTab]);
 
   const fetchData = async (tab) => {

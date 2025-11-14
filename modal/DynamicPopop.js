@@ -102,6 +102,10 @@ const userResponseSchema = new mongoose.Schema(
       ref: "Template",
       required: true,
     },
+    contentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Upload",
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

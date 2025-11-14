@@ -167,7 +167,7 @@ export async function POST(request) {
     const body = await request.json();
     console.log("Request body:", body);
     
-    const { templateId, userInfo, responses, tenantToken } = body;
+    const { templateId, contentId, userInfo, responses, tenantToken } = body;
     
     console.log("Tenant token received:", tenantToken);
     
@@ -178,6 +178,7 @@ export async function POST(request) {
     // Create a new user response
     const userResponse = new UserResponse({
       templateId,
+      contentId,
       userInfo,
       responses,
       tenantToken, // Adding tenant token to the user response

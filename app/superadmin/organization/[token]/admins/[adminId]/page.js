@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 
 export default function AdminUsersPage() {
   const { token, adminId } = useParams();
@@ -34,8 +35,8 @@ export default function AdminUsersPage() {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-semibold text-white">Users</h2>
         <div className="flex gap-4">
-          <a href={`/superadmin/organization/${encodeURIComponent(token)}`} className="text-blue-200">← Admins</a>
-          <a href="/superadmin/organization" className="text-blue-200">All organizations</a>
+          <Link href={`/superadmin/organization/${encodeURIComponent(token)}`} className="text-blue-200">← Admins</Link>
+          <Link href="/superadmin/organization" className="text-blue-200">All organizations</Link>
         </div>
       </div>
 
@@ -63,12 +64,12 @@ export default function AdminUsersPage() {
                   <td className="px-4 py-2 text-blue-100">{user.email || "—"}</td>
                   <td className="px-4 py-2 text-blue-300">{user.pagesCreated ?? "—"}</td>
                   <td className="px-4 py-2">
-                    <a
+                    <Link
                       href={`/superadmin/organization/${encodeURIComponent(token)}/admins/${adminId}/users/${user._id}`}
                       className="text-blue-100 hover:text-white"
                     >
                       View pages →
-                    </a>
+                    </Link>
                   </td>
                 </tr>
               ))}
