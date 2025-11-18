@@ -131,45 +131,7 @@ export default function SuperadminUsers() {
                 </div>
               </div>
 
-              {/* Chart - Top Users by Pages Created */}
-              <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 shadow-xl mb-8">
-                <h2 className="text-2xl font-bold text-white mb-6">Top 10 Users by Pages Created</h2>
-                <div className="space-y-4">
-                  {topUsers.length === 0 ? (
-                    <p className="text-purple-200 text-center py-8">No page creation data available</p>
-                  ) : (
-                    topUsers.map((user, index) => {
-                      const maxPages = topUsers[0]?.pagesCreated || 1;
-                      const percentage = (user.pagesCreated / maxPages) * 100;
-                      
-                      return (
-                        <div key={user._id} className="flex items-center gap-4">
-                          <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 rounded-full">
-                            <span className="text-white font-bold">#{index + 1}</span>
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex justify-between items-center mb-2">
-                              <div>
-                                <p className="text-white font-medium">{user.fullName || user.email || "Unknown"}</p>
-                                <p className="text-purple-200 text-sm">{user.tenantName}</p>
-                              </div>
-                              <span className="text-white font-bold text-lg bg-white/10 px-4 py-1 rounded-full">
-                                {user.pagesCreated} {user.pagesCreated === 1 ? 'page' : 'pages'}
-                              </span>
-                            </div>
-                            <div className="w-full bg-white/20 rounded-full h-3 overflow-hidden">
-                              <div 
-                                className="bg-gradient-to-r from-purple-400 to-pink-400 h-full rounded-full transition-all duration-500"
-                                style={{ width: `${percentage}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
+            
 
               {/* Filters */}
               <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 shadow-xl mb-6">
@@ -258,6 +220,45 @@ export default function SuperadminUsers() {
                       )}
                     </tbody>
                   </table>
+                </div>
+              </div>
+                {/* Chart - Top Users by Pages Created */}
+              <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 shadow-xl mb-8">
+                <h2 className="text-2xl font-bold text-white mb-6">Top 10 Users by Pages Created</h2>
+                <div className="space-y-4">
+                  {topUsers.length === 0 ? (
+                    <p className="text-purple-200 text-center py-8">No page creation data available</p>
+                  ) : (
+                    topUsers.map((user, index) => {
+                      const maxPages = topUsers[0]?.pagesCreated || 1;
+                      const percentage = (user.pagesCreated / maxPages) * 100;
+                      
+                      return (
+                        <div key={user._id} className="flex items-center gap-4">
+                          <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 rounded-full">
+                            <span className="text-white font-bold">#{index + 1}</span>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex justify-between items-center mb-2">
+                              <div>
+                                <p className="text-white font-medium">{user.fullName || user.email || "Unknown"}</p>
+                                <p className="text-purple-200 text-sm">{user.tenantName}</p>
+                              </div>
+                              <span className="text-white font-bold text-lg bg-white/10 px-4 py-1 rounded-full">
+                                {user.pagesCreated} {user.pagesCreated === 1 ? 'page' : 'pages'}
+                              </span>
+                            </div>
+                            <div className="w-full bg-white/20 rounded-full h-3 overflow-hidden">
+                              <div 
+                                className="bg-gradient-to-r from-purple-400 to-pink-400 h-full rounded-full transition-all duration-500"
+                                style={{ width: `${percentage}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </div>
             </>

@@ -56,116 +56,95 @@ const UserNavbar = () => {
   };
 
   return (
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled 
-            ? 'bg-gradient-to-r from-blue-800 to-blue-900 border-b border-blue-600/50 backdrop-blur-xl shadow-xl' 
-            : 'bg-gradient-to-r from-blue-600 to-blue-700 border-b border-blue-500/50 backdrop-blur-xl shadow-lg'
-        }`}>
-          {/* Enhanced animated background gradient */}
-          <div className={`absolute inset-0 transition-all duration-500 ${
-            isScrolled 
-              ? 'bg-gradient-to-r from-blue-900/20 via-blue-800/30 to-blue-700/20' 
-              : 'bg-gradient-to-r from-blue-700/10 via-blue-600/20 to-blue-500/10'
-          }`}></div>
-
-      <div className="relative w-full px-2 sm:px-4 lg:px-6">
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      isScrolled 
+        ? 'bg-slate-900/95 backdrop-blur-xl shadow-lg border-b border-slate-700/50' 
+        : 'bg-slate-900/80 backdrop-blur-lg border-b border-slate-800/50'
+    }`}>
+      <div className="relative w-full px-6 lg:px-12">
         <div className="flex items-center justify-between h-20">
           {/* Logo - Far Left Side */}
-          <div className="flex-shrink-0 ml-20">
+          <div className="flex-shrink-0">
             <Link
               href="/"
-              className="font-black text-3xl text-white hover:text-blue-100 transition-all duration-500 transform hover:scale-110 drop-shadow-lg"
+              className="flex items-center gap-3 group"
             >
-              Codeless
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                <div className="relative bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 p-2.5 rounded-xl transform group-hover:scale-105 transition-transform duration-300">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+              </div>
+              <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent group-hover:from-blue-400 group-hover:via-indigo-400 group-hover:to-blue-400 transition-all duration-300" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif' }}>
+                Codeless
+              </span>
             </Link>
           </div>
 
           {/* Navigation - Center */}
           <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
               {[
-                { href: "/", label: "Home", icon: "🏠" },
-                { href: "/user/tem", label: "Templates", icon: "📋" },
-                { href: "/publish", label: "Publish", icon: "📤" },
-                { href: "/manual", label: "Guide", icon: "📖" },
+                { href: "/", label: "Home" },
+                { href: "/user/tem", label: "Templates" },
+                { href: "/publish", label: "Publish" },
+                { href: "/Plans", label: "Plans" },
+                { href: "/manual", label: "Guide" },
               ].map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="group relative px-5 py-3 rounded-xl text-sm font-semibold text-white hover:text-blue-100 transition-all duration-300 overflow-hidden"
-                    >
-                      <div className={`absolute inset-0 rounded-xl transition-all duration-300 ${
-                        isScrolled 
-                          ? 'bg-gradient-to-r from-blue-500/0 to-blue-600/0 group-hover:from-blue-500/20 group-hover:to-blue-600/20'
-                          : 'bg-white/0 group-hover:bg-white/10'
-                      }`}></div>
-                      <span className="relative flex items-center gap-2.5">
-                        <span className="text-sm">{item.icon}</span>
-                        {item.label}
-                      </span>
-                      <div className={`absolute bottom-0 left-1/2 w-0 h-0.5 rounded-full transition-all duration-300 group-hover:w-full group-hover:left-0 ${
-                        isScrolled 
-                          ? 'bg-gradient-to-r from-blue-500 to-blue-600' 
-                          : 'bg-white'
-                      }`}></div>
-                    </Link>
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="relative px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors duration-200 group"
+                  style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif' }}
+                >
+                  {item.label}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 group-hover:w-full transition-all duration-300"></span>
+                </Link>
               ))}
             </div>
           </div>
 
           {/* Auth Section - Far Right Side */}
-          <div className="hidden md:block mr-4">
-            <div className="flex items-center space-x-4">
-                  <button
-                    onClick={handleProfileClick}
-                    className="group relative px-5 py-3 rounded-xl text-sm font-semibold text-white hover:text-blue-100 transition-all duration-300 overflow-hidden border border-white/30 hover:border-white/50"
-                  >
-                    <div className={`absolute inset-0 rounded-xl transition-all duration-300 ${
-                      isScrolled 
-                        ? 'bg-gradient-to-r from-blue-500/0 to-blue-600/0 group-hover:from-blue-500/20 group-hover:to-blue-600/20'
-                        : 'bg-white/0 group-hover:bg-white/10'
-                    }`}></div>
-                    <span className="relative flex items-center gap-2.5">
-                      <span className="text-sm">👤</span>
-                      Profile
-                    </span>
-                  </button>
+          <div className="hidden md:block">
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={handleProfileClick}
+                className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-all duration-200"
+                style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif' }}
+              >
+                Profile
+              </button>
 
               {isLoggedIn ? (
                 <button
                   onClick={handleLogout}
-                  className="group relative px-6 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-red-500 to-pink-500 text-white hover:from-red-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-red-500/30 border border-red-400/30"
+                  className="px-5 py-2.5 text-sm font-semibold text-red-600 hover:text-white bg-red-50 hover:bg-red-600 rounded-lg transition-all duration-200 border border-red-200 hover:border-red-600"
+                  style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif' }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/0 group-hover:from-white/10 group-hover:to-white/10 rounded-xl transition-all duration-300"></div>
-                  <span className="relative flex items-center gap-2.5">
-                    <span className="text-sm">🚪</span>
-                    Logout
-                  </span>
+                  Logout
                 </button>
               ) : (
-                    <Link
-                      href="/user/register"
-                      className="group relative px-6 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/30 border border-blue-500/30"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/0 group-hover:from-white/10 group-hover:to-white/10 rounded-xl transition-all duration-300"></div>
-                      <span className="relative flex items-center gap-2.5">
-                        <span className="text-sm">✨</span>
-                        Register
-                      </span>
-                    </Link>
+                <Link
+                  href="/user/register"
+                  className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                  style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif' }}
+                >
+                  Get Started
+                </Link>
               )}
             </div>
           </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden">
-                <button
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="group relative inline-flex items-center justify-center p-3 rounded-xl text-white hover:text-blue-100 transition-all duration-300 border border-white/30 hover:border-white/50 hover:bg-white/10"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-blue-600/0 group-hover:from-blue-500/20 group-hover:to-blue-600/20 rounded-xl transition-all duration-300"></div>
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="inline-flex items-center justify-center p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-200"
+            >
               <svg
-                className="relative h-6 w-6 transition-transform duration-300"
+                className="h-6 w-6 transition-transform duration-300"
                 style={{
                   transform: isMenuOpen ? "rotate(90deg)" : "rotate(0deg)",
                 }}
@@ -196,40 +175,36 @@ const UserNavbar = () => {
       </div>
 
       {/* Mobile menu */}
-          <div
-            className={`md:hidden backdrop-blur-xl border-t shadow-lg transition-all duration-300 ease-in-out ${
-              isScrolled 
-                ? 'bg-blue-900/95 border-blue-600/50' 
-                : 'bg-blue-700/95 border-blue-500/50'
-            } ${isMenuOpen
-              ? "max-h-screen opacity-100 visible"
-              : "max-h-0 opacity-0 invisible"
-              }`}
-          >
-        <div className="px-6 pt-4 pb-5 space-y-3">
+      <div
+        className={`md:hidden bg-slate-900 border-t border-slate-800/50 transition-all duration-300 ease-in-out ${
+          isMenuOpen
+            ? "max-h-screen opacity-100 visible shadow-lg"
+            : "max-h-0 opacity-0 invisible"
+        }`}
+      >
+        <div className="px-6 pt-4 pb-6 space-y-2">
           {[
-            { href: "/", label: "Home", icon: "🏠" },
-            { href: "/user/tem", label: "Templates", icon: "📋" },
-            { href: "/publish", label: "Uploads", icon: "📤" },
-            { href: "/manual", label: "Guide", icon: "📖" },
+            { href: "/", label: "Home" },
+            { href: "/user/tem", label: "Templates" },
+            { href: "/publish", label: "Publish" },
+            { href: "/Plans", label: "Plans" },
+            { href: "/manual", label: "Guide" },
             {
               href: "#",
               label: "Profile",
-              icon: "👤",
               onClick: handleProfileClick,
             },
             isLoggedIn
               ? {
                 href: "#",
                 label: "Logout",
-                icon: "🚪",
                 onClick: handleLogout,
+                isLogout: true,
               }
-              : { href: "/user/register", label: "Register", icon: "✨" },
+              : { href: "/user/register", label: "Get Started", isRegister: true },
           ].map((item, index) => (
             <div
               key={item.href}
-              className="group"
               style={{
                 animationDelay: `${index * 50}ms`,
                 animation: isMenuOpen
@@ -238,28 +213,28 @@ const UserNavbar = () => {
               }}
             >
               {item.onClick ? (
-                    <button
-                      onClick={item.onClick}
-                      className={`w-full text-left px-5 py-4 rounded-xl text-base font-semibold transition-all duration-300 flex items-center gap-4 ${item.label === "Logout"
-                        ? "bg-gradient-to-r from-red-500/80 to-pink-500/80 text-white hover:from-red-600 hover:to-pink-600 shadow-lg border border-red-400/30"
-                        : item.label === "Profile"
-                          ? "bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-white hover:text-blue-100 hover:from-blue-500/30 hover:to-blue-600/30 border border-white/30 hover:border-white/50"
-                          : "bg-gradient-to-r from-blue-500/10 to-blue-600/10 text-white hover:text-blue-100 hover:from-blue-500/20 hover:to-blue-600/20 border border-white/20 hover:border-white/50"
-                        }`}
-                    >
-                  <span className="text-base">{item.icon}</span>
+                <button
+                  onClick={item.onClick}
+                  className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    item.isLogout
+                      ? "text-red-400 bg-red-950/50 hover:bg-red-950/70"
+                      : "text-slate-300 hover:text-white hover:bg-slate-800"
+                  }`}
+                  style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif' }}
+                >
                   {item.label}
                 </button>
               ) : (
-                    <Link
-                      href={item.href}
-                      className={`block px-5 py-4 rounded-xl text-base font-semibold transition-all duration-300 flex items-center gap-4 ${item.label === "Register"
-                        ? "bg-gradient-to-r from-blue-600/80 to-blue-700/80 text-white hover:from-blue-700 hover:to-blue-800 shadow-lg border border-blue-500/30"
-                        : "bg-gradient-to-r from-blue-500/10 to-blue-600/10 text-white hover:text-blue-100 hover:from-blue-500/20 hover:to-blue-600/20 border border-white/20 hover:border-white/50"
-                        }`}
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                  <span className="text-base">{item.icon}</span>
+                <Link
+                  href={item.href}
+                  className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    item.isRegister
+                      ? "text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                      : "text-slate-300 hover:text-white hover:bg-slate-800"
+                  }`}
+                  style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif' }}
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   {item.label}
                 </Link>
               )}

@@ -1,3 +1,4 @@
+import Footer from "./components/Footer";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
@@ -21,53 +22,7 @@ export default function RootLayout({ children }) {
       >
         {children}
         <Toaster position="top-right" />
-
-        <footer className=" text-white py-8 mt-auto border-t border-gray-700">
-          <div className="container mx-auto px-6 max-w-6xl">
-            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-              <div className="text-center md:text-left">
-                <p className="text-lg font-semibold mb-1">
-                  Thank you for visiting!
-                </p>
-                <p className="text-gray-300 text-sm">
-                  We appreciate your time and interest
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center md:items-end space-y-2">
-                <div className="flex space-x-6 text-sm">
-                  <a
-                    href="#"
-                    className="text-gray-300 hover:text-white transition-colors duration-200"
-                  >
-                    Privacy
-                  </a>
-                  <a
-                    href="#"
-                    className="text-gray-300 hover:text-white transition-colors duration-200"
-                  >
-                    Terms
-                  </a>
-                  <a
-                    href="/user/contact"
-                    className="text-gray-300 hover:text-white transition-colors duration-200"
-                  >
-                    Contact us
-                  </a>
-                </div>
-                <p className="text-gray-400 text-xs">
-                  © {currentYear} All rights reserved
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 pt-4 border-t border-gray-700 text-center">
-              <p className="text-xs text-gray-500">
-                Made with ❤️ for an amazing experience
-              </p>
-            </div>
-          </div>
-        </footer>
+<Footer></Footer>
       </body>
     </html>
   );

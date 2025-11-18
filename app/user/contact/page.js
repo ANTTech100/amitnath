@@ -50,7 +50,7 @@ const ContactUs = () => {
   return (
     <>
       <UserNavbar></UserNavbar>
-      <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-indigo-950 py-16 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-indigo-950 py-16 px-4" style={{marginTop:"80px"}}>
         <div className="max-w-6xl mx-auto">
           {/* Header Section */}
           <div className="text-center mb-16">
