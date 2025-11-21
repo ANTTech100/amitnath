@@ -345,7 +345,7 @@ export default function DynamicPopup({ templateId, onComplete }) {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-900 mb-1">
-                     Number
+                     Phone Number
                   </label>
                   <input
                     type="password"

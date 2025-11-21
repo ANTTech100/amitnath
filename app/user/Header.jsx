@@ -90,7 +90,7 @@ const UserNavbar = () => {
                 { href: "/", label: "Home" },
                 { href: "/user/tem", label: "Templates" },
                 { href: "/publish", label: "Publish" },
-                { href: "/Plans", label: "Plans" },
+                { href: "/plans", label: "Plans" },
                 { href: "/manual", label: "Guide" },
               ].map((item) => (
                 <Link

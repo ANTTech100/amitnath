@@ -9,47 +9,11 @@ export default function PaymentPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { id } = useParams();
-  
-  // Get template ID from content data
-  const templateId = content?.templateId?._id || content?.templateId;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-
-        // Step 1: Fetch templates
-        console.log("Fetching templates from /api/admin/templatecreate...");
-        const templateResponse = await fetch("/api/admin/templatecreate");
-        console.log("Template Response Status:", templateResponse.status);
-        const templateData = await templateResponse.json();
-        console.log("Template Data:", templateData);
-
-        if (!templateData.success) {
-          throw new Error("Failed to fetch templates");
-        }
-
-        console.log("Templates List:", templateData.data);
-
-        // Step 2: Find the "Payment Page" template
-        console.log("Searching for template named 'Payment Page'...");
-        const paymentPageTemplate = templateData.data.find((template) => {
-          console.log(
-            `Comparing template name: "${template.name}" with "Payment Page"`
-          );
-          return template.name === "Payment Page";
-        });
-
-        if (!paymentPageTemplate) {
-          console.log("Template 'Payment Page' not found in the data.");
-          throw new Error("Template 'Payment Page' not found");
-        }
-
-        console.log("Found Template:", paymentPageTemplate);
-        const templateId = paymentPageTemplate._id;
-        console.log("Template ID:", templateId);
-
-        // Step 3: Fetch content associated with this templateId
         console.log("Fetching content from /api/upload...");
         const contentResponse = await fetch("/api/upload");
         console.log("Content Response Status:", contentResponse.status);
@@ -61,28 +25,21 @@ export default function PaymentPage() {
         }
 
         console.log("All Content Entries:", contentData.content);
-
-        // Step 4: Filter content by templateId and the specific content ID
-        console.log(
-          `Filtering content for templateId: ${templateId} and content ID: ${id}`
-        );
+        console.log(`Filtering content for ID: ${id}`);
         const filteredContent = contentData.content.find((content) => {
-          const contentTemplateId = content.templateId._id;
-          const matchesTemplate =
-            contentTemplateId.toString() === templateId.toString();
           const matchesId = content._id.toString() === id;
-          console.log(
-            `Content ID: ${content._id}, Template ID: ${contentTemplateId}, Matches Template: ${matchesTemplate}, Matches ID: ${matchesId}`
-          );
-          return matchesTemplate && matchesId;
+          console.log(`Content ID: ${content._id}, Matches ID: ${matchesId}`);
+          return matchesId;
         });
 
         if (!filteredContent) {
-          console.log("No content found for this template and ID.");
-          throw new Error("No content found for this template and ID");
+          console.log("No content found for this ID.");
+          throw new Error("No content found for this ID");
         }
 
         console.log("Filtered Content:", filteredContent);
+        console.log("askUserDetails:", filteredContent.askUserDetails);
+        console.log("templateId:", filteredContent.templateId);
         setContent(filteredContent);
       } catch (err) {
         console.error("Error fetching data:", err);
