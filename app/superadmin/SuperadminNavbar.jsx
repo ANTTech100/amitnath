@@ -10,7 +10,7 @@ const navLinks = [
   { name: "Admins", href: "/superadmin/admins", icon: Shield },
   { name: "Users", href: "/superadmin/users", icon: Users },
   { name: "Templates", href: "/superadmin/templates", icon: FileText },
-  // { name: "Questions", href: "/superadmin/questions", icon: MessageSquare },
+  { name: "Url-Track", href: "/superadmin/track", icon: MessageSquare },
   { name: "Viewers", href: "/superadmin/responses", icon: ClipboardList },
 ];
 

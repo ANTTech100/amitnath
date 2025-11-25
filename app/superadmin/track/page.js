@@ -222,6 +222,68 @@ export default function AnalyticsDashboard() {
           </div>
         )}
 
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
+            <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <BarChart3 className="w-6 h-6 text-emerald-400" />
+              All Shortened URLs
+            </h3>
+
+            {loadingAll ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+              </div>
+            ) : allUrls.length === 0 ? (
+              <div className="text-center py-12">
+                <Link2 className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-400">No URLs found</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      <th className="text-left py-4 px-4 text-gray-400 font-medium">Short Code</th>
+                      <th className="text-left py-4 px-4 text-gray-400 font-medium">Original URL</th>
+                      <th className="text-center py-4 px-4 text-gray-400 font-medium">Clicks</th>
+                      <th className="text-left py-4 px-4 text-gray-400 font-medium">Created</th>
+                      <th className="text-center py-4 px-4 text-gray-400 font-medium">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allUrls.map((url) => (
+                      <tr key={url.shortCode} className="border-b border-white/5 hover:bg-white/5 transition">
+                        <td className="py-4 px-4">
+                          <code className="text-emerald-400 font-mono">{url.shortCode}</code>
+                        </td>
+                        <td className="py-4 px-4">
+                          <p className="text-gray-300 truncate max-w-xs">{url.longUrl}</p>
+                        </td>
+                        <td className="py-4 px-4 text-center">
+                          <span className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-emerald-400 font-bold">
+                            <MousePointerClick className="w-4 h-4" />
+                            {url.clicks}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 text-gray-400 text-sm">
+                          {formatDate(url.createdAt).split(',')[0]}
+                        </td>
+                        <td className="py-4 px-4 text-center">
+                          <button
+                            onClick={() => handleUrlClick(url.shortCode)}
+                            className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl transition text-sm"
+                          >
+                            View Details
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
