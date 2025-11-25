@@ -91,6 +91,7 @@ const UserNavbar = () => {
                 { href: "/user/tem", label: "Templates" },
                 { href: "/publish", label: "Publish" },
                 { href: "/plans", label: "Plans" },
+                 { href: "/user/url", label: "URL Shortener" },
                 { href: "/manual", label: "Guide" },
               ].map((item) => (
                 <Link
