@@ -40,19 +40,7 @@ export default function ViewShortcode() {
   if (error) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">❌</span>
-          </div>
-          <h2 className="text-2xl font-bold mb-2">Link Not Found</h2>
-          <p className="text-gray-400 mb-6">This short URL does not exist or has expired</p>
-          <button
-            onClick={() => router.push('/')}
-            className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl transition"
-          >
-            Create New Link
-          </button>
-        </div>
+ 
       </div>
     );
   }
@@ -61,7 +49,7 @@ export default function ViewShortcode() {
     <div className="min-h-screen bg-black text-white flex items-center justify-center">
       <div className="text-center">
         <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-400">Redirecting to your link...</p>
+
         <p className="text-sm text-gray-500 mt-2">Please wait</p>
       </div>
     </div>
