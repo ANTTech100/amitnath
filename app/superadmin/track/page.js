@@ -9,8 +9,13 @@ export default function AnalyticsDashboard() {
   const [error, setError] = useState('');
   const [allUrls, setAllUrls] = useState([]);
   const [loadingAll, setLoadingAll] = useState(true);
+  const [baseUrl, setBaseUrl] = useState('');
 
   useEffect(() => {
+    // Set baseUrl only on client side
+    if (typeof window !== 'undefined') {
+      setBaseUrl(window.location.origin);
+    }
     fetchAllUrls();
   }, []);
 
@@ -110,7 +115,7 @@ export default function AnalyticsDashboard() {
             </label>
             <div className="flex gap-3">
               <div className="flex-1 flex items-center gap-3 bg-black border border-white/20 rounded-2xl px-6 py-4">
-                <span className="text-gray-400">{window.location.origin}/</span>
+                <span className="text-gray-400">{baseUrl}/</span>
                 <input
                   type="text"
                   value={shortCode}
@@ -186,12 +191,12 @@ export default function AnalyticsDashboard() {
                   <p className="text-sm text-gray-400 mb-2">Short URL</p>
                   <div className="flex items-center gap-3 bg-black/50 border border-white/20 rounded-2xl px-6 py-4">
                     <a
-                      href={`${window.location.origin}/${analytics.shortCode}`}
+                      href={`${baseUrl}/${analytics.shortCode}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex-1 text-emerald-400 font-mono hover:text-emerald-300 transition"
                     >
-                      {window.location.origin}/{analytics.shortCode}
+                      {baseUrl}/{analytics.shortCode}
                     </a>
                     <ExternalLink className="w-5 h-5 text-gray-400" />
                   </div>
