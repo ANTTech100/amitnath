@@ -308,67 +308,7 @@ export default function TemplateTenLayout() {
           </motion.section>
         )}
 
-        {/* Footer */}
-        <motion.footer
-          variants={fadeInVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="py-12 px-4 sm:px-6 lg:px-8 border-t border-white/10 bg-black/20 backdrop-blur-sm mt-16"
-        >
-          <div className="max-w-6xl mx-auto text-center">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div>
-                <h4 className="text-xl font-bold text-white mb-4">
-                  Contact Information
-                </h4>
-                <p className="text-blue-200">
-                  Email: support@codelesspage.info
-                  <br />
-                  Phone: +1 (555) 123-4567
-                </p>
-              </div>
-              <div>
-                <h4 className="text-xl font-bold text-white mb-4">Quick Links</h4>
-                <div className="space-y-2">
-                  <a
-                    href="#"
-                    className="block text-blue-200 hover:text-white transition-colors"
-                  >
-                    About Us
-                  </a>
-                  <a
-                    href="#"
-                    className="block text-blue-200 hover:text-white transition-colors"
-                  >
-                    Services
-                  </a>
-                  <a
-                    href="#"
-                    className="block text-blue-200 hover:text-white transition-colors"
-                  >
-                    Support
-                  </a>
-                </div>
-              </div>
-              <div>
-                <h4 className="text-xl font-bold text-white mb-4">
-                  Privacy Policy
-                </h4>
-                <p className="text-blue-200 text-sm leading-relaxed">
-                  We respect your privacy and are committed to protecting your
-                  personal data. This privacy policy will inform you about how we
-                  look after your personal data.
-                </p>
-              </div>
-            </div>
-            <div className="mt-8 pt-8 border-t border-white/10">
-              <p className="text-blue-300">
-                © 2024 Template Ten. All rights reserved.
-              </p>
-            </div>
-          </div>
-        </motion.footer>
+    
 
         {/* Custom Scrollbar Styles */}
         <style jsx global>{`

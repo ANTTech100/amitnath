@@ -103,7 +103,7 @@ export default function PaymentPageCards() {
   }, []);
 
   const handleCardClick = (id) => {
-    router.push(`/layouts/layoutnine/${id}`);
+    window.open(`/layouts/layoutnine/${id}`, "_blank");
   };
 
   // Helper function to format dates

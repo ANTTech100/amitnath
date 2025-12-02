@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Head from "next/head";
 import { loadStripe } from "@stripe/stripe-js";
+import UserNavbar from "../user/Header";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY || process.env.STRIPE_PUBLIC_KEY);
 
@@ -102,7 +103,8 @@ export default function PricingPage() {
           content="Choose the right Codeless plan for your team – from solo creators to enterprises."
         />
       </Head>
-      <main className="min-h-screen bg-slate-950 text-slate-50">
+      <UserNavbar></UserNavbar>
+      <main className="min-h-screen bg-slate-950 text-slate-50 mt-20" >
         {/* Top gradient bar */}
         <div className="h-1 w-full bg-gradient-to-r from-indigo-500 via-sky-500 to-emerald-400" />
 
