@@ -21,82 +21,19 @@ export default function LayoutFive() {
     const fetchData = async () => {
       try {
         setLoading(true);
-
-        // Step 1: Fetch templates
-        console.log("Fetching templates from /api/admin/templatecreate...");
-        const templateResponse = await fetch("/api/admin/templatecreate");
-        console.log("Template Response Status:", templateResponse.status);
-        const templateData = await templateResponse.json();
-        console.log("Template Data:", templateData);
-
-        if (!templateData.success) {
-          throw new Error("Failed to fetch templates");
-        }
-
-        console.log("Templates List:", templateData.data);
-
-        // Step 2: Find the "Testimonial Section" template
-        console.log("Searching for template named 'Testimonial Section'...");
-        const testimonialSectionTemplate = templateData.data.find(
-          (template) => {
-            console.log(
-              `Comparing template name: "${template.name}" with "Testimonial Section"`
-            );
-            return template.name === "Testimonial Section";
-          }
-        );
-
-        if (!testimonialSectionTemplate) {
-          console.log("Template 'Testimonial Section' not found in the data.");
-          throw new Error("Template 'Testimonial Section' not found");
-        }
-
-        console.log("Found Template:", testimonialSectionTemplate);
-        const templateId = testimonialSectionTemplate._id;
-        console.log("Template ID:", templateId);
-
-        // Step 3: Fetch content associated with this templateId
-        console.log("Fetching content from /api/upload...");
         const contentResponse = await fetch("/api/upload");
-        console.log("Content Response Status:", contentResponse.status);
         const contentData = await contentResponse.json();
-        console.log("Content Data:", contentData);
-
         if (!contentData.success) {
           throw new Error("Failed to fetch content");
         }
-
-        console.log("All Content Entries:", contentData.content);
-
-        // Step 4: Filter content by templateId and the specific content ID
-        console.log(
-          `Filtering content for templateId: ${templateId} and content ID: ${id}`
-        );
-        const filteredContent = contentData.content.find((content) => {
-          const contentTemplateId = content.templateId?._id;
-          const matchesTemplate =
-            contentTemplateId &&
-            contentTemplateId.toString() === templateId.toString();
-          const matchesId = content._id.toString() === id;
-          console.log(
-            `Content ID: ${content._id}, Template ID: ${
-              contentTemplateId || "null"
-            }, Matches Template: ${matchesTemplate}, Matches ID: ${matchesId}`
-          );
-          return matchesTemplate && matchesId;
-        });
-
+        const filteredContent = contentData.content.find((item) => item._id.toString() === id);
         if (!filteredContent) {
-          console.log("No content found for this template and ID.");
-          setError("No content found for this template and ID");
+          setError("No content found for this ID");
           setLoading(false);
           return;
         }
-
-        console.log("Filtered Content:", filteredContent);
         setContent(filteredContent);
 
-        // Step 5: Group sections - 7 in first guide, 6 in subsequent guides
         const sections = Object.keys(filteredContent.sections || {}).map(
           (sectionId) => ({
             id: sectionId,
@@ -107,23 +44,17 @@ export default function LayoutFive() {
 
         const groups = [];
         if (sections.length > 0) {
-          // First group has 7 sections
           if (sections.length >= 7) {
             groups.push(sections.slice(0, 7));
-            
-            // Remaining sections in groups of 6
             let remainingSections = sections.slice(7);
             while (remainingSections.length > 0) {
               groups.push(remainingSections.slice(0, 6));
               remainingSections = remainingSections.slice(6);
             }
           } else {
-            // If less than 7 sections, put all in first group
             groups.push(sections);
           }
         }
-
-        console.log("Grouped Sections:", groups);
         setGroupedSections(groups);
       } catch (err) {
         console.error("Error fetching data:", err);

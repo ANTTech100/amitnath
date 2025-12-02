@@ -9,6 +9,7 @@ export default function PaymentPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { id } = useParams();
+  const templateId = content?.templateId?._id || content?.templateId;
 
   useEffect(() => {
     const fetchData = async () => {

@@ -20,6 +20,12 @@ export default function DynamicPopup({ templateId, onComplete }) {
 
   useEffect(() => {
     console.log("DynamicPopup useEffect triggered with templateId:", templateId);
+    if (!templateId) {
+      setLoading(false);
+      setShowPopup(false);
+      if (onComplete) onComplete();
+      return;
+    }
     
     // Determine a stable key per content id if available, otherwise per template
     let contentIdFromPath = null;
@@ -58,6 +64,9 @@ export default function DynamicPopup({ templateId, onComplete }) {
   }, [templateId]);
 
   const loadQuestions = async () => {
+    if (!templateId) {
+      return;
+    }
     try {
       console.log("Loading questions for templateId:", templateId);
       

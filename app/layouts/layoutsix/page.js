@@ -101,7 +101,7 @@ export default function PaymentPageCards() {
     fetchData();
   }, []);
   const handleCardClick = (id) => {
-    router.push(`/layouts/layoutsix/${id}`);
+    window.open(`/layouts/layoutsix/${id}`, '_blank');
   };
 
   // Helper function to format dates
@@ -120,7 +120,7 @@ export default function PaymentPageCards() {
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
           <p className="text-lg font-medium text-gray-600">
-            Loading payment pages...
+            Loading  pages...
           </p>
         </div>
       </div>

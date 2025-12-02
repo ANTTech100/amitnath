@@ -486,7 +486,7 @@ export default function LayoutSix() {
         <meta name="description" content={content.subheading} />
       </Head>
 
-              <PopupForm />
+              {/* <PopupForm /> */}
         {content?.askUserDetails && templateId && <DynamicPopup templateId={templateId} />}
 
       <div className="relative">

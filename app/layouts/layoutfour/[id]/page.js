@@ -29,76 +29,15 @@ export default function ModernImageGallery() {
     const fetchData = async () => {
       try {
         setLoading(true);
-
-        // Step 1: Fetch templates
-        console.log("Fetching templates from /api/admin/templatecreate...");
-        const templateResponse = await fetch("/api/admin/templatecreate");
-        console.log("Template Response Status:", templateResponse.status);
-        const templateData = await templateResponse.json();
-        console.log("Template Data:", templateData);
-
-        if (!templateData.success) {
-          throw new Error("Failed to fetch templates");
-        }
-
-        console.log("Templates List:", templateData.data);
-
-        // Step 2: Find the specified template
-        console.log(`Searching for template named '${TEMPLATE_NAME}'...`);
-        const imageGalleryTemplate = templateData.data.find((template) => {
-          console.log(
-            `Comparing template name: "${template.name}" with "${TEMPLATE_NAME}"`
-          );
-          return template.name === TEMPLATE_NAME;
-        });
-
-        if (!imageGalleryTemplate) {
-          console.log(`Template '${TEMPLATE_NAME}' not found in the data.`);
-          throw new Error(`Template '${TEMPLATE_NAME}' not found`);
-        }
-
-        console.log("Found Template:", imageGalleryTemplate);
-        const templateId = imageGalleryTemplate._id;
-        console.log("Template ID:", templateId);
-
-        // Step 3: Fetch content by ID
-        console.log(`Fetching content for ID: ${id}`);
         const contentResponse = await fetch(`/api/upload`);
-        console.log("Content Response Status:", contentResponse.status);
         const contentData = await contentResponse.json();
-        console.log("Content Data:", contentData);
-
         if (!contentData.success) {
           throw new Error("Failed to fetch content");
         }
-
-        console.log("All Content Entries:", contentData.content);
-
-        // Step 4: Find content matching the provided ID and templateId
-        const matchedContent = contentData.content.find((content) => {
-          if (!content.templateId || content.templateId === null) {
-            console.log(
-              `Content ID: ${content._id}, Template ID: null, Matches: false`
-            );
-            return false;
-          }
-
-          const contentTemplateId = content.templateId._id;
-          const matches =
-            content._id === id &&
-            contentTemplateId.toString() === templateId.toString();
-          console.log(
-            `Content ID: ${content._id}, Template ID: ${contentTemplateId}, Matches: ${matches}`
-          );
-          return matches;
-        });
-
+        const matchedContent = contentData.content.find((item) => item._id === id);
         if (!matchedContent) {
-          console.log(`Content with ID '${id}' not found for template.`);
           throw new Error("Content not found for this ID");
         }
-
-        console.log("Matched Content:", matchedContent);
         setContent(matchedContent);
       } catch (err) {
         console.error("Error fetching data:", err);
