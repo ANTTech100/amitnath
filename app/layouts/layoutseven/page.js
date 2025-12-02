@@ -278,10 +278,11 @@ export default function PaymentPageCards() {
               {currentUserId && content.createdBy && content.createdBy.toString() === currentUserId && (
                 <div className="mt-3 pt-3 border-t border-slate-600/30">
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent card click
-                      window.location.href = `/edit/${content._id}`;
-                    }}
+                 onClick={(e) => {
+  e.stopPropagation(); 
+  window.open(`/edit/${content._id}`, "_blank");
+}}
+
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                   >
                     <svg

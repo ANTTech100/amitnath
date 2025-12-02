@@ -271,7 +271,7 @@ export default function EditContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Editor Section */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 flex flex-col h-[80vh]">
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-5">
               <h2 className="text-lg font-semibold text-white flex items-center">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -281,7 +281,7 @@ export default function EditContent() {
               </h2>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+            <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1 min-h-0">
               {/* Basic Info */}
               <div className="space-y-4">
                 <div>
@@ -522,7 +522,7 @@ export default function EditContent() {
           </div>
 
           {/* Preview Section */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 sticky top-8 h-fit">
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 flex flex-col h-[80vh]">
             <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-5">
               <h2 className="text-lg font-semibold text-white flex items-center">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -533,7 +533,7 @@ export default function EditContent() {
               </h2>
             </div>
 
-            <div className="p-6 bg-gray-50 min-h-[600px]">
+            <div className="p-6 bg-gray-50 flex-1 min-h-0 overflow-y-auto">
               <div className="space-y-5">
                 <div>
                   <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Heading</h3>

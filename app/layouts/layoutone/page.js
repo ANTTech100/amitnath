@@ -104,9 +104,10 @@ export default function PaymentPageCards() {
     fetchData();
   }, []);
 
-  const handleCardClick = (id) => {
-    router.push(`/layouts/layoutone/${id}`);
-  };
+const handleCardClick = (id) => {
+  window.open(`/layouts/layoutone/${id}`, '_blank');
+};
+
 
   // Helper function to format dates
   const formatDate = (dateString) => {
@@ -124,7 +125,7 @@ export default function PaymentPageCards() {
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
           <p className="text-lg font-medium text-gray-600">
-            Loading payment pages...
+            Loading  pages...
           </p>
         </div>
       </div>
@@ -281,10 +282,11 @@ export default function PaymentPageCards() {
               {currentUserId && content.createdBy && content.createdBy.toString() === currentUserId && (
                 <div className="mt-3 pt-3 border-t border-slate-600/30">
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent card click
-                      window.location.href = `/edit/${content._id}`;
-                    }}
+                 onClick={(e) => {
+  e.stopPropagation(); 
+  window.open(`/edit/${content._id}`, "_blank");
+}}
+
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                   >
                     <svg

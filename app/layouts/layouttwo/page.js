@@ -106,10 +106,9 @@ export default function PaymentPageCards() {
     fetchData();
   }, []);
 
-  const handleCardClick = (id) => {
-    router.push(`/layouts/layouttwo/${id}`);
-  };
-
+ const handleCardClick = (id) => {
+  window.open(`/layouts/layouttwo/${id}`, '_blank');
+};
   // Helper function to format dates
   const formatDate = (dateString) => {
     const date = new Date(dateString);
